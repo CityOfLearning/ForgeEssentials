@@ -6,13 +6,6 @@ language: java
 # so Travis uses containers.
 sudo: false
 
-# Tell Travis to shut up.
-notifications:
-  email: false
-branches:
-  except:
-    - master
-
 # Make the gradle wrapper executable.
 before_install:
   - chmod +x gradlew
