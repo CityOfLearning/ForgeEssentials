@@ -156,7 +156,7 @@ public class PlayerInfo implements Loadable
 
     public static PlayerInfo get(UserIdent ident)
     {
-        if (!ident.hasUuid())
+        if (!ident.hasUuid()) //this causes null pointers...
             return null;
         return get(ident.getUuid());
     }

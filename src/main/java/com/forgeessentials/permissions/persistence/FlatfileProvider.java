@@ -73,7 +73,7 @@ public class FlatfileProvider extends ZonePersistenceProvider
     {
         try
         {
-            if (dir.exists())
+            if (dir.exists()) //this causes a crash sometimes
                 FileUtils.deleteDirectory(dir);
         }
         catch (IOException e)

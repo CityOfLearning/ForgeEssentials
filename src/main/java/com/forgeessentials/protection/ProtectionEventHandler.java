@@ -735,7 +735,7 @@ public class ProtectionEventHandler extends ServerEventHandler
 
     public void sendPermissionUpdate(UserIdent ident, boolean reset)
     {
-        if (!PlayerInfo.get(ident).getHasFEClient())
+        if (PlayerInfo.get(ident) != null && !PlayerInfo.get(ident).getHasFEClient())
             return;
 
         Set<Integer> placeIds = new HashSet<Integer>();
