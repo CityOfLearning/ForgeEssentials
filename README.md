@@ -1,4 +1,4 @@
-ForgeEssentials [![Build Status](https://travis-ci.org/ForgeEssentials/ForgeEssentials.svg?branch=develop)](https://travis-ci.org/ForgeEssentials/ForgeEssentials)
+ForgeEssentials [![Build Status](https://travis-ci.org/Digital-Youth-Network/ForgeEssentials.svg?branch=18%2Fdevelop)](https://travis-ci.org/Digital-Youth-Network/ForgeEssentials)
 ===================
 
 The code on this branch is for Minecraft 1.8.  
