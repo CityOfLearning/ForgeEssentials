@@ -19,7 +19,7 @@ import com.forgeessentials.util.output.ChatOutputHandler;
 public class CommandLocate extends FEcmdModuleCommands
 {
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "locate";
     }
@@ -31,7 +31,7 @@ public class CommandLocate extends FEcmdModuleCommands
     }
 
     @Override
-    public void processCommand(ICommandSender sender, String[] args) throws CommandException
+    public void execute(ICommandSender sender, String[] args) throws CommandException
     {
         if (args.length != 1)
             throw new TranslatedCommandException(getCommandUsage(sender));

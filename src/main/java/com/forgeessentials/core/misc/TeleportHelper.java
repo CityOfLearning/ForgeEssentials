@@ -44,7 +44,7 @@ public class TeleportHelper extends ServerEventHandler
         }
 
         @Override
-        public boolean func_180620_b(Entity entity, float yaw)
+        public boolean placeInExistingPortal(Entity entity, float yaw)
         {
             int i = MathHelper.floor_double(entity.posX);
             int j = MathHelper.floor_double(entity.posY) - 1;
@@ -60,9 +60,9 @@ public class TeleportHelper extends ServerEventHandler
         }
 
         @Override
-        public void func_180266_a(Entity entity, float yaw)
+        public void placeInPortal(Entity entity, float yaw)
         {
-            func_180620_b(entity, yaw);
+        	placeInExistingPortal(entity, yaw);
         }
 
     }
@@ -140,13 +140,18 @@ public class TeleportHelper extends ServerEventHandler
         int teleportCooldown = ServerUtil.parseIntDefault(APIRegistry.perms.getUserPermissionProperty(ident, TELEPORT_COOLDOWN), 0) * 1000;
         if (teleportCooldown > 0)
         {
-            PlayerInfo pi = PlayerInfo.get(player);
+            PlayerInfo pi;
+			try {
+				pi = PlayerInfo.get(player);
+			
             long cooldownDuration = (pi.getLastTeleportTime() + teleportCooldown) - System.currentTimeMillis();
             if (cooldownDuration >= 0)
             {
                 ChatOutputHandler.chatNotification(player, Translator.format("Cooldown still active. %d seconds to go.", cooldownDuration / 1000));
                 return;
-            }
+            }} catch (Exception e) {
+            	LoggingHandler.felog.error("Error getting player Info");
+			}
         }
 
         // Get and check teleport warmup
@@ -188,10 +193,16 @@ public class TeleportHelper extends ServerEventHandler
             return;
         }
 
-        PlayerInfo pi = PlayerInfo.get(player);
+        PlayerInfo pi;
+		try {
+			pi = PlayerInfo.get(player);
+		
         pi.setLastTeleportOrigin(new WarpPoint(player));
         pi.setLastTeleportTime(System.currentTimeMillis());
-        pi.setLastDeathLocation(null);
+        pi.setLastDeathLocation(null);} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
         doTeleport(player, point);
     }
@@ -288,7 +299,7 @@ public class TeleportHelper extends ServerEventHandler
         if (entity.isEntityAlive())
         {
             entity.setLocationAndAngles(d0, entity.posY, d1, entity.rotationYaw, entity.rotationPitch);
-            teleporter.func_180266_a(entity, f);
+            teleporter.placeInPortal(entity, f);
             newWorld.spawnEntityInWorld(entity);
             newWorld.updateEntityWithOptionalForce(entity, false);
         }

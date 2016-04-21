@@ -16,7 +16,7 @@ import com.forgeessentials.commands.util.FEcmdModuleCommands;
 public class CommandEnderchest extends FEcmdModuleCommands
 {
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "enderchest";
     }

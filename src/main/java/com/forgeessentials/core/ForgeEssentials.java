@@ -248,7 +248,11 @@ public class ForgeEssentials extends ConfigLoaderBase
             @Override
             public IMessage onMessage(Packet0Handshake message, MessageContext ctx)
             {
-                PlayerInfo.get(ctx.getServerHandler().playerEntity).setHasFEClient(true);
+                try {
+					PlayerInfo.get(ctx.getServerHandler().playerEntity).setHasFEClient(true);
+				} catch (Exception e) {
+					LoggingHandler.felog.error("Error getting player Info");
+				}
                 return null;
             }
         }, Packet0Handshake.class, 0, Side.SERVER);
@@ -428,7 +432,7 @@ public class ForgeEssentials extends ConfigLoaderBase
         if (logCommandsToConsole)
         {
             LoggingHandler.felog.info(String.format("Player \"%s\" used command \"/%s %s\"", event.sender.getName(),
-                    event.command.getCommandName(), StringUtils.join(event.parameters, " ")));
+                    event.command.getName(), StringUtils.join(event.parameters, " ")));
         }
     }
 

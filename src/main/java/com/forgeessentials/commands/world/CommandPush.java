@@ -25,7 +25,7 @@ public class CommandPush extends FEcmdModuleCommands
 {
 
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "push";
     }

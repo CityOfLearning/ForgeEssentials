@@ -104,7 +104,7 @@ public class PermissionOverlay extends Gui implements IMessageHandler<Packet3Pla
             MovingObjectPosition mop = Minecraft.getMinecraft().objectMouseOver;
             if (mop != null && mop.typeOfHit == MovingObjectType.BLOCK)
             {
-                IBlockState block = Minecraft.getMinecraft().theWorld.getBlockState(mop.func_178782_a());
+                IBlockState block = Minecraft.getMinecraft().theWorld.getBlockState(mop.getBlockPos());
                 int blockId = GameData.getBlockRegistry().getId(block.getBlock());
                 if (permissions.breakIds.contains(blockId))
                 {

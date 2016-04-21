@@ -56,7 +56,7 @@ public class CommandTimedMessages extends ParserCommandBase implements ConfigSav
     }
 
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "timedmessage";
     }

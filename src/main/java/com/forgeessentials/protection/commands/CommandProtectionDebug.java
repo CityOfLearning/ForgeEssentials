@@ -15,7 +15,7 @@ public class CommandProtectionDebug extends ParserCommandBase
 {
 
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "protectdebug";
     }

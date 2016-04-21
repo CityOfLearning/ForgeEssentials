@@ -12,7 +12,7 @@ public class CommandIrcBot extends ForgeEssentialsCommandBase
 {
 
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "ircbot";
     }
@@ -42,7 +42,7 @@ public class CommandIrcBot extends ForgeEssentialsCommandBase
     }
 
     @Override
-    public void processCommand(ICommandSender sender, String[] args) throws CommandException
+    public void execute(ICommandSender sender, String[] args) throws CommandException
     {
         if (args.length == 1)
         {

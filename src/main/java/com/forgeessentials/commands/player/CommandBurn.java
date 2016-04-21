@@ -20,7 +20,7 @@ import com.forgeessentials.util.output.ChatOutputHandler;
 public class CommandBurn extends FEcmdModuleCommands
 {
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "burn";
     }

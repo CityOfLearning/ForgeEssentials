@@ -15,7 +15,7 @@ public class CommandPing extends FEcmdModuleCommands implements ConfigurableComm
     public String response = "Pong! %time";
 
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "ping";
     }

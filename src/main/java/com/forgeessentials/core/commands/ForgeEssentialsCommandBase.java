@@ -39,7 +39,7 @@ public abstract class ForgeEssentialsCommandBase extends CommandBase implements 
     public abstract String getCommandUsage(ICommandSender sender);
 
     @Override
-    public List<String> getCommandAliases()
+    public List<String> getAliases()
     {
         return aliases;
     }
@@ -69,7 +69,7 @@ public abstract class ForgeEssentialsCommandBase extends CommandBase implements 
     // Command processing
 
     @Override
-    public void processCommand(ICommandSender sender, String[] args) throws CommandException
+    public void execute(ICommandSender sender, String[] args) throws CommandException
     {
         if (sender instanceof EntityPlayerMP)
         {
@@ -104,7 +104,7 @@ public abstract class ForgeEssentialsCommandBase extends CommandBase implements 
     // Command usage
 
     @Override
-    public boolean canCommandSenderUseCommand(ICommandSender sender)
+    public boolean canCommandSenderUse(ICommandSender sender)
     {
         if (!canConsoleUseCommand() && !(sender instanceof EntityPlayer))
             return false;
@@ -122,14 +122,14 @@ public abstract class ForgeEssentialsCommandBase extends CommandBase implements 
     public void register()
     {
         Map<?, ?> commandMap = ((CommandHandler) MinecraftServer.getServer().getCommandManager()).getCommands();
-        if (commandMap.containsKey(getCommandName()))
-            LoggingHandler.felog.error(String.format("Command %s registered twice", getCommandName()));
+        if (commandMap.containsKey(getName()))
+            LoggingHandler.felog.error(String.format("Command %s registered twice", getName()));
 
-        if (getCommandAliases() != null && !getCommandAliases().isEmpty())
+        if (getAliases() != null && !getAliases().isEmpty())
         {
-            for (String alias : getCommandAliases())
+            for (String alias : getAliases())
                 if (alias != null && commandMap.containsKey(alias))
-                    LoggingHandler.felog.error(String.format("Command alias %s of command %s registered twice", alias, getCommandName()));
+                    LoggingHandler.felog.error(String.format("Command alias %s of command %s registered twice", alias, getName()));
         }
 
         ((CommandHandler) MinecraftServer.getServer().getCommandManager()).registerCommand(this);
@@ -143,8 +143,8 @@ public abstract class ForgeEssentialsCommandBase extends CommandBase implements 
         Map<String, ICommand> commandMap = cmdHandler.getCommands();
         Set<ICommand> commandSet = (Set<ICommand>) ReflectionHelper.getPrivateValue(CommandHandler.class, cmdHandler, "field_71561_b", "commandSet");
 
-        String commandName = getCommandName();
-        List<String> commandAliases = getCommandAliases();
+        String commandName = getName();
+        List<String> commandAliases = getAliases();
         commandSet.remove(this);
         if (commandName != null)
             commandMap.remove(commandName);

@@ -39,7 +39,7 @@ public class CommandWarp extends ParserCommandBase
     private static final String PERM_WARP = PERM + ".warp";
 
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "warp";
     }

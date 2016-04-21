@@ -9,7 +9,7 @@ public abstract class FEcmdModuleCommands extends ForgeEssentialsCommandBase
     @Override
     public String getPermissionNode()
     {
-        return ModuleCommands.PERM + "." + getCommandName();
+        return ModuleCommands.PERM + "." + getName();
     }
 
 }

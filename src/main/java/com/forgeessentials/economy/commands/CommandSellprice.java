@@ -51,7 +51,7 @@ public class CommandSellprice extends ParserCommandBase
     private static File priceFile = new File(ForgeEssentials.getFEDirectory(), "prices.txt");
 
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "sellprice";
     }

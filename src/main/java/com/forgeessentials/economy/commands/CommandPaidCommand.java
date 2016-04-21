@@ -23,7 +23,7 @@ import com.forgeessentials.util.output.ChatOutputHandler;
 public class CommandPaidCommand extends ForgeEssentialsCommandBase
 {
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "paidcommand";
     }

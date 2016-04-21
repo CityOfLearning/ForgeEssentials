@@ -103,9 +103,9 @@ public class RemoteCommandSender extends DoAsCommandSender
     }
 
     @Override
-    public boolean canCommandSenderUseCommand(int level, String cmd)
+    public boolean canUseCommand(int level, String cmd)
     {
-        return sender.canCommandSenderUseCommand(level, cmd);
+        return sender.canUseCommand(level, cmd);
     }
 
 }

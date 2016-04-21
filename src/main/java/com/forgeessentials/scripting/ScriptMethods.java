@@ -34,6 +34,7 @@ import com.forgeessentials.scripting.ScriptParser.SyntaxException;
 import com.forgeessentials.util.CommandParserArgs;
 import com.forgeessentials.util.PlayerInfo;
 import com.forgeessentials.util.output.ChatOutputHandler;
+import com.forgeessentials.util.output.LoggingHandler;
 import com.google.common.collect.ImmutableMap;
 
 public final class ScriptMethods
@@ -418,7 +419,10 @@ public final class ScriptMethods
                 throw new MissingPlayerException();
             if (args.length < 1)
                 throw new SyntaxException(FEPermissions.MSG_NOT_ENOUGH_ARGUMENTS);
-            PlayerInfo pi = PlayerInfo.get((EntityPlayer) sender);
+            PlayerInfo pi;
+			try {
+				pi = PlayerInfo.get((EntityPlayer) sender);
+			
             if (!pi.checkTimeout(args[0]))
             {
                 if (args.length > 1)
@@ -428,7 +432,9 @@ public final class ScriptMethods
                     ChatOutputHandler.chatError(sender, String.format(msg, timeout));
                 }
                 return false;
-            }
+            }} catch (Exception e) {
+            	LoggingHandler.felog.error("Error getting player Info");
+			}
             return true;
         }
 
@@ -447,8 +453,13 @@ public final class ScriptMethods
                 throw new MissingPlayerException();
             if (args.length < 2)
                 throw new SyntaxException(FEPermissions.MSG_NOT_ENOUGH_ARGUMENTS);
-            PlayerInfo pi = PlayerInfo.get((EntityPlayer) sender);
-            pi.startTimeout(args[0], Long.parseLong(args[1]));
+            PlayerInfo pi;
+			try {
+				pi = PlayerInfo.get((EntityPlayer) sender);
+			
+            pi.startTimeout(args[0], Long.parseLong(args[1]));} catch (Exception e) {
+            	LoggingHandler.felog.error("Error getting player Info");
+			}
             return true;
         }
 

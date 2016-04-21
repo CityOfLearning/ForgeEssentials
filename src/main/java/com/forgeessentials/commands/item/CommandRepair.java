@@ -20,7 +20,7 @@ import com.forgeessentials.core.misc.TranslatedCommandException;
 public class CommandRepair extends FEcmdModuleCommands
 {
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "repair";
     }

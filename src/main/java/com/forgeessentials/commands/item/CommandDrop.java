@@ -28,7 +28,7 @@ public class CommandDrop extends FEcmdModuleCommands
 {
 
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "drop";
     }
@@ -47,7 +47,7 @@ public class CommandDrop extends FEcmdModuleCommands
 
     @SuppressWarnings("deprecation")
     @Override
-    public void processCommand(ICommandSender sender, String[] args) throws CommandException
+    public void execute(ICommandSender sender, String[] args) throws CommandException
     {
         if (args.length != 6)
         {
@@ -255,13 +255,14 @@ public class CommandDrop extends FEcmdModuleCommands
     public void processCommandPlayer(EntityPlayerMP sender, String[] args) throws CommandException
     {
         EntityPlayerMP playermp = UserIdent.getPlayerByMatchOrUsername(sender, sender.getName());
-        processCommand(playermp, args);
+        
+        execute(playermp, args);
     }
 
     @Override
     public void processCommandConsole(ICommandSender sender, String[] args) throws CommandException
     {
-        processCommand(sender, args);
+        execute(sender, args);
     }
 
     @Override

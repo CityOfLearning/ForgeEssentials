@@ -51,7 +51,7 @@ public class CommandFeSettings extends ParserCommandBase implements ConfigLoader
     }
 
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "fesettings";
     }

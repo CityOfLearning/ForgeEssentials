@@ -15,12 +15,13 @@ import com.forgeessentials.core.misc.TranslatedCommandException;
 import com.forgeessentials.core.moduleLauncher.ModuleLauncher;
 import com.forgeessentials.util.PlayerInfo;
 import com.forgeessentials.util.output.ChatOutputHandler;
+import com.forgeessentials.util.output.LoggingHandler;
 
 public class CommandWand extends ForgeEssentialsCommandBase
 {
 
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "/fewand";
     }
@@ -56,7 +57,10 @@ public class CommandWand extends ForgeEssentialsCommandBase
             wandId = "hands";
         }
 
-        PlayerInfo info = PlayerInfo.get(sender.getPersistentID());
+        PlayerInfo info;
+		try {
+			info = PlayerInfo.get(sender.getPersistentID());
+		
 
         // Check for rebind
         boolean rebind = args.length > 0 && args[0].equalsIgnoreCase("rebind");
@@ -78,6 +82,10 @@ public class CommandWand extends ForgeEssentialsCommandBase
         info.setWandID(wandId);
         info.setWandDmg(wandDmg);
         ChatOutputHandler.chatConfirmation(sender, "Wand bound to " + wandName);
+        } catch (Exception e) {
+			LoggingHandler.felog.error("Error getting player Info");
+
+		}
     }
 
     @Override
@@ -95,7 +103,7 @@ public class CommandWand extends ForgeEssentialsCommandBase
     @Override
     public String getCommandUsage(ICommandSender sender)
     {
-        return "/" + getCommandName() + " [rebind|unbind|ITEM] Toggles the wand";
+        return "/" + getName() + " [rebind|unbind|ITEM] Toggles the wand";
     }
 
     @Override

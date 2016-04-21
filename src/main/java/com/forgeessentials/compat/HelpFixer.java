@@ -40,7 +40,7 @@ public class HelpFixer extends CommandHelp
             for (Iterator<ICommand> it = list.iterator(); it.hasNext();)
             {
                 ICommand command = it.next();
-                if (command.getClass().getName().startsWith("com.sk89q.worldedit") && !command.getCommandName().equals("/help"))
+                if (command.getClass().getName().startsWith("com.sk89q.worldedit") && !command.getName().equals("/help"))
                     it.remove();
             }
         }
@@ -51,7 +51,7 @@ public class HelpFixer extends CommandHelp
             @Override
             public int compare(ICommand o1, ICommand o2)
             {
-                return o1.getCommandName().compareTo(o2.getCommandName());
+                return o1.getName().compareTo(o2.getName());
             }
         });
         return list;
@@ -64,7 +64,7 @@ public class HelpFixer extends CommandHelp
      */
     @Override
     @SuppressWarnings("unchecked")
-    public void processCommand(ICommandSender sender, String[] args) throws CommandException
+    public void execute(ICommandSender sender, String[] args) throws CommandException
     {
         List<ICommand> commands = getSortedPossibleCommands(sender);
         byte cmdsPerPage = 7;
@@ -83,7 +83,7 @@ public class HelpFixer extends CommandHelp
             {
                 String usage = cmd.getCommandUsage(sender);
                 if (usage == null)
-                    usage = "/" + cmd.getCommandName();
+                    usage = "/" + cmd.getName();
                 throw new WrongUsageException(usage, new Object[0]);
             }
             else if (MathHelper.parseIntWithDefault(args[0], -1) != -1)
@@ -104,9 +104,9 @@ public class HelpFixer extends CommandHelp
             ICommand cmd = commands.get(index);
             String usage = cmd.getCommandUsage(sender);
             if (usage == null)
-                usage = "/" + cmd.getCommandName();
+                usage = "/" + cmd.getName();
             ChatComponentTranslation msg2 = new ChatComponentTranslation(usage, new Object[0]);
-            msg2.getChatStyle().setChatClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/" + cmd.getCommandName() + " "));
+            msg2.getChatStyle().setChatClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/" + cmd.getName() + " "));
             sender.addChatMessage(msg2);
         }
 

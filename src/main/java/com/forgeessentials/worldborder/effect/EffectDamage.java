@@ -4,6 +4,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.DamageSource;
 
 import com.forgeessentials.util.PlayerInfo;
+import com.forgeessentials.util.output.LoggingHandler;
 import com.forgeessentials.worldborder.WorldBorder;
 import com.forgeessentials.worldborder.WorldBorderEffect;
 
@@ -17,12 +18,19 @@ public class EffectDamage extends WorldBorderEffect
     @Override
     public void tick(WorldBorder border, EntityPlayerMP player)
     {
-        PlayerInfo pi = PlayerInfo.get(player);
+        PlayerInfo pi;
+		try {
+			pi = PlayerInfo.get(player);
+		
         if (pi.checkTimeout(this.getClass().getName()))
         {
             player.attackEntityFrom(DamageSource.outOfWorld, damage);
             pi.startTimeout(this.getClass().getName(), INTERVAL);
         }
+        } catch (Exception e) {
+			LoggingHandler.felog.error("Error getting player Info");
+
+		}
     }
 
 }

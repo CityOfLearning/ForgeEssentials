@@ -13,7 +13,7 @@ public abstract class ParserCommandBase extends ForgeEssentialsCommandBase
 {
 
     @Override
-    public void processCommand(ICommandSender sender, String[] args) throws CommandException
+    public void execute(ICommandSender sender, String[] args) throws CommandException
     {
         CommandParserArgs arguments = new CommandParserArgs(this, args, sender);
         try

@@ -16,13 +16,13 @@ public class CommandServerPerf extends ForgeEssentialsCommandBase
     private static final DecimalFormat formatNumbers = new DecimalFormat("########0.000");
 
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "perfstats";
     }
 
     @Override
-    public void processCommand(ICommandSender sender, String[] args) throws CommandException
+    public void execute(ICommandSender sender, String[] args) throws CommandException
     {
         ChatOutputHandler.chatNotification(sender, "Memory usage:");
         ChatOutputHandler.chatNotification(sender, "Max: " + (Runtime.getRuntime().maxMemory() / 1024 / 1024) + " MiB");

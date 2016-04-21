@@ -16,12 +16,13 @@ import com.forgeessentials.core.misc.Translator;
 import com.forgeessentials.util.CommandParserArgs;
 import com.forgeessentials.util.PlayerInfo;
 import com.forgeessentials.util.output.ChatOutputHandler;
+import com.forgeessentials.util.output.LoggingHandler;
 
 public class CommandSeen extends FEcmdModuleCommands
 {
 
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "seen";
     }
@@ -45,7 +46,7 @@ public class CommandSeen extends FEcmdModuleCommands
     }
 
     @Override
-    public void processCommand(ICommandSender sender, String[] args) throws CommandException
+    public void execute(ICommandSender sender, String[] args) throws CommandException
     {
         CommandParserArgs arguments = new CommandParserArgs(this, args, sender);
         parse(arguments);
@@ -82,11 +83,16 @@ public class CommandSeen extends FEcmdModuleCommands
         if (!player.hasUuid() || !PlayerInfo.exists(player.getUuid()))
             throw new PlayerNotFoundException();
 
-        PlayerInfo pi = PlayerInfo.get(player.getUuid());
+        PlayerInfo pi;
+		try {
+			pi = PlayerInfo.get(player.getUuid());
+		
         long t = (System.currentTimeMillis() - pi.getLastLogout().getTime()) / 1000;
         arguments.confirm(Translator.format("Player %s was last seen %s ago", player.getUsernameOrUuid(),
                 ChatOutputHandler.formatTimeDurationReadable(t, false)));
-        PlayerInfo.discard(pi.ident.getUuid());
+        PlayerInfo.discard(pi.ident.getUuid());} catch (Exception e) {
+        	LoggingHandler.felog.error("Error getting player Info");
+		}
     }
 
 }

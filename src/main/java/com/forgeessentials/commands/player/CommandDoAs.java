@@ -26,13 +26,13 @@ import com.forgeessentials.util.output.ChatOutputHandler;
 public class CommandDoAs extends FEcmdModuleCommands
 {
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "doas";
     }
 
     @Override
-    public void processCommand(ICommandSender sender, String[] args) throws CommandException
+    public void execute(ICommandSender sender, String[] args) throws CommandException
     {
         if (args.length == 0)
         {

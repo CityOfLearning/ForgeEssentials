@@ -37,7 +37,7 @@ public class CommandCraft extends FEcmdModuleCommands
     }
 
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "craft";
     }

@@ -49,7 +49,7 @@ public class IrcCommandSender implements ICommandSender
     }
 
     @Override
-    public boolean canCommandSenderUseCommand(int p_70003_1_, String p_70003_2_)
+    public boolean canUseCommand(int p_70003_1_, String p_70003_2_)
     {
         return true;
     }
@@ -85,9 +85,9 @@ public class IrcCommandSender implements ICommandSender
     }
 
     @Override
-    public void func_174794_a(Type p_174794_1_, int p_174794_2_)
+    public void setCommandStat(Type type, int amount)
     {
-        MinecraftServer.getServer().func_174794_a(p_174794_1_, p_174794_2_);
+        MinecraftServer.getServer().setCommandStat(type, amount);
     }
 
 }

@@ -24,6 +24,7 @@ import com.forgeessentials.api.permissions.GroupEntry;
 import com.forgeessentials.commons.selections.WarpPoint;
 import com.forgeessentials.commons.selections.WorldPoint;
 import com.forgeessentials.util.PlayerInfo;
+import com.forgeessentials.util.output.LoggingHandler;
 
 public class RespawnHandler
 {
@@ -59,7 +60,7 @@ public class RespawnHandler
         {
             BlockPos spawn = player.getBedLocation(player.dimension);
             if (spawn != null)
-                spawn = EntityPlayer.func_180467_a(player.worldObj, spawn, true);
+                spawn = EntityPlayer.getBedSpawnLocation(player.worldObj, spawn, true);
             if (spawn != null)
             {
                 // Bed seems OK, so just return null to let default MC code handle respawn
@@ -90,9 +91,14 @@ public class RespawnHandler
         if (e.entityLiving instanceof EntityPlayerMP)
         {
             EntityPlayerMP player = (EntityPlayerMP) e.entityLiving;
-            PlayerInfo pi = PlayerInfo.get(player.getPersistentID());
+            PlayerInfo pi;
+			try {
+				pi = PlayerInfo.get(player.getPersistentID());
+			
             pi.setLastDeathLocation(new WarpPoint(player));
-            pi.setLastTeleportOrigin(pi.getLastDeathLocation());
+            pi.setLastTeleportOrigin(pi.getLastDeathLocation());} catch (Exception e1) {
+            	LoggingHandler.felog.error("Error getting player Info");
+			}
         }
     }
 
@@ -134,13 +140,18 @@ public class RespawnHandler
         EntityPlayerMP player = (EntityPlayerMP) event.player;
         player.playerNetServerHandler.playerEntity = player;
 
-        WarpPoint lastDeathLocation = PlayerInfo.get(player.getPersistentID()).getLastDeathLocation();
+        WarpPoint lastDeathLocation;
+		try {
+			lastDeathLocation = PlayerInfo.get(player.getPersistentID()).getLastDeathLocation();
+		
         if (lastDeathLocation == null)
             lastDeathLocation = new WarpPoint(player);
 
         WarpPoint p = getPlayerSpawn(player, lastDeathLocation, true);
         if (p != null)
-            TeleportHelper.doTeleport(player, p);
+            TeleportHelper.doTeleport(player, p);} catch (Exception e) {
+            	LoggingHandler.felog.error("Error getting player Info");
+		}
     }
 
 }

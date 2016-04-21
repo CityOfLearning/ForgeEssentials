@@ -21,7 +21,7 @@ public class CommandFEWorldInfo extends ParserCommandBase
     }
 
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "feworldinfo";
     }

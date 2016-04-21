@@ -22,7 +22,7 @@ public class CommandExpand extends ForgeEssentialsCommandBase
     }
 
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "/expand";
     }

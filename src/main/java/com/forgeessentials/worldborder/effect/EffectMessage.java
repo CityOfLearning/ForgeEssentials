@@ -4,6 +4,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 
 import com.forgeessentials.chat.ModuleChat;
 import com.forgeessentials.util.output.ChatOutputHandler;
+import com.forgeessentials.util.output.LoggingHandler;
 import com.forgeessentials.util.PlayerInfo;
 import com.forgeessentials.worldborder.WorldBorder;
 import com.forgeessentials.worldborder.WorldBorderEffect;
@@ -27,12 +28,18 @@ public class EffectMessage extends WorldBorderEffect
     {
         if (interval <= 0)
             return;
-        PlayerInfo pi = PlayerInfo.get(player);
+        PlayerInfo pi;
+		try {
+			pi = PlayerInfo.get(player);
+		
         if (pi.checkTimeout(this.getClass().getName()))
         {
             doEffect(player);
             pi.startTimeout(this.getClass().getName(), interval);
-        }
+        }} catch (Exception e) {
+			LoggingHandler.felog.error("Error getting player Info");
+
+		}
     }
 
     public void doEffect(EntityPlayerMP player)

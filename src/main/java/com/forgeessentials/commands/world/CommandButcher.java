@@ -26,7 +26,7 @@ public class CommandButcher extends FEcmdModuleCommands
     public static List<String> typeList = ButcherMobType.getNames();
 
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "febutcher";
     }

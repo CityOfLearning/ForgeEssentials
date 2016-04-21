@@ -43,7 +43,7 @@ public class CommandPm extends ParserCommandBase
     /* ------------------------------------------------------------ */
 
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "pm";
     }

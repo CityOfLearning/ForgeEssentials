@@ -13,12 +13,13 @@ import com.forgeessentials.core.misc.TranslatedCommandException;
 import com.forgeessentials.util.PlayerInfo;
 import com.forgeessentials.util.WorldUtil;
 import com.forgeessentials.util.output.ChatOutputHandler;
+import com.forgeessentials.util.output.LoggingHandler;
 
 public class CommandNoClip extends FEcmdModuleCommands
 {
 
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "noclip";
     }
@@ -44,12 +45,16 @@ public class CommandNoClip extends FEcmdModuleCommands
     @Override
     public void processCommandPlayer(EntityPlayerMP player, String[] args) throws CommandException
     {
-        if (!PlayerInfo.get(player).getHasFEClient())
-        {
-            ChatOutputHandler.chatError(player, "You need the FE client addon to use this command.");
-            ChatOutputHandler.chatError(player, "Please visit https://github.com/ForgeEssentials/ForgeEssentialsMain/wiki/FE-Client-mod for more information.");
-            return;
-        }
+        try {
+			if (!PlayerInfo.get(player).getHasFEClient())
+			{
+			    ChatOutputHandler.chatError(player, "You need the FE client addon to use this command.");
+			    ChatOutputHandler.chatError(player, "Please visit https://github.com/ForgeEssentials/ForgeEssentialsMain/wiki/FE-Client-mod for more information.");
+			    return;
+			}
+		} catch (Exception e) {
+			LoggingHandler.felog.error("Error getting player Info");
+		}
 
         if (!player.capabilities.isFlying && !player.noClip)
             throw new TranslatedCommandException("You must be flying.");

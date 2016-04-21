@@ -12,7 +12,7 @@ public class CommandFeReload extends ForgeEssentialsCommandBase
 {
 
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "fereload";
     }
@@ -48,7 +48,7 @@ public class CommandFeReload extends ForgeEssentialsCommandBase
     }
 
     @Override
-    public void processCommand(ICommandSender sender, String[] args)
+    public void execute(ICommandSender sender, String[] args)
     {
         reload(sender);
     }

@@ -39,7 +39,7 @@ public class CommandBubble extends FEcmdModuleCommands
     }
 
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "bubble";
     }

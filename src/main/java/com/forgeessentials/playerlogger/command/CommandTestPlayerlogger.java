@@ -31,7 +31,7 @@ public class CommandTestPlayerlogger extends ParserCommandBase
     }
 
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "testpl";
     }

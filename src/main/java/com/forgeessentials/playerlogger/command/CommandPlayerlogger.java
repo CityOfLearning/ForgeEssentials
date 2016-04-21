@@ -27,7 +27,7 @@ public class CommandPlayerlogger extends ParserCommandBase
 {
 
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "pl";
     }

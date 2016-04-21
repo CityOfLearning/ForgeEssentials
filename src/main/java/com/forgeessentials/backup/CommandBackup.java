@@ -11,7 +11,7 @@ public class CommandBackup extends ParserCommandBase
 {
 
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "febackup";
     }

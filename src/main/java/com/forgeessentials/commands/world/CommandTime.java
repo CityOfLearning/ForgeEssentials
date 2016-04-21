@@ -59,7 +59,7 @@ public class CommandTime extends ParserCommandBase implements ConfigurableComman
     }
 
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "time";
     }

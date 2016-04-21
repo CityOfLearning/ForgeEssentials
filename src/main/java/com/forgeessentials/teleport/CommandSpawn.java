@@ -20,12 +20,13 @@ import com.forgeessentials.core.misc.TeleportHelper;
 import com.forgeessentials.core.misc.TranslatedCommandException;
 import com.forgeessentials.util.PlayerInfo;
 import com.forgeessentials.util.output.ChatOutputHandler;
+import com.forgeessentials.util.output.LoggingHandler;
 
 public class CommandSpawn extends ForgeEssentialsCommandBase
 {
 
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "spawn";
     }
@@ -60,9 +61,13 @@ public class CommandSpawn extends ForgeEssentialsCommandBase
                 throw new TranslatedCommandException("There is no spawnpoint set for that player.");
             }
 
-            PlayerInfo.get(player.getPersistentID()).setLastTeleportOrigin(new WarpPoint(player));
+            try {
+				PlayerInfo.get(player.getPersistentID()).setLastTeleportOrigin(new WarpPoint(player));
+			
             ChatOutputHandler.chatConfirmation(player, "Teleporting to spawn.");
-            TeleportHelper.teleport(player, point);
+            TeleportHelper.teleport(player, point);} catch (Exception e) {
+            	LoggingHandler.felog.error("Error getting player Info");
+			}
         }
     }
 

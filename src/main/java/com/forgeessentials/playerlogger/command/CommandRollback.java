@@ -33,7 +33,7 @@ public class CommandRollback extends ParserCommandBase
     private Timer playbackTimer = new Timer();
 
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "rollback";
     }

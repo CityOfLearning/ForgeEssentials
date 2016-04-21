@@ -24,7 +24,7 @@ public class CommandMultiworld extends ParserCommandBase
 {
 
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "mw";
     }

@@ -20,7 +20,7 @@ public class CommandRequestPayment extends ForgeEssentialsCommandBase
 {
 
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "requestpayment";
     }
@@ -75,7 +75,7 @@ public class CommandRequestPayment extends ForgeEssentialsCommandBase
     @Override
     public String getPermissionNode()
     {
-        return "fe.economy." + getCommandName();
+        return "fe.economy." + getName();
     }
 
     @Override

@@ -12,13 +12,13 @@ public class CommandVIP extends ForgeEssentialsCommandBase
 {
 
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "vip";
     }
 
     @Override
-    public void processCommand(ICommandSender sender, String[] args) throws CommandException
+    public void execute(ICommandSender sender, String[] args) throws CommandException
     {
         if (args.length >= 2 && args[0].equalsIgnoreCase("add"))
         {

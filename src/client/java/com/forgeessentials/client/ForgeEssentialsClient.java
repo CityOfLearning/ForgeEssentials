@@ -25,7 +25,7 @@ public class ForgeEssentialsClient
 
     public static final Logger feclientlog = LogManager.getLogger("forgeessentials");
 
-    @SidedProxy(clientSide = "com.forgeessentials.client.core.ClientProxy", serverSide = "com.forgeessentials.client.core.CommonProxy")
+    @SidedProxy(clientSide = "com.forgeessentials.client.core.ClientProxy", serverSide = "com.forgeessentials.client.core.commonProxy")
     protected static CommonProxy proxy;
 
     @Instance("ForgeEssentialsClient")

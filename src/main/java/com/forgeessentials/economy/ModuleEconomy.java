@@ -286,7 +286,7 @@ public class ModuleEconomy extends ServerEventHandler implements Economy, Config
 
         for (int i = event.parameters.length; i >= 0; i--)
         {
-            String permission = PERM_COMMANDPRICE + '.' + event.command.getCommandName() + //
+            String permission = PERM_COMMANDPRICE + '.' + event.command.getName() + //
                     (i == 0 ? "" : ('.' + StringUtils.join(Arrays.copyOf(event.parameters, i), '.')));
             Long price = ServerUtil.tryParseLong(APIRegistry.perms.getUserPermissionProperty(ident, permission));
             if (price == null)

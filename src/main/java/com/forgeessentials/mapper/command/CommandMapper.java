@@ -20,7 +20,7 @@ public class CommandMapper extends ParserCommandBase
 {
 
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "mapper";
     }

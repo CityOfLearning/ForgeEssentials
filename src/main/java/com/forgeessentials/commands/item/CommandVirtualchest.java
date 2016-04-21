@@ -21,7 +21,7 @@ public class CommandVirtualchest extends FEcmdModuleCommands implements Configur
     public static String name = "Vault 13";
 
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "virtualchest";
     }

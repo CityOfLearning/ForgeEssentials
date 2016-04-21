@@ -93,7 +93,7 @@ public class SignToolsModule extends ConfigLoaderBase
                     if (event.entityPlayer.getCurrentEquippedItem().getItem().equals(Items.sign) &&
                             PermissionManager.checkPermission(event.entityPlayer, "fe.protection.use.minecraft.sign"))
                     {
-                        event.entityPlayer.func_175141_a((TileEntitySign) te);
+                        event.entityPlayer.openEditSign((TileEntitySign) te);
                         event.setCanceled(true);
                     }
                 }

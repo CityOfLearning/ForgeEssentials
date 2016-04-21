@@ -15,7 +15,7 @@ public class CommandWorldBorder extends ParserCommandBase
 {
 
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "worldborder";
     }

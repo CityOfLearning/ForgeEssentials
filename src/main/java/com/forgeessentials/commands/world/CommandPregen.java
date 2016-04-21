@@ -68,7 +68,7 @@ public class CommandPregen extends ParserCommandBase implements TickTask
     private int totalChunks;
 
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "fepregen";
     }

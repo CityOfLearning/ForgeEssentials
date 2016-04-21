@@ -43,7 +43,7 @@ public class CommandFindblock extends FEcmdModuleCommands implements Configurabl
     }
 
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "findblock";
     }

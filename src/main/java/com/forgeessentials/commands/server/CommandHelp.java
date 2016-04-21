@@ -46,7 +46,7 @@ public class CommandHelp extends ParserCommandBase implements ConfigLoader
     }
 
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "help";
     }
@@ -115,7 +115,7 @@ public class CommandHelp extends ParserCommandBase implements ConfigLoader
                     @Override
                     public int compare(ICommand a, ICommand b)
                     {
-                        return a.getCommandName().compareTo(b.getCommandName());
+                        return a.getName().compareTo(b.getName());
                     }
                 });
                 Set<Map.Entry<String, ICommand>> commands = MinecraftServer.getServer().getCommandManager().getCommands().entrySet();
@@ -155,7 +155,7 @@ public class CommandHelp extends ParserCommandBase implements ConfigLoader
     {
         IChatComponent chatMsg = new ChatComponentTranslation(command.getCommandUsage(sender));
         chatMsg.getChatStyle().setColor(color);
-        chatMsg.getChatStyle().setChatClickEvent(new ClickEvent(Action.SUGGEST_COMMAND, "/" + command.getCommandName() + " "));
+        chatMsg.getChatStyle().setChatClickEvent(new ClickEvent(Action.SUGGEST_COMMAND, "/" + command.getName() + " "));
         ChatOutputHandler.sendMessage(sender, chatMsg);
     }
 
@@ -169,7 +169,7 @@ public class CommandHelp extends ParserCommandBase implements ConfigLoader
 
     public void showHelpPage(ICommandSender sender, int page) throws CommandException
     {
-        fixer.processCommand(sender, new String[] { Integer.toString(page) });
+        fixer.execute(sender, new String[] { Integer.toString(page) });
     }
 
     protected List<ICommand> getSortedPossibleCommands(ICommandSender sender)

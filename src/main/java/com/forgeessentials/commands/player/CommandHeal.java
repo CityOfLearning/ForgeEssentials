@@ -21,7 +21,7 @@ public class CommandHeal extends FEcmdModuleCommands
 {
 
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "heal";
     }

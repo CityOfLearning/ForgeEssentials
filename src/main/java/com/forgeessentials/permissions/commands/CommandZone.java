@@ -30,7 +30,7 @@ public class CommandZone extends ParserCommandBase
     public static final String PERM_SETTINGS = PERM_NODE + ".settings";
 
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "area";
     }

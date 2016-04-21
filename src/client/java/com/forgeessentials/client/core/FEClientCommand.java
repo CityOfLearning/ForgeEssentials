@@ -14,7 +14,7 @@ public class FEClientCommand extends CommandBase
 {
 
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "feclient";
     }
@@ -26,7 +26,7 @@ public class FEClientCommand extends CommandBase
     }
 
     @Override
-    public void processCommand(ICommandSender sender, String[] args)
+    public void execute(ICommandSender sender, String[] args)
     {
         if (args.length == 0)
         {

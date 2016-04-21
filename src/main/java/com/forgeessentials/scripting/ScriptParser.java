@@ -173,7 +173,7 @@ public class ScriptParser
             ICommand mcCommand = (ICommand) MinecraftServer.getServer().getCommandManager().getCommands().get(cmd);
             try
             {
-                mcCommand.processCommand(cmdSender, args);
+                mcCommand.execute(cmdSender, args);
             }
             catch (CommandException e)
             {

@@ -18,7 +18,7 @@ public class CommandFEInfo extends ParserCommandBase
 {
 
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "feinfo";
     }

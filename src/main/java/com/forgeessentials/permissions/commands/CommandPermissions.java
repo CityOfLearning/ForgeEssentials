@@ -11,7 +11,7 @@ public class CommandPermissions extends ParserCommandBase
 {
 
     @Override
-    public final String getCommandName()
+    public final String getName()
     {
         return "feperm";
     }

@@ -25,7 +25,7 @@ public class CommandEnchant extends ParserCommandBase
     private static final String PERM = ModuleCommands.PERM + ".enchant";
 
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "enchant";
     }
@@ -63,7 +63,7 @@ public class CommandEnchant extends ParserCommandBase
 
         List<String> validEnchantmentNames = new ArrayList<>();
         Map<String, Enchantment> validEnchantments = new HashMap<>();
-        for (Enchantment enchantment : Enchantment.enchantmentsList)
+        for (Enchantment enchantment : Enchantment.enchantmentsBookList)
             if (enchantment != null && enchantment.canApplyAtEnchantingTable(stack))
             {
                 String name = StatCollector.translateToLocal(enchantment.getName()).replaceAll(" ", "");

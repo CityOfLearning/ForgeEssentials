@@ -57,7 +57,7 @@ public class FECommandManager extends ConfigLoaderBase
     {
         if (config == null)
             return;
-        String category = "Commands." + command.getCommandName();
+        String category = "Commands." + command.getName();
         Property aliasesProperty = config.get(category, "aliases", command.getDefaultAliases());
 
         if (newMappings)
@@ -70,7 +70,7 @@ public class FECommandManager extends ConfigLoaderBase
 
     public static void registerCommand(ForgeEssentialsCommandBase command)
     {
-        commands.put(command.getCommandName(), command);
+        commands.put(command.getName(), command);
         if (config != null)
         {
             loadCommandConfig(command);

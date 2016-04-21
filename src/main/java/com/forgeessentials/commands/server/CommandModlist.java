@@ -13,13 +13,13 @@ public class CommandModlist extends FEcmdModuleCommands
 {
 
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "modlist";
     }
 
     @Override
-    public void processCommand(ICommandSender sender, String[] args) throws CommandException
+    public void execute(ICommandSender sender, String[] args) throws CommandException
     {
         int size = Loader.instance().getModList().size();
         int perPage = 7;

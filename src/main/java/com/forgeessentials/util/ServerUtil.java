@@ -413,7 +413,7 @@ public abstract class ServerUtil
         }
         catch (Exception e)
         {
-            LoggingHandler.felog.error(String.format("Error replacing command /%s", oldCommand.getCommandName()));
+            LoggingHandler.felog.error(String.format("Error replacing command /%s", oldCommand.getName()));
             e.printStackTrace();
         }
         if (newCommand instanceof ForgeEssentialsCommandBase)

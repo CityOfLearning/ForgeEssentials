@@ -32,11 +32,11 @@ public class QuestionerKeyHandler
         {
             return;
         }
-        if (yes.getIsKeyPressed())
+        if (yes.isPressed())
         {
             FMLClientHandler.instance().getClientPlayerEntity().sendChatMessage("/yes");
         }
-        else if (no.getIsKeyPressed())
+        else if (no.isPressed())
         {
             FMLClientHandler.instance().getClientPlayerEntity().sendChatMessage("/no");
         }

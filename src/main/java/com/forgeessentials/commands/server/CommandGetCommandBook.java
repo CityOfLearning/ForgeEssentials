@@ -46,7 +46,7 @@ public class CommandGetCommandBook extends FEcmdModuleCommands
     }
 
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "getcommandbook";
     }
@@ -82,10 +82,10 @@ public class CommandGetCommandBook extends FEcmdModuleCommands
                 continue;
 
             Set<String> commands = new HashSet<>();
-            commands.add("/" + cmd.getCommandName());
+            commands.add("/" + cmd.getName());
 
             // Add aliases
-            List<?> aliases = cmd.getCommandAliases();
+            List<?> aliases = cmd.getAliases();
             if (aliases != null && aliases.size() > 0)
             {
                 for (Object alias : aliases)

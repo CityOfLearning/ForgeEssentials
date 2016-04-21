@@ -18,12 +18,13 @@ import com.forgeessentials.core.misc.TranslatedCommandException;
 import com.forgeessentials.core.misc.Translator;
 import com.forgeessentials.util.PlayerInfo;
 import com.forgeessentials.util.output.ChatOutputHandler;
+import com.forgeessentials.util.output.LoggingHandler;
 
 public class CommandHome extends ForgeEssentialsCommandBase
 {
 
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "home";
     }
@@ -33,10 +34,12 @@ public class CommandHome extends ForgeEssentialsCommandBase
     {
         if (args.length == 0)
         {
-            WarpPoint home = PlayerInfo.get(sender.getPersistentID()).getHome();
-            if (home == null)
-                throw new TranslatedCommandException("No home set. Use \"/home set\" first.");
-            TeleportHelper.teleport(sender, home);
+            WarpPoint home;
+			try {
+				home = PlayerInfo.get(sender.getPersistentID()).getHome();
+            TeleportHelper.teleport(sender, home);} catch (Exception e) {
+				throw new TranslatedCommandException("No home set. Use \"/home set\" first.");
+			}
         }
         else
         {
@@ -55,10 +58,15 @@ public class CommandHome extends ForgeEssentialsCommandBase
                     throw new TranslatedCommandException("You don't have the permission to set your home location.");
 
                 WarpPoint p = new WarpPoint(sender);
-                PlayerInfo info = PlayerInfo.get(player.getPersistentID());
+                PlayerInfo info;
+				try {
+					info = PlayerInfo.get(player.getPersistentID());
+				
                 info.setHome(p);
                 info.save();
-                ChatOutputHandler.chatConfirmation(sender, Translator.format("Home set to: %1.0f, %1.0f, %1.0f", p.getX(), p.getY(), p.getZ()));
+                ChatOutputHandler.chatConfirmation(sender, Translator.format("Home set to: %1.0f, %1.0f, %1.0f", p.getX(), p.getY(), p.getZ()));} catch (Exception e) {
+                	LoggingHandler.felog.error("Error getting player Info");
+				}
             }
             else
                 throw new TranslatedCommandException("Unknown subcommand");

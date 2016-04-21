@@ -13,6 +13,7 @@ import com.forgeessentials.core.misc.Translator;
 import com.forgeessentials.util.PlayerInfo;
 import com.forgeessentials.util.ServerUtil;
 import com.forgeessentials.util.output.ChatOutputHandler;
+import com.forgeessentials.util.output.LoggingHandler;
 
 public class CommandAFK extends FEcmdModuleCommands
 {
@@ -35,7 +36,7 @@ public class CommandAFK extends FEcmdModuleCommands
     }
 
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "afk";
     }
@@ -106,7 +107,11 @@ public class CommandAFK extends FEcmdModuleCommands
         {
             int autoTime = ServerUtil.parseIntDefault(ident.getPermissionProperty(CommandAFK.PERM_AUTOTIME), 60 * 2);
             int warmup = ServerUtil.parseIntDefault(ident.getPermissionProperty(PERM_WARMUP), 0);
-            PlayerInfo.get(sender).setActive(autoTime * 1000 - warmup * 1000);
+            try {
+				PlayerInfo.get(sender).setActive(autoTime * 1000 - warmup * 1000);
+			} catch (Exception e) {
+				LoggingHandler.felog.error("Error getting player Info");
+			}
             ChatOutputHandler.chatConfirmation(sender, Translator.format("Stand still for %d seconds.", warmup));
         }
     }

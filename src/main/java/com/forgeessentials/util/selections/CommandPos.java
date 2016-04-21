@@ -27,7 +27,7 @@ public class CommandPos extends ForgeEssentialsCommandBase
     }
 
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "/fepos" + type;
     }
@@ -100,9 +100,9 @@ public class CommandPos extends ForgeEssentialsCommandBase
         if (mop == null)
             throw new TranslatedCommandException("You must first look at the ground!");
 
-        x = mop.func_178782_a().getX();
-        y = mop.func_178782_a().getY();
-        z = mop.func_178782_a().getZ();
+        x = mop.getBlockPos().getX();
+        y = mop.getBlockPos().getY();
+        z = mop.getBlockPos().getZ();
 
         WorldPoint point = new WorldPoint(player.dimension, x, y, z);
         if (!APIRegistry.perms.checkUserPermission(UserIdent.get(player), point, getPermissionNode()))
@@ -137,7 +137,7 @@ public class CommandPos extends ForgeEssentialsCommandBase
     public String getCommandUsage(ICommandSender sender)
     {
 
-        return "/" + getCommandName() + " [<x> <y> <z] or [here] Sets selection positions";
+        return "/" + getName() + " [<x> <y> <z] or [here] Sets selection positions";
     }
 
     @Override

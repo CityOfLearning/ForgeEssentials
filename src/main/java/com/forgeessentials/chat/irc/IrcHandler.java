@@ -361,7 +361,7 @@ public class IrcHandler extends ListenerAdapter<PircBotX> implements ConfigLoade
         ircUserCache.put(sender.getUser(), sender);
         try
         {
-            command.processCommand(sender, args);
+            command.execute(sender, args);
         }
         catch (CommandException e)
         {
@@ -392,7 +392,7 @@ public class IrcHandler extends ListenerAdapter<PircBotX> implements ConfigLoade
         ircUserCache.put(sender.getUser(), sender);
         try
         {
-            command.processCommand(sender, args);
+            command.execute(sender, args);
         }
         catch (CommandException e)
         {
@@ -435,11 +435,11 @@ public class IrcHandler extends ListenerAdapter<PircBotX> implements ConfigLoade
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void handleSay(CommandEvent event)
     {
-        if (event.command.getCommandName().equals("say"))
+        if (event.command.getName().equals("say"))
         {
             sendMessage(Translator.format(mcSayHeader, event.sender.getName(), StringUtils.join(event.parameters, " ")));
         }
-        else if (event.command.getCommandName().equals("me"))
+        else if (event.command.getName().equals("me"))
         {
             sendMessage(Translator.format("* %s %s", event.sender.getName(), StringUtils.join(event.parameters, " ")));
         }

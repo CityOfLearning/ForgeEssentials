@@ -131,7 +131,7 @@ public class CommandRules extends FEcmdModuleCommands implements ConfigurableCom
     }
 
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "rules";
     }

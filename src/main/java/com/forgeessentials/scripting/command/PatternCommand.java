@@ -121,7 +121,7 @@ public class PatternCommand extends ForgeEssentialsCommandBase implements Loadab
     }
 
     @Override
-    public void processCommand(ICommandSender sender, String[] args) throws CommandException
+    public void execute(ICommandSender sender, String[] args) throws CommandException
     {
         processCommand(sender, StringUtils.join(args, " "));
     }
@@ -172,7 +172,7 @@ public class PatternCommand extends ForgeEssentialsCommandBase implements Loadab
     }
 
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return name;
     }

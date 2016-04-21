@@ -42,13 +42,13 @@ public class CommandCapabilities extends FEcmdModuleCommands
     }
 
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "capabilities";
     }
 
     @Override
-    public void processCommand(ICommandSender sender, String[] args) throws CommandException
+    public void execute(ICommandSender sender, String[] args) throws CommandException
     {
         if (args.length > 3)
         {

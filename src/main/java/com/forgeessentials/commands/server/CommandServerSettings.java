@@ -31,7 +31,7 @@ public class CommandServerSettings extends ParserCommandBase
     public static List<String> options = Arrays.asList("allowFlight", "allowPVP", "buildLimit", "difficulty", "MotD", "spawnProtection", "gamemode");
 
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "serversettings";
     }
@@ -51,7 +51,7 @@ public class CommandServerSettings extends ParserCommandBase
     @Override
     public String getPermissionNode()
     {
-        return ModuleCommands.PERM + "." + getCommandName();
+        return ModuleCommands.PERM + "." + getName();
     }
 
     @SideOnly(Side.SERVER)

@@ -19,7 +19,7 @@ public class CommandPay extends ParserCommandBase
 {
 
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "pay";
     }

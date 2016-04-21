@@ -22,7 +22,7 @@ public class CommandNickname extends ForgeEssentialsCommandBase
     public static final String PERM_OTHERS = PERM + ".others";
 
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "nickname";
     }

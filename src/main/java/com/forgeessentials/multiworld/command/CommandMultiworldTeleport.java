@@ -23,7 +23,7 @@ public class CommandMultiworldTeleport extends ParserCommandBase
 {
 
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "mwtp";
     }

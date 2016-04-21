@@ -23,7 +23,7 @@ public class CommandItemPermission extends ParserCommandBase
 {
 
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "permitem";
     }

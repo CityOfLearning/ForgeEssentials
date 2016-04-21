@@ -20,7 +20,7 @@ public class CommandSell extends ParserCommandBase
 {
 
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "sell";
     }

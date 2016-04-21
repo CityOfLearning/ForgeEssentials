@@ -94,7 +94,7 @@ public class CommandWeather extends ParserCommandBase implements ConfigurableCom
     }
 
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "weather";
     }

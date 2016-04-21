@@ -34,10 +34,10 @@ public abstract class MixinNetHandlerPlayServer_01 implements INetHandlerPlaySer
     @Overwrite
     public void processUpdateSign(C12PacketUpdateSign packetIn)
     {
-        PacketThreadUtil.func_180031_a(packetIn, this, this.playerEntity.getServerForPlayer());
+        PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.playerEntity.getServerForPlayer());
         this.playerEntity.markPlayerActive();
         WorldServer worldserver = this.serverController.worldServerForDimension(this.playerEntity.dimension);
-        BlockPos blockpos = packetIn.func_179722_a();
+        BlockPos blockpos = packetIn.getPosition();
 
         if (worldserver.isBlockLoaded(blockpos))
         {
@@ -50,7 +50,7 @@ public abstract class MixinNetHandlerPlayServer_01 implements INetHandlerPlaySer
 
             TileEntitySign tileentitysign = (TileEntitySign) tileentity;
 
-            if (!tileentitysign.getIsEditable() || tileentitysign.func_145911_b() != this.playerEntity)
+            if (!tileentitysign.getIsEditable() || tileentitysign.getPlayer() != this.playerEntity)
             {
                 this.serverController.logWarning("Player " + this.playerEntity.getName() + " just tried to change non-editable sign");
                 return;
@@ -69,7 +69,7 @@ public abstract class MixinNetHandlerPlayServer_01 implements INetHandlerPlaySer
 
     private IChatComponent[] onSignEditEvent(C12PacketUpdateSign data, EntityPlayerMP player)
     {
-        SignEditEvent e = new SignEditEvent(data.func_179722_a(), data.func_180768_b(), player);
+        SignEditEvent e = new SignEditEvent(data.getPosition(), data.getLines(), player);
         if (MinecraftForge.EVENT_BUS.post(e))
         {
             return null;

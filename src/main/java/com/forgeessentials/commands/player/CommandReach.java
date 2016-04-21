@@ -11,12 +11,13 @@ import com.forgeessentials.core.commands.ParserCommandBase;
 import com.forgeessentials.core.misc.Translator;
 import com.forgeessentials.util.CommandParserArgs;
 import com.forgeessentials.util.PlayerInfo;
+import com.forgeessentials.util.output.LoggingHandler;
 
 public class CommandReach extends ParserCommandBase
 {
 
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "reach";
     }
@@ -36,7 +37,7 @@ public class CommandReach extends ParserCommandBase
     @Override
     public String getPermissionNode()
     {
-        return ModuleCommands.PERM + "." + getCommandName();
+        return ModuleCommands.PERM + "." + getName();
     }
 
     @Override
@@ -54,11 +55,15 @@ public class CommandReach extends ParserCommandBase
             return;
         }
 
-        if (!PlayerInfo.get(arguments.senderPlayer).getHasFEClient())
-        {
-            arguments.error("You need the FE client addon to use this command");
-            return;
-        }
+        try {
+			if (!PlayerInfo.get(arguments.senderPlayer).getHasFEClient())
+			{
+			    arguments.error("You need the FE client addon to use this command");
+			    return;
+			}
+		} catch (Exception e) {
+			LoggingHandler.felog.error("Error getting player Info");
+		}
 
         float distance = (float) arguments.parseDouble();
         if (distance < 1)

@@ -21,7 +21,7 @@ public class CommandTop extends ForgeEssentialsCommandBase
 {
 
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "top";
     }

@@ -12,7 +12,7 @@ import com.forgeessentials.core.misc.TranslatedCommandException;
 public class CommandRename extends FEcmdModuleCommands
 {
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "rename";
     }

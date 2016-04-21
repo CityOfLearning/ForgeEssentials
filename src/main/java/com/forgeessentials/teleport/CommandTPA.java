@@ -23,7 +23,7 @@ public class CommandTPA extends ParserCommandBase
     public static final String PERM_LOCATION = TeleportModule.PERM_TPA + ".loc";
 
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "tpa";
     }

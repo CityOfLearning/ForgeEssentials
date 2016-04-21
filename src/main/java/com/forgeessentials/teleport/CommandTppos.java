@@ -23,7 +23,7 @@ public class CommandTppos extends ForgeEssentialsCommandBase
     public static HashMap<Integer, Point> spawnPoints = new HashMap<Integer, Point>();
 
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "tppos";
     }

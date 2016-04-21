@@ -56,7 +56,7 @@ public abstract class MixinNetHandlerPlayServer_02 implements INetHandlerPlaySer
     @Overwrite
     public void processVanilla250Packet(C17PacketCustomPayload packetIn)
     {
-        PacketThreadUtil.func_180031_a(packetIn, this, this.playerEntity.getServerForPlayer());
+        PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.playerEntity.getServerForPlayer());
         PacketBuffer packetbuffer;
         ItemStack itemstack;
         ItemStack itemstack1;
@@ -71,7 +71,7 @@ public abstract class MixinNetHandlerPlayServer_02 implements INetHandlerPlaySer
 
                 if (itemstack != null)
                 {
-                    if (!ItemWritableBook.validBookPageTagContents(itemstack.getTagCompound()))
+                    if (!ItemWritableBook.isNBTValid(itemstack.getTagCompound()))
                     {
                         throw new IOException("Invalid book tag!");
                     }
@@ -195,7 +195,7 @@ public abstract class MixinNetHandlerPlayServer_02 implements INetHandlerPlaySer
 
                         if (entity instanceof EntityMinecartCommandBlock)
                         {
-                            commandblocklogic = ((EntityMinecartCommandBlock)entity).func_145822_e();
+                            commandblocklogic = ((EntityMinecartCommandBlock)entity).getCommandBlockLogic();
                         }
                     }
 
@@ -205,11 +205,11 @@ public abstract class MixinNetHandlerPlayServer_02 implements INetHandlerPlaySer
                     if (commandblocklogic != null)
                     {
                         commandblocklogic.setCommand(s1);
-                        commandblocklogic.func_175573_a(flag);
+                        commandblocklogic.setTrackOutput(flag);
 
                         if (!flag)
                         {
-                            commandblocklogic.func_145750_b((IChatComponent)null);
+                            commandblocklogic.addChatMessage((IChatComponent)null);
                         }
 
                         commandblocklogic.func_145756_e();

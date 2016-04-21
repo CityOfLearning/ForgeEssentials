@@ -27,7 +27,7 @@ public class CommandSellCommand extends ForgeEssentialsCommandBase
 {
 
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "sellcommand";
     }
@@ -66,7 +66,7 @@ public class CommandSellCommand extends ForgeEssentialsCommandBase
      * Expected structure: "/sellcommand <player> <item> <amount> <meta> <command...>"
      */
     @Override
-    public void processCommand(ICommandSender sender, String[] args) throws CommandException
+    public void execute(ICommandSender sender, String[] args) throws CommandException
     {
         if (args.length < 5)
             throw new InvalidSyntaxException(getCommandUsage(sender));

@@ -30,7 +30,7 @@ public class CommandVanish extends ParserCommandBase
     private static Set<UserIdent> vanishedPlayers = new HashSet<UserIdent>();
 
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "vanish";
     }
@@ -50,7 +50,7 @@ public class CommandVanish extends ParserCommandBase
     @Override
     public String getPermissionNode()
     {
-        return ModuleCommands.PERM + "." + getCommandName();
+        return ModuleCommands.PERM + "." + getName();
     }
 
     @Override

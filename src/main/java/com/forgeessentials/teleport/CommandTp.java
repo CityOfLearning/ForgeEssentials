@@ -18,7 +18,7 @@ public class CommandTp extends CommandTeleport implements PermissionObject
 {
 
     @Override
-    public void processCommand(ICommandSender sender, String[] args) throws CommandException
+    public void execute(ICommandSender sender, String[] args) throws CommandException
     {
         if (args.length < 1)
         {

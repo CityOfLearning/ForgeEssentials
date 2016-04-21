@@ -68,7 +68,7 @@ public class CommandSpeed extends FEcmdModuleCommands
     }
 
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "speed";
     }

@@ -15,12 +15,13 @@ import com.forgeessentials.core.misc.Translator;
 import com.forgeessentials.util.CommandParserArgs;
 import com.forgeessentials.util.PlayerInfo;
 import com.forgeessentials.util.output.ChatOutputHandler;
+import com.forgeessentials.util.output.LoggingHandler;
 
 public class CommandTempBan extends FEcmdModuleCommands
 {
 
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "tempban";
     }
@@ -44,7 +45,7 @@ public class CommandTempBan extends FEcmdModuleCommands
     }
 
     @Override
-    public void processCommand(ICommandSender sender, String[] args) throws CommandException
+    public void execute(ICommandSender sender, String[] args) throws CommandException
     {
         CommandParserArgs arguments = new CommandParserArgs(this, args, sender);
         parse(arguments);
@@ -75,8 +76,13 @@ public class CommandTempBan extends FEcmdModuleCommands
             throw new TranslatedCommandException(FEPermissions.MSG_NOT_ENOUGH_ARGUMENTS);
         long duration = arguments.parseLong();
 
-        PlayerInfo pi = PlayerInfo.get(player.getUuid());
-        pi.startTimeout("tempban", duration * 1000L);
+        PlayerInfo pi;
+		try {
+			pi = PlayerInfo.get(player.getUuid());
+		
+        pi.startTimeout("tempban", duration * 1000L);} catch (Exception e) {
+        	LoggingHandler.felog.error("Error getting player Info");
+		}
         if (player.hasPlayer())
             player.getPlayerMP().playerNetServerHandler.kickPlayerFromServer(Translator.format("You have been banned for %s",
                     ChatOutputHandler.formatTimeDurationReadable(duration, true)));

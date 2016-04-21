@@ -22,7 +22,7 @@ public interface IrcCommand
 
     public boolean isAdminCommand();
 
-    public void processCommand(ICommandSender sender, String[] args) throws CommandException;
+    public void execute(ICommandSender sender, String[] args) throws CommandException;
 
     public static abstract class IrcCommandParser implements IrcCommand
     {
@@ -60,7 +60,7 @@ public interface IrcCommand
         public abstract boolean isAdminCommand();
 
         @Override
-        public void processCommand(ICommandSender sender, String[] args) throws CommandException
+        public void execute(ICommandSender sender, String[] args) throws CommandException
         {
             CommandParserArgs arguments = new IrcCommandParserArgs(null, args, sender);
             parse(arguments);

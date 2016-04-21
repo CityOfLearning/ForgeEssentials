@@ -21,7 +21,7 @@ import com.forgeessentials.util.output.ChatOutputHandler;
 public class CommandGameMode extends FEcmdModuleCommands
 {
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "gamemode";
     }

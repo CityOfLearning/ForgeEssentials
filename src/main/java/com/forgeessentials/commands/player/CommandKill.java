@@ -22,7 +22,7 @@ public class CommandKill extends FEcmdModuleCommands
 {
 
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "fekill";
     }

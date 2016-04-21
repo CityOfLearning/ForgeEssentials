@@ -49,7 +49,7 @@ public class CommandKit extends ParserCommandBase implements ConfigurableCommand
     }
 
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "kit";
     }

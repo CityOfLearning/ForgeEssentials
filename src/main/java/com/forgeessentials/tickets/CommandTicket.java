@@ -26,7 +26,7 @@ import com.forgeessentials.util.output.ChatOutputHandler;
 public class CommandTicket extends ForgeEssentialsCommandBase
 {
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "ticket";
     }

@@ -8,6 +8,7 @@ import net.minecraft.potion.PotionEffect;
 
 import com.forgeessentials.data.v2.Loadable;
 import com.forgeessentials.util.PlayerInfo;
+import com.forgeessentials.util.output.LoggingHandler;
 import com.forgeessentials.worldborder.WorldBorder;
 import com.forgeessentials.worldborder.WorldBorderEffect;
 
@@ -64,12 +65,18 @@ public class EffectPotion extends WorldBorderEffect implements Loadable
     {
         if (interval <= 0)
             return;
-        PlayerInfo pi = PlayerInfo.get(player);
+        PlayerInfo pi;
+		try {
+			pi = PlayerInfo.get(player);
+		
         if (pi.checkTimeout(this.getClass().getName()))
         {
             doEffect(player);
             pi.startTimeout(this.getClass().getName(), interval * 1000);
-        }
+        }} catch (Exception e) {
+			LoggingHandler.felog.error("Error getting player Info");
+
+		}
     }
 
     public void doEffect(EntityPlayerMP player)

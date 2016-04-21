@@ -34,7 +34,7 @@ public class CommandFaction extends ParserCommandBase
     public static final String MSG_LEFT_FACTION = "Left faction \"%s\"";
 
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "fefaction";
     }

@@ -30,6 +30,7 @@ import com.forgeessentials.scripting.ScriptParser.SyntaxException;
 import com.forgeessentials.util.PlayerInfo;
 import com.forgeessentials.util.ServerUtil;
 import com.forgeessentials.util.output.ChatOutputHandler;
+import com.forgeessentials.util.output.LoggingHandler;
 import com.google.common.collect.ImmutableMap;
 
 public final class ScriptArguments
@@ -494,7 +495,12 @@ public final class ScriptArguments
             if (!(sender instanceof EntityPlayerMP))
                 throw new MissingPlayerException();
             EntityPlayerMP _player = ((EntityPlayerMP) sender);
-            return ChatOutputHandler.formatTimeDurationReadable(PlayerInfo.get(_player).getTimePlayed() / 1000, true);
+            try {
+				return ChatOutputHandler.formatTimeDurationReadable(PlayerInfo.get(_player).getTimePlayed() / 1000, true);
+			} catch (Exception e) {
+				LoggingHandler.felog.error("Error getting player Info");
+				return "";
+			}
         }
 
         @Override
@@ -511,7 +517,12 @@ public final class ScriptArguments
             if (!(sender instanceof EntityPlayerMP))
                 throw new MissingPlayerException();
             EntityPlayerMP _player = ((EntityPlayerMP) sender);
-            return FEConfig.FORMAT_DATE_TIME.format(PlayerInfo.get(_player).getLastLogout());
+            try {
+				return FEConfig.FORMAT_DATE_TIME.format(PlayerInfo.get(_player).getLastLogout());
+			} catch (Exception e) {
+				LoggingHandler.felog.error("Error getting player Info");
+				return "";
+			}
         }
 
         @Override
@@ -528,7 +539,12 @@ public final class ScriptArguments
             if (!(sender instanceof EntityPlayerMP))
                 throw new MissingPlayerException();
             EntityPlayerMP _player = ((EntityPlayerMP) sender);
-            return FEConfig.FORMAT_DATE_TIME.format(PlayerInfo.get(_player).getLastLogin());
+            try {
+				return FEConfig.FORMAT_DATE_TIME.format(PlayerInfo.get(_player).getLastLogin());
+			} catch (Exception e) {
+				LoggingHandler.felog.error("Error getting player Info");
+				return "";
+			}
         }
 
         @Override
@@ -545,7 +561,12 @@ public final class ScriptArguments
             if (!(sender instanceof EntityPlayerMP))
                 throw new MissingPlayerException();
             EntityPlayerMP _player = ((EntityPlayerMP) sender);
-            return ChatOutputHandler.formatTimeDurationReadable((new Date().getTime() - PlayerInfo.get(_player).getLastLogout().getTime()) / 1000, true);
+            try {
+				return ChatOutputHandler.formatTimeDurationReadable((new Date().getTime() - PlayerInfo.get(_player).getLastLogout().getTime()) / 1000, true);
+			} catch (Exception e) {
+				LoggingHandler.felog.error("Error getting player Info");
+				return "";
+			}
         }
 
         @Override
@@ -562,7 +583,12 @@ public final class ScriptArguments
             if (!(sender instanceof EntityPlayerMP))
                 throw new MissingPlayerException();
             EntityPlayerMP _player = ((EntityPlayerMP) sender);
-            return ChatOutputHandler.formatTimeDurationReadable((new Date().getTime() - PlayerInfo.get(_player).getLastLogin().getTime()) / 1000, true);
+            try {
+				return ChatOutputHandler.formatTimeDurationReadable((new Date().getTime() - PlayerInfo.get(_player).getLastLogin().getTime()) / 1000, true);
+			} catch (Exception e) {
+				LoggingHandler.felog.error("Error getting player Info");
+				return "";
+			}
         }
 
         @Override

@@ -69,12 +69,6 @@ public class DoAsCommandSender implements ICommandSender
     }
 
     @Override
-    public boolean canCommandSenderUseCommand(int level, String command)
-    {
-        return true;
-    }
-
-    @Override
     public World getEntityWorld()
     {
         return sender.getEntityWorld();
@@ -104,12 +98,6 @@ public class DoAsCommandSender implements ICommandSender
         return sender.sendCommandFeedback();
     }
 
-    @Override
-    public void func_174794_a(Type p_174794_1_, int p_174794_2_)
-    {
-        sender.func_174794_a(p_174794_1_, p_174794_2_);
-    }
-
     public UserIdent getIdent()
     {
         return ident;
@@ -129,5 +117,15 @@ public class DoAsCommandSender implements ICommandSender
     {
         return hideChatMessages;
     }
+
+	@Override
+	public boolean canUseCommand(int permLevel, String commandName) {
+		return true;
+	}
+
+	@Override
+	public void setCommandStat(Type type, int amount) {
+		sender.setCommandStat(type, amount);
+	}
 
 }

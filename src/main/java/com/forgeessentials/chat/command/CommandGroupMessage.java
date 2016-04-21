@@ -19,7 +19,7 @@ public class CommandGroupMessage extends ParserCommandBase
     public static final String PERM = "fe.chat.groupmessage";
 
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "gmsg";
     }

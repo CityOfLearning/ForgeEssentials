@@ -89,7 +89,7 @@ public final class PermissionManager
         String permission = commandPermissions.get(command);
         if (permission != null)
             return permission;
-        return DEFAULT_COMMAND_NODE + command.getCommandName();
+        return DEFAULT_COMMAND_NODE + command.getName();
     }
 
     public static PermissionLevel getCommandLevel(ICommand command)

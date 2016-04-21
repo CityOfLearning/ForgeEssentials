@@ -34,7 +34,7 @@ public class CommandPersonalWarp extends ParserCommandBase
     private static final String PERM_LIMIT = PERM + ".max";
 
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "pwarp";
     }
