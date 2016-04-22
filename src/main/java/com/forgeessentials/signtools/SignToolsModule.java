@@ -1,5 +1,7 @@
 package com.forgeessentials.signtools;
 
+import net.minecraft.command.ServerCommandManager;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Items;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
@@ -101,7 +103,7 @@ public class SignToolsModule extends ConfigLoaderBase
             }
 
             IChatComponent[] signText = ((TileEntitySign) te).signText;
-            if (!signText[0].equals("[command]"))
+            if (!signText[0].getUnformattedText().equals("[command]"))
             {
                 return;
             }
@@ -111,7 +113,9 @@ public class SignToolsModule extends ConfigLoaderBase
                     String send = signText[1].getUnformattedText() + " " + signText[2].getUnformattedText() + " " + signText[3].getUnformattedText();
                     if (send != null)
                     {
-                        MinecraftServer.getServer().getCommandManager().executeCommand(event.entityPlayer, send);
+                    	//getCommandManager causes a null pointer exception... why?
+                    	if(MinecraftServer.getServer().getCommandManager() != null)
+                    		MinecraftServer.getServer().getCommandManager().executeCommand(event.entityPlayer, send);
                         event.setCanceled(true);
                     }
                 }

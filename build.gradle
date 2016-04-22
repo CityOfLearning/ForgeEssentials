@@ -51,7 +51,7 @@ apply plugin: 'org.spongepowered.mixin'
  */
 
 // Get buildNumber from environment variable
-ext.buildNumber = "0"
+ext.buildNumber = "1"
 if (System.getenv("BUILD_NUMBER") != null) {
 	buildNumber = System.getenv("BUILD_NUMBER")
 
@@ -86,7 +86,7 @@ ext.sharedManifest = manifest {
 		"BuildNumber": buildNumber,
 		"FMLCorePluginContainsFMLMod": "true",
 		"ForceLoadAsMod": "true",
-        "MixinCompatibilityLevel": "JAVA_7",
+        "MixinCompatibilityLevel": "JAVA_8",
 	)
 }
 
