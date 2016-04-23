@@ -72,10 +72,10 @@ targetCompatibility = 1.8
 
 // Set up forge options
 minecraft {
-	version = "1.8.9-11.15.0.1699"
+	version = "1.8.9-11.15.1.1855"
 	runDir = "rundir"
 	
-	mappings = "snapshot_20160115"
+	mappings = "stable_20"
 
 	replaceIn "src/utils/java/com/forgeessentials/commons/BuildInfo.java"
 	replace "_VERSION_", project.version
@@ -88,7 +88,7 @@ ext.sharedManifest = manifest {
 		"BuildNumber": buildNumber,
 		"FMLCorePluginContainsFMLMod": "true",
 		"ForceLoadAsMod": "true",
-        "MixinCompatibilityLevel": "JAVA_7",
+        "MixinCompatibilityLevel": "JAVA_8",
 	)
 }
 
@@ -329,61 +329,4 @@ artifacts {
 
 task wrapper(type: Wrapper) {
 	gradleVersion = "2.10"
-}
-
-/************************************************************
- * Configure maven publishing
- */
-
-apply plugin: "maven-publish"
-
-publishing {
-	//tasks.publish.dependsOn "deobfJar"
-
-	publications {
-		mavenJava (MavenPublication) {
-			groupId "com.forgeessentials"
-			artifactId "forgeessentials"
-			version baseVersion + "-SNAPSHOT"
-			if (System.getenv("PUBLISH_RELEASE"))
-				version baseVersion
-
-			//artifact deobfJar
-			//artifact sourceJar
-			artifact javadocJar
-
-			pom.withXml {
-				def dependenciesNode = asNode().appendNode("dependencies")
-				def allDeps = configurations.buildDep.allDependencies + 
-					configurations.serverLib.allDependencies + 
-					configurations.shade.allDependencies
-				allDeps.each {
-					def dependencyNode = dependenciesNode.appendNode("dependency")
-					dependencyNode.appendNode("groupId", it.group)
-					dependencyNode.appendNode("artifactId", it.name)
-					dependencyNode.appendNode("version", it.version)
-					if (it.group == "com.sk89q.worldedit") // Hack to get classifier for worldedit attached (bug https://issues.gradle.org/browse/GRADLE-3030)
-						dependencyNode.appendNode("classifier", "dev")
-				}
-			}
-		}
-	}
-
-	repositories {
-		if (project.hasProperty("forgemaven_user") && project.hasProperty("forgemaven_password")) {
-			maven {
-				credentials {
-					username project.forgemaven_user
-					password project.forgemaven_password
-				}
-				url "http://files.minecraftforge.net/maven/manage/upload"
-			}
-		} else {
-			maven { url "file://${project.projectDir}/build/repo" }
-		}
-	}
-}
-
-task publishAndClean(type: Delete, dependsOn: "publish") {
-    delete javadocJar, sourceJar
 }
