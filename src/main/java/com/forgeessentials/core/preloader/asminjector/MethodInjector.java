@@ -146,7 +146,7 @@ public class MethodInjector implements Comparable<MethodInjector> {
 				// TODO: Cache @Local info
 				List<String> localAliases = ASMUtil.getAnnotationValue(aLocal, "value");
 				localAliases = localAliases == null ? new ArrayList<String>() : new ArrayList<>(localAliases);
-				localAliases.add(injector.localVariables.get(i + isNonStatic).name);
+				localAliases.add(((LocalVariableNode) injector.localVariables.get(i + isNonStatic)).name);
 				locals.add(localAliases);
 
 				injectedLocalsCount++;
@@ -400,8 +400,8 @@ public class MethodInjector implements Comparable<MethodInjector> {
 					Type.getDescriptor(Shadow.class));
 			if (aShadow != null) {
 				// TODO: Check for shadowed local variable
-				LocalVariableNode srcVar = injector.localVariables.get(vn.var);
-				LocalVariableNode dstVar = targetMethod.localVariables.get(vn.var);
+				LocalVariableNode srcVar = (LocalVariableNode) injector.localVariables.get(vn.var);
+				LocalVariableNode dstVar = (LocalVariableNode) targetMethod.localVariables.get(vn.var);
 				if (srcVar == dstVar) {
 					return;
 				}
@@ -411,7 +411,7 @@ public class MethodInjector implements Comparable<MethodInjector> {
 					List<String> localNames = locals.get((vn.var - injectorArgumentCount) + injectedLocalsCount);
 					LocalVariableNode varNode = null;
 					namesLoop: for (String varName : localNames) {
-						for (LocalVariableNode lvn : targetMethod.localVariables) {
+						for (LocalVariableNode lvn : ((List<LocalVariableNode>) targetMethod.localVariables)) {
 							if (lvn.name.equals(varName)) {
 								varNode = lvn;
 								break namesLoop;
@@ -423,7 +423,7 @@ public class MethodInjector implements Comparable<MethodInjector> {
 								StringUtils.join(localNames, ", "));
 						System.err.println(message);
 						System.err.println("Found local variables:");
-						for (LocalVariableNode lvn : targetMethod.localVariables) {
+						for (LocalVariableNode lvn : ((List<LocalVariableNode>) targetMethod.localVariables)) {
 							System.err.println(String.format("  %s: %s", lvn.name, lvn.desc));
 						}
 						throw new InjectionException(message);

@@ -26,7 +26,7 @@ buildscript {
 		classpath "net.minecraftforge.gradle:ForgeGradle:2.1-SNAPSHOT"
 		classpath "org.jfrog.buildinfo:build-info-extractor-gradle:3.0.1"
 		classpath "org.ajoberstar:gradle-git:0.12.0"
-        classpath 'org.spongepowered:mixingradle:0.3-SNAPSHOT'
+        classpath 'org.spongepowered:mixingradle:0.4-SNAPSHOT'
 	}
 
 }
@@ -141,11 +141,11 @@ dependencies {
 	includeMod files('lib/worldedit-forge-mc1.8.9-6.1.1-SNAPSHOT-dist.jar')
 
 	//buildDep "org.spongepowered:spongeforge:3.1.0-BETA-1046:deobf"
-	buildDep 'org.spongepowered:spongeapi:3.0.0'
+	buildDep 'org.spongepowered:spongeapi:4.1.0-SNAPSHOT'
 
 	// Shade Mixin library
-	shade group: "org.spongepowered", name: "mixin", version: "0.4.10-SNAPSHOT", changing: true
-	shadeClient group: "org.spongepowered", name: "mixin", version: "0.4.10-SNAPSHOT", changing: true
+	shade group: "org.spongepowered", name: "mixin", version: "0.5.3-SNAPSHOT", changing: true
+	shadeClient group: "org.spongepowered", name: "mixin", version: "0.5.3-SNAPSHOT", changing: true
 }
 
 /************************************************************
