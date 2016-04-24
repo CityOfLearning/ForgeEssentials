@@ -1,34 +1,38 @@
 package com.forgeessentials.worldborder.effect;
 
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.server.MinecraftServer;
-
 import com.forgeessentials.scripting.ScriptArguments;
 import com.forgeessentials.util.PlayerInfo;
 import com.forgeessentials.util.output.LoggingHandler;
 import com.forgeessentials.worldborder.WorldBorder;
 import com.forgeessentials.worldborder.WorldBorderEffect;
 
-public class EffectCommand extends WorldBorderEffect
-{
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.server.MinecraftServer;
 
-    public String command = "/say @player Go back while you still can!";
+public class EffectCommand extends WorldBorderEffect {
 
-    public long interval = 0;
+	public String command = "/say @player Go back while you still can!";
 
-    @Override
-    public void activate(WorldBorder border, EntityPlayerMP player)
-    {
-        if (interval <= 0)
-            doEffect(player);
-    }
+	public long interval = 0;
 
-    @Override
-    public void tick(WorldBorder border, EntityPlayerMP player)
-    {
-        if (interval <= 0)
-            return;
-        PlayerInfo pi;
+	@Override
+	public void activate(WorldBorder border, EntityPlayerMP player) {
+		if (interval <= 0) {
+			doEffect(player);
+		}
+	}
+
+	public void doEffect(EntityPlayerMP player) {
+		String cmd = ScriptArguments.processSafe(command, player);
+		MinecraftServer.getServer().getCommandManager().executeCommand(MinecraftServer.getServer(), cmd);
+	}
+
+	@Override
+	public void tick(WorldBorder border, EntityPlayerMP player) {
+		if (interval <= 0) {
+			return;
+		}
+		PlayerInfo pi;
 		try {
 			pi = PlayerInfo.get(player);
 
@@ -39,11 +43,5 @@ public class EffectCommand extends WorldBorderEffect
 		} catch (Exception e) {
 			LoggingHandler.felog.error("Error getting player Info");
 		}
-    }
-
-    public void doEffect(EntityPlayerMP player)
-    {
-        String cmd = ScriptArguments.processSafe(command, player);
-        MinecraftServer.getServer().getCommandManager().executeCommand(MinecraftServer.getServer(), cmd);
-    }
+	}
 }

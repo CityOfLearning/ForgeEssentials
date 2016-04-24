@@ -2,17 +2,15 @@ package com.forgeessentials.remote.network;
 
 import com.forgeessentials.playerlogger.entity.WorldData;
 
-public class RemoteWorldData
-{
+public class RemoteWorldData {
 
-    public int id;
+	public int id;
 
-    public String name;
+	public String name;
 
-    public RemoteWorldData(WorldData worldData)
-    {
-        this.id = worldData.id;
-        this.name = worldData.name;
-    }
+	public RemoteWorldData(WorldData worldData) {
+		id = worldData.id;
+		name = worldData.name;
+	}
 
 }

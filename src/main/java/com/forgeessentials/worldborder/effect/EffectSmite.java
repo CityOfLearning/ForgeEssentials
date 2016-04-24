@@ -1,31 +1,35 @@
 package com.forgeessentials.worldborder.effect;
 
-import net.minecraft.entity.effect.EntityLightningBolt;
-import net.minecraft.entity.player.EntityPlayerMP;
-
 import com.forgeessentials.util.PlayerInfo;
 import com.forgeessentials.util.output.LoggingHandler;
 import com.forgeessentials.worldborder.WorldBorder;
 import com.forgeessentials.worldborder.WorldBorderEffect;
 
-public class EffectSmite extends WorldBorderEffect
-{
+import net.minecraft.entity.effect.EntityLightningBolt;
+import net.minecraft.entity.player.EntityPlayerMP;
 
-    public int interval = 5000;
+public class EffectSmite extends WorldBorderEffect {
 
-    @Override
-    public void activate(WorldBorder border, EntityPlayerMP player)
-    {
-        if (interval <= 0)
-            doEffect(player);
-    }
+	public int interval = 5000;
 
-    @Override
-    public void tick(WorldBorder border, EntityPlayerMP player)
-    {
-        if (interval <= 0)
-            return;
-        PlayerInfo pi;
+	@Override
+	public void activate(WorldBorder border, EntityPlayerMP player) {
+		if (interval <= 0) {
+			doEffect(player);
+		}
+	}
+
+	public void doEffect(EntityPlayerMP player) {
+		player.worldObj
+				.addWeatherEffect(new EntityLightningBolt(player.worldObj, player.posX, player.posY, player.posZ));
+	}
+
+	@Override
+	public void tick(WorldBorder border, EntityPlayerMP player) {
+		if (interval <= 0) {
+			return;
+		}
+		PlayerInfo pi;
 		try {
 			pi = PlayerInfo.get(player);
 
@@ -36,11 +40,6 @@ public class EffectSmite extends WorldBorderEffect
 		} catch (Exception e) {
 			LoggingHandler.felog.error("Error getting player Info");
 		}
-    }
-
-    public void doEffect(EntityPlayerMP player)
-    {
-        player.worldObj.addWeatherEffect(new EntityLightningBolt(player.worldObj, player.posX, player.posY, player.posZ));
-    }
+	}
 
 }

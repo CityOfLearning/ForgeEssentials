@@ -15,14 +15,6 @@ import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 
-import net.minecraftforge.common.config.Configuration;
-import net.minecraftforge.fml.common.discovery.ASMDataTable;
-import net.minecraftforge.fml.common.discovery.ASMDataTable.ASMData;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.eventhandler.EventPriority;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.permission.PermissionLevel;
-
 import org.apache.commons.codec.binary.Hex;
 
 import com.forgeessentials.api.APIRegistry;
@@ -46,375 +38,354 @@ import com.forgeessentials.util.output.LoggingHandler;
 import com.google.gson.Gson;
 import com.mojang.authlib.GameProfile;
 
+import net.minecraftforge.common.config.Configuration;
+import net.minecraftforge.fml.common.discovery.ASMDataTable;
+import net.minecraftforge.fml.common.discovery.ASMDataTable.ASMData;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.permission.PermissionLevel;
+
 @FEModule(name = "Remote", parentMod = ForgeEssentials.class, canDisable = true)
-public class ModuleRemote extends ConfigLoaderBase implements RemoteManager
-{
+public class ModuleRemote extends ConfigLoaderBase implements RemoteManager {
 
-    public static class PasskeyMap extends HashMap<UserIdent, String>
-    {
-        private static final long serialVersionUID = -8268113844467318789L; /* default */
-    };
+	public static class PasskeyMap extends HashMap<UserIdent, String> {
+		private static final long serialVersionUID = -8268113844467318789L; /* default */
+	};
 
-    private static final String CONFIG_CAT = "Remote";
+	private static final String CONFIG_CAT = "Remote";
 
-    private static String certificateFilename = "FeRemote.jks";
-    private static String certificatePassword = "feremote";
+	private static String certificateFilename = "FeRemote.jks";
+	private static String certificatePassword = "feremote";
 
-    public static final char[] PASSKEY_CHARS;
+	public static final char[] PASSKEY_CHARS;
 
-    public static final String PERM = RemoteHandler.PERM_REMOTE;
-    public static final String PERM_CONTROL = PERM + ".control";
+	public static final String PERM = RemoteHandler.PERM_REMOTE;
+	public static final String PERM_CONTROL = PERM + ".control";
 
-    public static final GameProfile FAKEPLAYER = new GameProfile(new UUID(1451412139, 514498498), "$FE_REMOTE");
+	public static final GameProfile FAKEPLAYER = new GameProfile(new UUID(1451412139, 514498498), "$FE_REMOTE");
 
-    public static int passkeyLength = 6;
+	public static int passkeyLength = 6;
 
-    static
-    {
-        // Build a character set with only easily distinguishable characters
-        Set<Character> chars = new HashSet<Character>();
-        for (char c = 'a'; c <= 'z'; c++)
-            chars.add(c);
-        for (char c = 'A'; c <= 'Z'; c++)
-            chars.add(c);
-        for (char c = '0'; c <= '9'; c++)
-            chars.add(c);
-        chars.remove('o');
-        chars.remove('O');
-        chars.remove('0');
-        chars.remove('I');
-        PASSKEY_CHARS = new char[chars.size()];
-        int idx = 0;
-        for (Character c : chars)
-            PASSKEY_CHARS[idx++] = c;
-    }
+	static {
+		// Build a character set with only easily distinguishable characters
+		Set<Character> chars = new HashSet<Character>();
+		for (char c = 'a'; c <= 'z'; c++) {
+			chars.add(c);
+		}
+		for (char c = 'A'; c <= 'Z'; c++) {
+			chars.add(c);
+		}
+		for (char c = '0'; c <= '9'; c++) {
+			chars.add(c);
+		}
+		chars.remove('o');
+		chars.remove('O');
+		chars.remove('0');
+		chars.remove('I');
+		PASSKEY_CHARS = new char[chars.size()];
+		int idx = 0;
+		for (Character c : chars) {
+			PASSKEY_CHARS[idx++] = c;
+		}
+	}
 
-    /* ------------------------------------------------------------ */
+	/* ------------------------------------------------------------ */
 
-    @FEModule.Instance
-    protected static ModuleRemote instance;
+	@FEModule.Instance
+	protected static ModuleRemote instance;
 
-    protected int port;
+	/**
+	 * Get the instance of ModuleRemote
+	 */
+	public static ModuleRemote getInstance() {
+		return instance;
+	}
 
-    protected String hostname;
+	private static File getSaveFile() {
+		return new File(DataManager.getInstance().getBasePath(), "RemotePasskeys.json");
+	}
 
-    protected boolean localhostOnly;
+	public static String hashPasskey(String passkey) {
+		try {
+			MessageDigest md = MessageDigest.getInstance("MD5");
+			md.update(passkey.getBytes());
+			passkey = Hex.encodeHexString(md.digest());
+		} catch (NoSuchAlgorithmException e) {
+			/* do nothing */
+		}
+		return passkey;
+	}
 
-    protected boolean useSSL;
+	protected int port;
 
-    protected Server server;
+	protected String hostname;
 
-    protected Map<String, RemoteHandler> handlers = new HashMap<>();
+	protected boolean localhostOnly;
 
-    protected PasskeyMap passkeys = new PasskeyMap();
+	protected boolean useSSL;
 
-    protected boolean mcServerStarted;
+	protected Server server;
 
-    /* ------------------------------------------------------------ */
+	/* ------------------------------------------------------------ */
 
-    @SubscribeEvent
-    public void getASMDataTable(FEModulePreInitEvent event)
-    {
-        ASMDataTable asmdata = ((FMLPreInitializationEvent) event.getFMLEvent()).getAsmData();
-        for (ASMData asm : asmdata.getAll(FERemoteHandler.class.getName()))
-        {
-            try
-            {
-                Class<?> clazz = Class.forName(asm.getClassName());
-                if (RemoteHandler.class.isAssignableFrom(clazz))
-                {
-                    RemoteHandler handler = (RemoteHandler) clazz.newInstance();
-                    FERemoteHandler annot = handler.getClass().getAnnotation(FERemoteHandler.class);
-                    registerHandler(handler, annot.id());
-                }
-            }
-            catch (ClassNotFoundException | InstantiationException | IllegalAccessException e)
-            {
-                LoggingHandler.felog.debug("Could not load FERemoteHandler " + asm.getClassName());
-            }
-        }
-    }
+	protected Map<String, RemoteHandler> handlers = new HashMap<>();
 
-    /**
-     * Register remote module and basic handlers
-     */
-    @SuppressWarnings("deprecation")
-    @SubscribeEvent
-    public void load(FEModuleInitEvent event)
-    {
-        APIRegistry.remoteManager = this;
-        APIRegistry.perms.registerPermission(PERM, PermissionLevel.OP, "Allows login to remote module");
-        APIRegistry.perms.registerPermission(PERM_CONTROL, PermissionLevel.OP,
-                "Allows to start / stop remote server and control users (regen passkeys, kick, block)");
+	protected PasskeyMap passkeys = new PasskeyMap();
 
-        FECommandManager.registerCommand(new CommandRemote());
-    }
+	protected boolean mcServerStarted;
 
-    /**
-     * Initialize passkeys, server and commands
-     */
-    @SubscribeEvent(priority = EventPriority.LOWEST)
-    public void serverStarting(FEModuleServerInitEvent event)
-    {
-        loadPasskeys();
-        startServer();
-        mcServerStarted = true;
-    }
+	/**
+	 * Generates a new random passkey
+	 */
+	public String generatePasskey() {
+		StringBuilder passkey = new StringBuilder();
+		Random rnd = new Random();
+		for (int i = 0; i < passkeyLength; i++) {
+			passkey.append(PASSKEY_CHARS[rnd.nextInt(PASSKEY_CHARS.length)]);
+		}
+		return passkey.toString();
+	}
 
-    /**
-     * Stop remote server when the MC-server stops
-     */
-    @SubscribeEvent
-    public void serverStopping(FEModuleServerStopEvent event)
-    {
-        stopServer();
-        mcServerStarted = false;
-    }
+	@SubscribeEvent
+	public void getASMDataTable(FEModulePreInitEvent event) {
+		ASMDataTable asmdata = ((FMLPreInitializationEvent) event.getFMLEvent()).getAsmData();
+		for (ASMData asm : asmdata.getAll(FERemoteHandler.class.getName())) {
+			try {
+				Class<?> clazz = Class.forName(asm.getClassName());
+				if (RemoteHandler.class.isAssignableFrom(clazz)) {
+					RemoteHandler handler = (RemoteHandler) clazz.newInstance();
+					FERemoteHandler annot = handler.getClass().getAnnotation(FERemoteHandler.class);
+					registerHandler(handler, annot.id());
+				}
+			} catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+				LoggingHandler.felog.debug("Could not load FERemoteHandler " + asm.getClassName());
+			}
+		}
+	}
 
-    @Override
-    public void load(Configuration config, boolean isReload)
-    {
-        localhostOnly = config.get(CONFIG_CAT, "localhostOnly", true, "Allow connections from the web").getBoolean();
-        hostname = config.get(CONFIG_CAT, "hostname", "localhost", "Hostname of your server. Used for QR code generation.").getString();
-        port = config.get(CONFIG_CAT, "port", 27020, "Port to connect remotes to").getInt();
-        useSSL = config
-                .get(CONFIG_CAT, "use_ssl", false,
-                        "Protect the communication against network sniffing by encrypting traffic with SSL (You don't really need it - believe me)")
-                .getBoolean();
-        passkeyLength = config.get(CONFIG_CAT, "passkey_length", 6, "Length of the randomly generated passkeys").getInt();
-        if (mcServerStarted)
-            startServer();
-    }
+	/* ------------------------------------------------------------ */
 
-    /* ------------------------------------------------------------ */
+	/**
+	 * Generates a remote-connect string for the given user
+	 * 
+	 * @param userIdent
+	 */
+	public String getConnectString(UserIdent userIdent) {
+		if (!userIdent.hasUuid()) {
+			return null;
+		}
+		return String.format("%s@%s:%d|%s", userIdent.getUsernameOrUuid(), (useSSL ? "ssl:" : "") + hostname, port,
+				getPasskey(userIdent));
+	}
 
-    /**
-     * @return the server
-     */
-    public Server getServer()
-    {
-        return server;
-    }
+	/**
+	 * Get Gson instance used for remote module
+	 */
+	@Override
+	public Gson getGson() {
+		return DataManager.getGson();
+	}
 
-    /**
-     * Starts up the remote server
-     */
-    public void startServer()
-    {
-        if (server != null)
-            return;
-        try
-        {
-            String bindAddress = localhostOnly ? "localhost" : "0.0.0.0";
-            if (useSSL)
-            {
-                try
-                {
-                    InputStream is = ClassLoader.getSystemResourceAsStream(certificateFilename);
-                    if (is != null)
-                    {
-                        SSLContextHelper sslCtxHelper = new SSLContextHelper();
-                        sslCtxHelper.loadSSLCertificate(is, certificatePassword, certificatePassword);
-                        server = new Server(port, bindAddress, sslCtxHelper.getSSLCtx());
-                    }
-                    else
-                        LoggingHandler.felog.error("[remote] Unable to load SSL certificate: File not found");
-                }
-                catch (IOException | GeneralSecurityException e1)
-                {
-                    LoggingHandler.felog.error("[remote] Unable to load SSL certificate: " + e1.getMessage());
-                }
-            }
-            else
-            {
-                server = new Server(port, bindAddress);
-            }
-        }
-        catch (IOException e1)
-        {
-            LoggingHandler.felog.error("[remote] Unable to start remote-server: " + e1.getMessage());
-        }
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.forgeessentials.api.remote.RemoteManager#getHandler(java.lang.String)
+	 */
+	@Override
+	public RemoteHandler getHandler(String id) {
+		return handlers.get(id);
+	}
 
-    /**
-     * Stops the remote server
-     */
-    public void stopServer()
-    {
-        if (server != null)
-        {
-            server.close();
-            server = null;
-        }
-    }
+	/**
+	 * Get all registered remote-handlers
+	 */
+	public Map<String, RemoteHandler> getHandlers() {
+		return handlers;
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.forgeessentials.api.remote.RemoteManager#registerHandler(com.forgeessentials.api.remote.RemoteHandler)
-     */
-    @Override
-    public void registerHandler(RemoteHandler handler, String id)
-    {
-        if (handlers.containsKey(id))
-            throw new IllegalArgumentException(
-                    Translator.format("Tried to register handler \"%s\" with ID \"%s\", but handler \"%s\" is already registered with that ID.",
-                            handler.getClass().getName(), id, handlers.get(id).getClass().getName()));
+	/**
+	 * Tries to get the hostname
+	 */
+	public String getHostName() {
+		try {
+			return InetAddress.getLocalHost().getHostName();
+		} catch (UnknownHostException e) {
+			return "localhost";
+		}
+	}
 
-        handlers.put(id, handler);
-        String perm = handler.getPermission();
-        if (perm != null && APIRegistry.perms.getServerZone().getRootZone().getGroupPermission(Zone.GROUP_DEFAULT, perm) == null)
-            APIRegistry.perms.registerPermission(perm, PermissionLevel.OP);
-    }
+	/**
+	 * Get stored passkey for user or generate a new one and save it
+	 * 
+	 * @param userIdent
+	 */
+	public String getPasskey(UserIdent userIdent) {
+		if (passkeys.containsKey(userIdent)) {
+			return passkeys.get(userIdent);
+		}
+		String passkey = generatePasskey();
+		setPasskey(userIdent, passkey);
+		return passkey;
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.forgeessentials.api.remote.RemoteManager#getHandler(java.lang.String)
-     */
-    @Override
-    public RemoteHandler getHandler(String id)
-    {
-        return handlers.get(id);
-    }
+	/**
+	 * Remote server port
+	 */
+	public int getPort() {
+		return port;
+	}
 
-    /**
-     * Get all registered remote-handlers
-     */
-    public Map<String, RemoteHandler> getHandlers()
-    {
-        return handlers;
-    }
+	/* ------------------------------------------------------------ */
 
-    /**
-     * Remote server port
-     */
-    public int getPort()
-    {
-        return port;
-    }
+	/**
+	 * @return the server
+	 */
+	public Server getServer() {
+		return server;
+	}
 
-    /* ------------------------------------------------------------ */
+	@Override
+	public void load(Configuration config, boolean isReload) {
+		localhostOnly = config.get(CONFIG_CAT, "localhostOnly", true, "Allow connections from the web").getBoolean();
+		hostname = config
+				.get(CONFIG_CAT, "hostname", "localhost", "Hostname of your server. Used for QR code generation.")
+				.getString();
+		port = config.get(CONFIG_CAT, "port", 27020, "Port to connect remotes to").getInt();
+		useSSL = config
+				.get(CONFIG_CAT, "use_ssl", false,
+						"Protect the communication against network sniffing by encrypting traffic with SSL (You don't really need it - believe me)")
+				.getBoolean();
+		passkeyLength = config.get(CONFIG_CAT, "passkey_length", 6, "Length of the randomly generated passkeys")
+				.getInt();
+		if (mcServerStarted) {
+			startServer();
+		}
+	}
 
-    /**
-     * Generates a new random passkey
-     */
-    public String generatePasskey()
-    {
-        StringBuilder passkey = new StringBuilder();
-        Random rnd = new Random();
-        for (int i = 0; i < passkeyLength; i++)
-            passkey.append(PASSKEY_CHARS[rnd.nextInt(PASSKEY_CHARS.length)]);
-        return passkey.toString();
-    }
+	/**
+	 * Register remote module and basic handlers
+	 */
+	@SuppressWarnings("deprecation")
+	@SubscribeEvent
+	public void load(FEModuleInitEvent event) {
+		APIRegistry.remoteManager = this;
+		APIRegistry.perms.registerPermission(PERM, PermissionLevel.OP, "Allows login to remote module");
+		APIRegistry.perms.registerPermission(PERM_CONTROL, PermissionLevel.OP,
+				"Allows to start / stop remote server and control users (regen passkeys, kick, block)");
 
-    /**
-     * Get stored passkey for user or generate a new one and save it
-     * 
-     * @param userIdent
-     */
-    public String getPasskey(UserIdent userIdent)
-    {
-        if (passkeys.containsKey(userIdent))
-            return passkeys.get(userIdent);
-        String passkey = generatePasskey();
-        setPasskey(userIdent, passkey);
-        return passkey;
-    }
+		FECommandManager.registerCommand(new CommandRemote());
+	}
 
-    private static File getSaveFile()
-    {
-        return new File(DataManager.getInstance().getBasePath(), "RemotePasskeys.json");
-    }
+	/**
+	 * Load the passkeys from data-backend
+	 */
+	public void loadPasskeys() {
+		passkeys = DataManager.load(PasskeyMap.class, getSaveFile());
+		if (passkeys == null) {
+			passkeys = new PasskeyMap();
+		}
+	}
 
-    /**
-     * Set and save a new passkey for a user
-     * 
-     * @param userIdent
-     * @param passkey
-     */
-    public void setPasskey(UserIdent userIdent, String passkey)
-    {
-        if (passkey == null)
-            passkeys.remove(userIdent);
-        else
-        {
-            // TODO: Think about hashes passkeys
-            // passkey = hashPasskey(passkey);
-            passkeys.put(userIdent, passkey);
-        }
-        DataManager.save(passkeys, getSaveFile());
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.forgeessentials.api.remote.RemoteManager#registerHandler(com.
+	 * forgeessentials.api.remote.RemoteHandler)
+	 */
+	@Override
+	public void registerHandler(RemoteHandler handler, String id) {
+		if (handlers.containsKey(id)) {
+			throw new IllegalArgumentException(Translator.format(
+					"Tried to register handler \"%s\" with ID \"%s\", but handler \"%s\" is already registered with that ID.",
+					handler.getClass().getName(), id, handlers.get(id).getClass().getName()));
+		}
 
-    public static String hashPasskey(String passkey)
-    {
-        try
-        {
-            MessageDigest md = MessageDigest.getInstance("MD5");
-            md.update(passkey.getBytes());
-            passkey = Hex.encodeHexString(md.digest());
-        }
-        catch (NoSuchAlgorithmException e)
-        {
-            /* do nothing */
-        }
-        return passkey;
-    }
+		handlers.put(id, handler);
+		String perm = handler.getPermission();
+		if ((perm != null) && (APIRegistry.perms.getServerZone().getRootZone().getGroupPermission(Zone.GROUP_DEFAULT,
+				perm) == null)) {
+			APIRegistry.perms.registerPermission(perm, PermissionLevel.OP);
+		}
+	}
 
-    /**
-     * Load the passkeys from data-backend
-     */
-    public void loadPasskeys()
-    {
-        passkeys = DataManager.load(PasskeyMap.class, getSaveFile());
-        if (passkeys == null)
-            passkeys = new PasskeyMap();
-    }
+	/**
+	 * Initialize passkeys, server and commands
+	 */
+	@SubscribeEvent(priority = EventPriority.LOWEST)
+	public void serverStarting(FEModuleServerInitEvent event) {
+		loadPasskeys();
+		startServer();
+		mcServerStarted = true;
+	}
 
-    /* ------------------------------------------------------------ */
+	/* ------------------------------------------------------------ */
 
-    /**
-     * Get Gson instance used for remote module
-     */
-    @Override
-    public Gson getGson()
-    {
-        return DataManager.getGson();
-    }
+	/**
+	 * Stop remote server when the MC-server stops
+	 */
+	@SubscribeEvent
+	public void serverStopping(FEModuleServerStopEvent event) {
+		stopServer();
+		mcServerStarted = false;
+	}
 
-    /**
-     * Tries to get the hostname
-     */
-    public String getHostName()
-    {
-        try
-        {
-            return InetAddress.getLocalHost().getHostName();
-        }
-        catch (UnknownHostException e)
-        {
-            return "localhost";
-        }
-    }
+	/**
+	 * Set and save a new passkey for a user
+	 * 
+	 * @param userIdent
+	 * @param passkey
+	 */
+	public void setPasskey(UserIdent userIdent, String passkey) {
+		if (passkey == null) {
+			passkeys.remove(userIdent);
+		} else {
+			// TODO: Think about hashes passkeys
+			// passkey = hashPasskey(passkey);
+			passkeys.put(userIdent, passkey);
+		}
+		DataManager.save(passkeys, getSaveFile());
+	}
 
-    /**
-     * Generates a remote-connect string for the given user
-     * 
-     * @param userIdent
-     */
-    public String getConnectString(UserIdent userIdent)
-    {
-        if (!userIdent.hasUuid())
-            return null;
-        return String.format("%s@%s:%d|%s", userIdent.getUsernameOrUuid(), (useSSL ? "ssl:" : "") + hostname, port, getPasskey(userIdent));
-    }
+	/**
+	 * Starts up the remote server
+	 */
+	public void startServer() {
+		if (server != null) {
+			return;
+		}
+		try {
+			String bindAddress = localhostOnly ? "localhost" : "0.0.0.0";
+			if (useSSL) {
+				try {
+					InputStream is = ClassLoader.getSystemResourceAsStream(certificateFilename);
+					if (is != null) {
+						SSLContextHelper sslCtxHelper = new SSLContextHelper();
+						sslCtxHelper.loadSSLCertificate(is, certificatePassword, certificatePassword);
+						server = new Server(port, bindAddress, sslCtxHelper.getSSLCtx());
+					} else {
+						LoggingHandler.felog.error("[remote] Unable to load SSL certificate: File not found");
+					}
+				} catch (IOException | GeneralSecurityException e1) {
+					LoggingHandler.felog.error("[remote] Unable to load SSL certificate: " + e1.getMessage());
+				}
+			} else {
+				server = new Server(port, bindAddress);
+			}
+		} catch (IOException e1) {
+			LoggingHandler.felog.error("[remote] Unable to start remote-server: " + e1.getMessage());
+		}
+	}
 
-    /**
-     * Get the instance of ModuleRemote
-     */
-    public static ModuleRemote getInstance()
-    {
-        return instance;
-    }
+	/**
+	 * Stops the remote server
+	 */
+	public void stopServer() {
+		if (server != null) {
+			server.close();
+			server = null;
+		}
+	}
 
 }

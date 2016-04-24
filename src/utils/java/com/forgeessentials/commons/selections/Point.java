@@ -7,201 +7,182 @@ import net.minecraft.entity.Entity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.Vec3;
 
-public class Point
-{
+public class Point {
 
-    protected BlockPos blockPos;
+	private static final Pattern pattern = Pattern
+			.compile("\\s*\\[\\s*(-?\\d+)\\s*,\\s*(-?\\d+)\\s*,\\s*(-?\\d+)\\s*\\]\\s*");
 
-    protected int x;
+	public static Point fromString(String value) {
+		Matcher match = pattern.matcher(value);
+		if (!match.matches()) {
+			return null;
+		}
+		return new Point(Integer.parseInt(match.group(1)), Integer.parseInt(match.group(2)),
+				Integer.parseInt(match.group(3)));
+	}
 
-    protected int y;
+	protected BlockPos blockPos;
 
-    protected int z;
+	protected int x;
 
-    // ------------------------------------------------------------
+	// ------------------------------------------------------------
 
-    public Point(int x, int y, int z)
-    {
-        this.x = x;
-        this.y = y;
-        this.z = z;
-    }
+	protected int y;
 
-    public Point(double x, double y, double z)
-    {
-        this.x = ((int) x);
-        this.y = ((int) y);
-        this.z = ((int) z);
-    }
+	protected int z;
 
-    public Point(Entity entity)
-    {
-        x = (int) Math.floor(entity.posX);
-        y = (int) Math.floor(entity.posY);
-        z = (int) Math.floor(entity.posZ);
-    }
+	public Point(double x, double y, double z) {
+		this.x = ((int) x);
+		this.y = ((int) y);
+		this.z = ((int) z);
+	}
 
-    public Point(Vec3 vector)
-    {
-        this((int) vector.xCoord, (int) vector.yCoord, (int) vector.zCoord);
-    }
+	public Point(Entity entity) {
+		x = (int) Math.floor(entity.posX);
+		y = (int) Math.floor(entity.posY);
+		z = (int) Math.floor(entity.posZ);
+	}
 
-    public Point(Point other)
-    {
-        this(other.x, other.y, other.z);
-    }
+	public Point(int x, int y, int z) {
+		this.x = x;
+		this.y = y;
+		this.z = z;
+	}
 
-    // ------------------------------------------------------------
+	// ------------------------------------------------------------
 
-    public BlockPos getBlockPos()
-    {
-        if (blockPos == null)
-            blockPos = new BlockPos(x, y, z);
-        return blockPos;
-    }
+	public Point(Point other) {
+		this(other.x, other.y, other.z);
+	}
 
-    public int getX()
-    {
-        return x;
-    }
+	public Point(Vec3 vector) {
+		this((int) vector.xCoord, (int) vector.yCoord, (int) vector.zCoord);
+	}
 
-    public int getY()
-    {
-        return y;
-    }
+	public void add(Point v) {
+		x += v.x;
+		y += v.y;
+		z += v.z;
+		blockPos = null;
+	}
 
-    public int getZ()
-    {
-        return z;
-    }
+	/**
+	 * Checks if two points are on the same plane (have the same coordinate on
+	 * at least one axis)
+	 */
+	public boolean alignsWith(Point point) {
+		return (x == point.x) || (y == point.y) || (z == point.z);
+	}
 
-    public Point setX(int x)
-    {
-        this.x = x;
-        blockPos = null;
-        return this;
-    }
+	/**
+	 * Returns the distance to another point
+	 */
+	public double distance(Point v) {
+		return Math.sqrt(((x - v.x) * (x - v.x)) + ((y - v.y) * (y - v.y)) + ((z - v.z) * (z - v.z)));
+	}
 
-    public Point setY(int y)
-    {
-        this.y = y;
-        blockPos = null;
-        return this;
-    }
+	@Override
+	public boolean equals(Object object) {
+		if (object instanceof Point) {
+			Point p = (Point) object;
+			return (x == p.x) && (y == p.y) && (z == p.z);
+		}
+		return false;
+	}
 
-    public Point setZ(int z)
-    {
-        this.z = z;
-        blockPos = null;
-        return this;
-    }
+	public BlockPos getBlockPos() {
+		if (blockPos == null) {
+			blockPos = new BlockPos(x, y, z);
+		}
+		return blockPos;
+	}
 
-    // ------------------------------------------------------------
+	// ------------------------------------------------------------
 
-    /**
-     * Returns the length of this vector
-     */
-    public double length()
-    {
-        return Math.sqrt(x * x + y * y + z * z);
-    }
+	public int getX() {
+		return x;
+	}
 
-    /**
-     * Returns the distance to another point
-     */
-    public double distance(Point v)
-    {
-        return Math.sqrt((x - v.x) * (x - v.x) + (y - v.y) * (y - v.y) + (z - v.z) * (z - v.z));
-    }
+	public int getY() {
+		return y;
+	}
 
-    public void add(Point v)
-    {
-        x += v.x;
-        y += v.y;
-        z += v.z;
-        blockPos = null;
-    }
+	public int getZ() {
+		return z;
+	}
 
-    public void subtract(Point v)
-    {
-        x -= v.x;
-        y -= v.y;
-        z -= v.z;
-        blockPos = null;
-    }
+	@Override
+	public int hashCode() {
+		int h = 1 + x;
+		h = (h * 31) + y;
+		h = (h * 31) + z;
+		return h;
+	}
 
-    /**
-     * Checks if two points are on the same plane (have the same coordinate on at least one axis)
-     */
-    public boolean alignsWith(Point point)
-    {
-        return x == point.x || y == point.y || z == point.z;
-    }
+	/**
+	 * Checks if this point has greater or equal coordinates than another point
+	 * on all axes
+	 */
+	public boolean isGreaterEqualThan(Point p) {
+		return (x >= p.x) && (y >= p.y) && (z >= p.z);
+	}
 
-    /**
-     * Checks if this point has greater or equal coordinates than another point on all axes
-     */
-    public boolean isGreaterEqualThan(Point p)
-    {
-        return x >= p.x && y >= p.y && z >= p.z;
-    }
+	/**
+	 * Checks if this point has less or equal coordinates than another point on
+	 * all axes
+	 */
+	public boolean isLessEqualThan(Point p) {
+		return (x <= p.x) && (y <= p.y) && (z <= p.z);
+	}
 
-    /**
-     * Checks if this point has less or equal coordinates than another point on all axes
-     */
-    public boolean isLessEqualThan(Point p)
-    {
-        return x <= p.x && y <= p.y && z <= p.z;
-    }
+	/**
+	 * Returns the length of this vector
+	 */
+	public double length() {
+		return Math.sqrt((x * x) + (y * y) + (z * z));
+	}
 
-    public void validatePositiveY()
-    {
-        if (y < 0)
-            y = 0;
-        blockPos = null;
-    }
+	public Point setX(int x) {
+		this.x = x;
+		blockPos = null;
+		return this;
+	}
 
-    public Vec3 toVec3()
-    {
-        return new Vec3(x, y, z);
-    }
+	public Point setY(int y) {
+		this.y = y;
+		blockPos = null;
+		return this;
+	}
 
-    // ------------------------------------------------------------
+	// ------------------------------------------------------------
 
-    @Override
-    public String toString()
-    {
-        return "[" + x + ", " + y + ", " + z + "]";
-    }
+	public Point setZ(int z) {
+		this.z = z;
+		blockPos = null;
+		return this;
+	}
 
-    private static final Pattern pattern = Pattern.compile("\\s*\\[\\s*(-?\\d+)\\s*,\\s*(-?\\d+)\\s*,\\s*(-?\\d+)\\s*\\]\\s*");
+	public void subtract(Point v) {
+		x -= v.x;
+		y -= v.y;
+		z -= v.z;
+		blockPos = null;
+	}
 
-    public static Point fromString(String value)
-    {
-        Matcher match = pattern.matcher(value);
-        if (!match.matches())
-            return null;
-        return new Point(Integer.parseInt(match.group(1)), Integer.parseInt(match.group(2)), Integer.parseInt(match.group(3)));
-    }
+	@Override
+	public String toString() {
+		return "[" + x + ", " + y + ", " + z + "]";
+	}
 
-    @Override
-    public boolean equals(Object object)
-    {
-        if (object instanceof Point)
-        {
-            Point p = (Point) object;
-            return x == p.x && y == p.y && z == p.z;
-        }
-        return false;
-    }
+	public Vec3 toVec3() {
+		return new Vec3(x, y, z);
+	}
 
-    @Override
-    public int hashCode()
-    {
-        int h = 1 + x;
-        h = h * 31 + y;
-        h = h * 31 + z;
-        return h;
-    }
+	public void validatePositiveY() {
+		if (y < 0) {
+			y = 0;
+		}
+		blockPos = null;
+	}
 
 }

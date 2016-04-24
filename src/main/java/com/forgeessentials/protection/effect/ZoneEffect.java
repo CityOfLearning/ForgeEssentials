@@ -2,58 +2,52 @@ package com.forgeessentials.protection.effect;
 
 import net.minecraft.entity.player.EntityPlayerMP;
 
-public abstract class ZoneEffect
-{
+public abstract class ZoneEffect {
 
-    protected EntityPlayerMP player;
+	protected EntityPlayerMP player;
 
-    protected int interval;
+	protected int interval;
 
-    protected long lastEffect;
+	protected long lastEffect;
 
-    protected boolean lethal;
+	protected boolean lethal;
 
-    public ZoneEffect(EntityPlayerMP player, int interval, boolean lethal)
-    {
-        this.player = player;
-        this.interval = interval;
-        this.lethal = lethal;
-    }
+	public ZoneEffect(EntityPlayerMP player, int interval, boolean lethal) {
+		this.player = player;
+		this.interval = interval;
+		this.lethal = lethal;
+	}
 
-    public void update()
-    {
-        if (interval >= 0 && System.currentTimeMillis() - lastEffect >= interval)
-        {
-            // Save last activation time and disable, if interval = 0 (once-only)
-            lastEffect = System.currentTimeMillis();
-            if (interval == 0)
-                interval = -1;
+	public abstract void execute();
 
-            // Execute effect
-            execute();
-        }
-    }
+	public int getInterval() {
+		return interval;
+	}
 
-    public abstract void execute();
+	public long getLastEffect() {
+		return lastEffect;
+	}
 
-    public EntityPlayerMP getPlayer()
-    {
-        return player;
-    }
+	public EntityPlayerMP getPlayer() {
+		return player;
+	}
 
-    public int getInterval()
-    {
-        return interval;
-    }
+	public boolean isLethal() {
+		return lethal;
+	}
 
-    public long getLastEffect()
-    {
-        return lastEffect;
-    }
+	public void update() {
+		if ((interval >= 0) && ((System.currentTimeMillis() - lastEffect) >= interval)) {
+			// Save last activation time and disable, if interval = 0
+			// (once-only)
+			lastEffect = System.currentTimeMillis();
+			if (interval == 0) {
+				interval = -1;
+			}
 
-    public boolean isLethal()
-    {
-        return lethal;
-    }
+			// Execute effect
+			execute();
+		}
+	}
 
 }

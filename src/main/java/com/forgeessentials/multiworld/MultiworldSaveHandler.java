@@ -18,163 +18,132 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.StartupQuery;
 
 /**
- * 
+ *
  * @author Olee
  */
-public class MultiworldSaveHandler implements ISaveHandler
-{
+public class MultiworldSaveHandler implements ISaveHandler {
 
-    private SaveHandler parent;
+	private SaveHandler parent;
 
-    private Multiworld world;
+	private Multiworld world;
 
-    public MultiworldSaveHandler(ISaveHandler parent, Multiworld world)
-    {
-        if (!(parent instanceof SaveHandler))
-            throw new RuntimeException();
-        this.parent = (SaveHandler) parent;
-        this.world = world;
-    }
+	public MultiworldSaveHandler(ISaveHandler parent, Multiworld world) {
+		if (!(parent instanceof SaveHandler)) {
+			throw new RuntimeException();
+		}
+		this.parent = (SaveHandler) parent;
+		this.world = world;
+	}
 
-    public File getDimensionDirectory()
-    {
-        return new File(getWorldDirectory(), "FEMultiworld/" + world.getName());
-    }
+	@Override
+	public void checkSessionLock() throws MinecraftException {
+		parent.checkSessionLock();
+	}
 
-    @Override
-    public IChunkLoader getChunkLoader(WorldProvider provider)
-    {
-        return new AnvilChunkLoader(getDimensionDirectory());
-    }
+	@Override
+	public void flush() {
+		parent.flush();
+	}
 
-    @Override
-    public WorldInfo loadWorldInfo()
-    {
-        File file1 = new File(getDimensionDirectory(), "level.dat");
-        if (file1.exists())
-        {
-            try
-            {
-                NBTTagCompound nbttagcompound = CompressedStreamTools.readCompressed(new FileInputStream(file1));
-                NBTTagCompound nbttagcompound1 = nbttagcompound.getCompoundTag("Data");
-                WorldInfo worldInfo = new WorldInfo(nbttagcompound1);
-                return worldInfo;
-            }
-            catch (StartupQuery.AbortedException e)
-            {
-                throw e;
-            }
-            catch (Exception exception1)
-            {
-                exception1.printStackTrace();
-            }
-        }
+	@Override
+	public IChunkLoader getChunkLoader(WorldProvider provider) {
+		return new AnvilChunkLoader(getDimensionDirectory());
+	}
 
-        file1 = new File(getDimensionDirectory(), "level.dat_old");
-        if (file1.exists())
-        {
-            try
-            {
-                NBTTagCompound nbttagcompound = CompressedStreamTools.readCompressed(new FileInputStream(file1));
-                NBTTagCompound nbttagcompound1 = nbttagcompound.getCompoundTag("Data");
-                WorldInfo worldInfo = new WorldInfo(nbttagcompound1);
-                return worldInfo;
-            }
-            catch (StartupQuery.AbortedException e)
-            {
-                throw e;
-            }
-            catch (Exception exception)
-            {
-                exception.printStackTrace();
-            }
-        }
+	public File getDimensionDirectory() {
+		return new File(getWorldDirectory(), "FEMultiworld/" + world.getName());
+	}
 
-        return null;
-    }
+	@Override
+	public File getMapFileFromName(String name) {
+		return parent.getMapFileFromName(name);
+	}
 
-    @Override
-    public void checkSessionLock() throws MinecraftException
-    {
-        parent.checkSessionLock();
-    }
+	@Override
+	public IPlayerFileData getPlayerNBTManager() {
+		return parent.getPlayerNBTManager();
+	}
 
-    public void saveWorldInfoData(WorldInfo p_75755_1_, NBTTagCompound data)
-    {
-        NBTTagCompound dataTag = new NBTTagCompound();
-        dataTag.setTag("Data", data);
+	@Override
+	public File getWorldDirectory() {
+		return parent.getWorldDirectory();
+	}
 
-        // Save the list of mods the world was created with
-        FMLCommonHandler.instance().handleWorldDataSave(parent, p_75755_1_, dataTag);
+	@Override
+	public String getWorldDirectoryName() {
+		return parent.getWorldDirectoryName();
+	}
 
-        try
-        {
-            File file1 = new File(getDimensionDirectory(), "level.dat_new");
-            File file2 = new File(getDimensionDirectory(), "level.dat_old");
-            File file3 = new File(getDimensionDirectory(), "level.dat");
-            CompressedStreamTools.writeCompressed(dataTag, new FileOutputStream(file1));
+	@Override
+	public WorldInfo loadWorldInfo() {
+		File file1 = new File(getDimensionDirectory(), "level.dat");
+		if (file1.exists()) {
+			try {
+				NBTTagCompound nbttagcompound = CompressedStreamTools.readCompressed(new FileInputStream(file1));
+				NBTTagCompound nbttagcompound1 = nbttagcompound.getCompoundTag("Data");
+				WorldInfo worldInfo = new WorldInfo(nbttagcompound1);
+				return worldInfo;
+			} catch (StartupQuery.AbortedException e) {
+				throw e;
+			} catch (Exception exception1) {
+				exception1.printStackTrace();
+			}
+		}
 
-            if (file2.exists())
-            {
-                file2.delete();
-            }
-            file3.renameTo(file2);
-            if (file3.exists())
-            {
-                file3.delete();
-            }
-            file1.renameTo(file3);
-            if (file1.exists())
-            {
-                file1.delete();
-            }
-        }
-        catch (Exception exception)
-        {
-            exception.printStackTrace();
-        }
-    }
+		file1 = new File(getDimensionDirectory(), "level.dat_old");
+		if (file1.exists()) {
+			try {
+				NBTTagCompound nbttagcompound = CompressedStreamTools.readCompressed(new FileInputStream(file1));
+				NBTTagCompound nbttagcompound1 = nbttagcompound.getCompoundTag("Data");
+				WorldInfo worldInfo = new WorldInfo(nbttagcompound1);
+				return worldInfo;
+			} catch (StartupQuery.AbortedException e) {
+				throw e;
+			} catch (Exception exception) {
+				exception.printStackTrace();
+			}
+		}
 
-    @Override
-    public void saveWorldInfoWithPlayer(WorldInfo worldInfo, NBTTagCompound playerInfo)
-    {
-        saveWorldInfoData(worldInfo, worldInfo.cloneNBTCompound(playerInfo));
-    }
+		return null;
+	}
 
-    @Override
-    public void saveWorldInfo(WorldInfo worldInfo)
-    {
-        saveWorldInfoData(worldInfo, worldInfo.getNBTTagCompound());
-    }
+	@Override
+	public void saveWorldInfo(WorldInfo worldInfo) {
+		saveWorldInfoData(worldInfo, worldInfo.getNBTTagCompound());
+	}
 
-    @Override
-    public IPlayerFileData getPlayerNBTManager()
-    {
-        return parent.getPlayerNBTManager();
-    }
+	public void saveWorldInfoData(WorldInfo p_75755_1_, NBTTagCompound data) {
+		NBTTagCompound dataTag = new NBTTagCompound();
+		dataTag.setTag("Data", data);
 
-    @Override
-    public void flush()
-    {
-        parent.flush();
-    }
+		// Save the list of mods the world was created with
+		FMLCommonHandler.instance().handleWorldDataSave(parent, p_75755_1_, dataTag);
 
-    @Override
-    public File getWorldDirectory()
-    {
-        return parent.getWorldDirectory();
-    }
+		try {
+			File file1 = new File(getDimensionDirectory(), "level.dat_new");
+			File file2 = new File(getDimensionDirectory(), "level.dat_old");
+			File file3 = new File(getDimensionDirectory(), "level.dat");
+			CompressedStreamTools.writeCompressed(dataTag, new FileOutputStream(file1));
 
-    @Override
-    public File getMapFileFromName(String name)
-    {
-        return parent.getMapFileFromName(name);
-    }
+			if (file2.exists()) {
+				file2.delete();
+			}
+			file3.renameTo(file2);
+			if (file3.exists()) {
+				file3.delete();
+			}
+			file1.renameTo(file3);
+			if (file1.exists()) {
+				file1.delete();
+			}
+		} catch (Exception exception) {
+			exception.printStackTrace();
+		}
+	}
 
-    @Override
-    public String getWorldDirectoryName()
-    {
-        return parent.getWorldDirectoryName();
-    }
+	@Override
+	public void saveWorldInfoWithPlayer(WorldInfo worldInfo, NBTTagCompound playerInfo) {
+		saveWorldInfoData(worldInfo, worldInfo.cloneNBTCompound(playerInfo));
+	}
 
 }

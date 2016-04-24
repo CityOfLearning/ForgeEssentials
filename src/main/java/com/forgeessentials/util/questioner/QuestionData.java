@@ -1,5 +1,8 @@
 package com.forgeessentials.util.questioner;
 
+import com.forgeessentials.core.misc.Translator;
+import com.forgeessentials.util.output.ChatOutputHandler;
+
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.event.ClickEvent;
@@ -7,119 +10,105 @@ import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IChatComponent;
 
-import com.forgeessentials.core.misc.Translator;
-import com.forgeessentials.util.output.ChatOutputHandler;
+public class QuestionData {
 
-public class QuestionData
-{
+	private ICommandSender target;
 
-    private ICommandSender target;
+	private ICommandSender source;
 
-    private ICommandSender source;
+	private String question;
 
-    private String question;
+	private int timeout;
 
-    private int timeout;
+	private long startTime;
 
-    private long startTime;
+	private QuestionerCallback callback;
 
-    private QuestionerCallback callback;
+	public QuestionData(ICommandSender target, String question, QuestionerCallback callback, int timeout,
+			ICommandSender source) {
+		this.target = target;
+		this.timeout = timeout;
+		this.callback = callback;
+		this.source = source;
+		this.question = question;
+		startTime = System.currentTimeMillis();
+	}
 
-    public QuestionData(ICommandSender target, String question, QuestionerCallback callback, int timeout, ICommandSender source)
-    {
-        this.target = target;
-        this.timeout = timeout;
-        this.callback = callback;
-        this.source = source;
-        this.question = question;
-        this.startTime = System.currentTimeMillis();
-    }
+	public void cancel() throws CommandException {
+		Questioner.cancel(target);
+		// TODO: Maybe send a message, because it was not canceled through user
+		// interaction?
+	}
 
-    public void sendQuestion()
-    {
-        ChatOutputHandler.sendMessage(target, question);
-        sendYesNoMessage();
-    }
+	public void confirm() throws CommandException {
+		Questioner.confirm(target);
+		// TODO: Maybe send a message, because it was not confirmed through user
+		// interaction?
+	}
 
-    public void sendYesNoMessage()
-    {
-        IChatComponent yesMessage = new ChatComponentText("/yes");
-        yesMessage.getChatStyle().setChatClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/yes"));
-        yesMessage.getChatStyle().setColor(EnumChatFormatting.RED);
-        yesMessage.getChatStyle().setUnderlined(true);
+	public void deny() throws CommandException {
+		Questioner.deny(target);
+		// TODO: Maybe send a message, because it was not denied through user
+		// interaction?
+	}
 
-        IChatComponent noMessage = new ChatComponentText("/no");
-        noMessage.getChatStyle().setChatClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/no"));
-        noMessage.getChatStyle().setColor(EnumChatFormatting.RED);
-        noMessage.getChatStyle().setUnderlined(true);
+	protected void doAnswer(Boolean answer) throws CommandException {
+		callback.respond(answer);
+	}
 
-        IChatComponent yesNoMessage = new ChatComponentText("Type ");
-        yesNoMessage.appendSibling(yesMessage);
-        yesNoMessage.appendSibling(new ChatComponentText(" or "));
-        yesNoMessage.appendSibling(noMessage);
-        yesNoMessage.appendSibling(new ChatComponentText(" " + Translator.format("(timeout: %d)", timeout)));
+	public QuestionerCallback getCallback() {
+		return callback;
+	}
 
-        ChatOutputHandler.sendMessage(target, yesNoMessage);
-    }
+	public String getQuestion() {
+		return question;
+	}
 
-    protected void doAnswer(Boolean answer) throws CommandException
-    {
-        callback.respond(answer);
-    }
+	/* ------------------------------------------------------------ */
 
-    public void confirm() throws CommandException
-    {
-        Questioner.confirm(target);
-        // TODO: Maybe send a message, because it was not confirmed through user interaction?
-    }
+	public ICommandSender getSource() {
+		return source;
+	}
 
-    public void deny() throws CommandException
-    {
-        Questioner.deny(target);
-        // TODO: Maybe send a message, because it was not denied through user interaction?
-    }
+	public long getStartTime() {
+		return startTime;
+	}
 
-    public void cancel() throws CommandException
-    {
-        Questioner.cancel(target);
-        // TODO: Maybe send a message, because it was not canceled through user interaction?
-    }
+	public ICommandSender getTarget() {
+		return target;
+	}
 
-    /* ------------------------------------------------------------ */
+	public int getTimeout() {
+		return timeout;
+	}
 
-    public ICommandSender getTarget()
-    {
-        return target;
-    }
+	public boolean isTimeout() {
+		return ((System.currentTimeMillis() - startTime) / 1000L) > timeout;
+	}
 
-    public ICommandSender getSource()
-    {
-        return source;
-    }
+	public void sendQuestion() {
+		ChatOutputHandler.sendMessage(target, question);
+		sendYesNoMessage();
+	}
 
-    public String getQuestion()
-    {
-        return question;
-    }
+	public void sendYesNoMessage() {
+		IChatComponent yesMessage = new ChatComponentText("/yes");
+		yesMessage.getChatStyle().setChatClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/yes"));
+		yesMessage.getChatStyle().setColor(EnumChatFormatting.RED);
+		yesMessage.getChatStyle().setUnderlined(true);
 
-    public int getTimeout()
-    {
-        return timeout;
-    }
+		IChatComponent noMessage = new ChatComponentText("/no");
+		noMessage.getChatStyle().setChatClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/no"));
+		noMessage.getChatStyle().setColor(EnumChatFormatting.RED);
+		noMessage.getChatStyle().setUnderlined(true);
 
-    public long getStartTime()
-    {
-        return startTime;
-    }
+		IChatComponent yesNoMessage = new ChatComponentText("Type ");
+		yesNoMessage.appendSibling(yesMessage);
+		yesNoMessage.appendSibling(new ChatComponentText(" or "));
+		yesNoMessage.appendSibling(noMessage);
+		yesNoMessage.appendSibling(new ChatComponentText(" " + Translator.format("(timeout: %d)", timeout)));
 
-    public QuestionerCallback getCallback()
-    {
-        return callback;
-    }
-
-    public boolean isTimeout()
-    {
-        return (System.currentTimeMillis() - startTime) / 1000L > timeout;
-    }
+		ChatOutputHandler.sendMessage(target, yesNoMessage);
+	}
 
 }

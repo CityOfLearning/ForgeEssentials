@@ -12,12 +12,10 @@ import net.minecraftforge.fml.common.eventhandler.Cancelable;
  * FE NOTE: PR directly to net.minecraftforge.event.entity.EntityEvent
  */
 @Cancelable
-public class PressurePlateEvent extends EntityEvent
-{
+public class PressurePlateEvent extends EntityEvent {
 
-    public PressurePlateEvent(Entity entity)
-    {
-        super(entity);
-    }
+	public PressurePlateEvent(Entity entity) {
+		super(entity);
+	}
 
 }

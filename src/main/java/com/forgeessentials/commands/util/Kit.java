@@ -3,71 +3,67 @@ package com.forgeessentials.commands.util;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
-import net.minecraftforge.permission.PermissionManager;
-
 import com.forgeessentials.commands.item.CommandKit;
 import com.forgeessentials.core.misc.Translator;
 import com.forgeessentials.util.PlayerInfo;
 import com.forgeessentials.util.output.ChatOutputHandler;
 import com.forgeessentials.util.output.LoggingHandler;
 
-public class Kit
-{
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
+import net.minecraftforge.permission.PermissionManager;
 
-    private static final long MILLISECONDS_PER_YEAR = 365L * 24L * 60L * 60L * 1000L;
+public class Kit {
 
-    private String name;
+	private static final long MILLISECONDS_PER_YEAR = 365L * 24L * 60L * 60L * 1000L;
 
-    private int cooldown;
+	private String name;
 
-    private ItemStack[] items;
+	private int cooldown;
 
-    private ItemStack[] armor;
+	private ItemStack[] items;
 
-    public Kit(EntityPlayer player, String name, int cooldown)
-    {
-        this.cooldown = cooldown;
-        this.name = name;
+	private ItemStack[] armor;
 
-        List<ItemStack> collapsedInventory = new ArrayList<ItemStack>();
-        for (int i = 0; i < player.inventory.mainInventory.length; i++)
-            if (player.inventory.mainInventory[i] != null)
-                collapsedInventory.add(player.inventory.mainInventory[i]);
-        items = collapsedInventory.toArray(new ItemStack[collapsedInventory.size()]);
+	public Kit(EntityPlayer player, String name, int cooldown) {
+		this.cooldown = cooldown;
+		this.name = name;
 
-        armor = new ItemStack[player.inventory.armorInventory.length];
-        for (int i = 0; i < 4; i++)
-            if (player.inventory.armorInventory[i] != null)
-                armor[i] = player.inventory.armorInventory[i].copy();
-    }
+		List<ItemStack> collapsedInventory = new ArrayList<ItemStack>();
+		for (int i = 0; i < player.inventory.mainInventory.length; i++) {
+			if (player.inventory.mainInventory[i] != null) {
+				collapsedInventory.add(player.inventory.mainInventory[i]);
+			}
+		}
+		items = collapsedInventory.toArray(new ItemStack[collapsedInventory.size()]);
 
-    public String getName()
-    {
-        return name;
-    }
+		armor = new ItemStack[player.inventory.armorInventory.length];
+		for (int i = 0; i < 4; i++) {
+			if (player.inventory.armorInventory[i] != null) {
+				armor[i] = player.inventory.armorInventory[i].copy();
+			}
+		}
+	}
 
-    public int getCooldown()
-    {
-        return cooldown;
-    }
+	public ItemStack[] getArmor() {
+		return armor;
+	}
 
-    public ItemStack[] getItems()
-    {
-        return items;
-    }
+	public int getCooldown() {
+		return cooldown;
+	}
 
-    public ItemStack[] getArmor()
-    {
-        return armor;
-    }
+	public ItemStack[] getItems() {
+		return items;
+	}
 
-    public void giveKit(EntityPlayer player)
-    {
-        if (!PermissionManager.checkPermission(player, CommandKit.PERM_BYPASS_COOLDOWN))
-        {
-            PlayerInfo pi;
+	public String getName() {
+		return name;
+	}
+
+	public void giveKit(EntityPlayer player) {
+		if (!PermissionManager.checkPermission(player, CommandKit.PERM_BYPASS_COOLDOWN)) {
+			PlayerInfo pi;
 			try {
 				pi = PlayerInfo.get(player.getPersistentID());
 
@@ -81,23 +77,28 @@ public class Kit
 			} catch (Exception e) {
 				LoggingHandler.felog.error("Error getting player Info");
 			}
-        }
+		}
 
-        boolean couldNotGiveItems = false;
+		boolean couldNotGiveItems = false;
 
-        for (ItemStack stack : items)
-            couldNotGiveItems |= !player.inventory.addItemStackToInventory(ItemStack.copyItemStack(stack));
+		for (ItemStack stack : items) {
+			couldNotGiveItems |= !player.inventory.addItemStackToInventory(ItemStack.copyItemStack(stack));
+		}
 
-        for (int i = 0; i < 4; i++)
-            if (armor[i] != null)
-                if (player.inventory.armorInventory[i] == null)
-                    player.inventory.armorInventory[i] = armor[i];
-                else
-                    couldNotGiveItems |= !player.inventory.addItemStackToInventory(ItemStack.copyItemStack(armor[i]));
+		for (int i = 0; i < 4; i++) {
+			if (armor[i] != null) {
+				if (player.inventory.armorInventory[i] == null) {
+					player.inventory.armorInventory[i] = armor[i];
+				} else {
+					couldNotGiveItems |= !player.inventory.addItemStackToInventory(ItemStack.copyItemStack(armor[i]));
+				}
+			}
+		}
 
-        if (couldNotGiveItems)
-            ChatOutputHandler.chatError(player, Translator.translate("Could not give some kit items."));
-        ChatOutputHandler.chatConfirmation(player, "Kit dropped.");
-    }
+		if (couldNotGiveItems) {
+			ChatOutputHandler.chatError(player, Translator.translate("Could not give some kit items."));
+		}
+		ChatOutputHandler.chatConfirmation(player, "Kit dropped.");
+	}
 
 }

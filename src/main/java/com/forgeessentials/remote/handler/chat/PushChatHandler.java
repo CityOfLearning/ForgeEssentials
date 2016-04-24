@@ -4,13 +4,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-import net.minecraft.util.IChatComponent;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.ServerChatEvent;
-import net.minecraftforge.fml.common.eventhandler.EventPriority;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.permission.PermissionLevel;
-
 import com.forgeessentials.api.APIRegistry;
 import com.forgeessentials.api.remote.FERemoteHandler;
 import com.forgeessentials.api.remote.GenericRemoteHandler;
@@ -22,88 +15,90 @@ import com.forgeessentials.remote.handler.chat.PushChatHandler.Request;
 import com.forgeessentials.remote.network.ChatResponse;
 import com.forgeessentials.util.output.ChatOutputHandler.ChatFormat;
 
+import net.minecraft.util.IChatComponent;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.ServerChatEvent;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.permission.PermissionLevel;
+
 @FERemoteHandler(id = RemoteMessageID.PUSH_CHAT)
-public class PushChatHandler extends GenericRemoteHandler<Request>
-{
+public class PushChatHandler extends GenericRemoteHandler<Request> {
 
-    public static final String PERM = PERM_REMOTE + ".chat.push";
+	public static class Request {
 
-    protected Map<RemoteSession, ChatFormat> formats = new WeakHashMap<>();
+		public boolean enable;
 
-    protected static PushChatHandler instance;
+		public String format;
 
-    public PushChatHandler()
-    {
-        super(PERM, Request.class);
-        APIRegistry.perms.registerPermission(PERM, PermissionLevel.TRUE, "Allows requesting chat push messages");
-        MinecraftForge.EVENT_BUS.register(this);
-        instance = this;
-    }
+		public Request(boolean enable, String format) {
+			this.enable = enable;
+			this.format = format;
+		}
 
-    @Override
-    public synchronized RemoteResponse<?> handleData(RemoteSession session, RemoteRequest<Request> request)
-    {
-        if (request.data.format != null)
-            formats.put(session, ChatFormat.fromString(request.data.format));
-        if (hasPushSession(session) ^ !request.data.enable)
-            error("chat push already " + (request.data.enable ? "enabled" : "disabled"));
-        if (request.data.enable)
-            addPushSession(session);
-        else
-            removePushSession(session);
-        return success(request);
-    }
+	}
 
-    @SubscribeEvent(priority = EventPriority.LOWEST)
-    public synchronized void chatEvent(ServerChatEvent event)
-    {
-        IChatComponent message = event.getComponent();
-        String username = event.username;
-        pushMessage(message, username);
-    }
+	public static final String PERM = PERM_REMOTE + ".chat.push";
 
-    protected void pushMessage(IChatComponent message, String username)
-    {
-        RemoteResponse<?>[] messages = new RemoteResponse<?>[ChatFormat.values().length];
-        if (!pushSessions.isEmpty())
-        {
-            Iterator<RemoteSession> it = pushSessions.iterator();
-            while (it.hasNext())
-            {
-                RemoteSession session = it.next();
-                if (session.isClosed())
-                {
-                    it.remove();
-                    continue;
-                }
-                ChatFormat format = formats.get(session);
-                if (format == null)
-                    format = ChatFormat.PLAINTEXT;
-                if (messages[format.ordinal()] == null)
-                    messages[format.ordinal()] = new RemoteResponse<>(RemoteMessageID.CHAT, new ChatResponse(username, format.format(message)));
-                session.trySendMessage(messages[format.ordinal()]);
-            }
-        }
-    }
+	protected static PushChatHandler instance;
 
-    public static void onMessage(IChatComponent message, String username)
-    {
-        instance.pushMessage(message, username);
-    }
+	public static void onMessage(IChatComponent message, String username) {
+		instance.pushMessage(message, username);
+	}
 
-    public static class Request
-    {
+	protected Map<RemoteSession, ChatFormat> formats = new WeakHashMap<>();
 
-        public boolean enable;
+	public PushChatHandler() {
+		super(PERM, Request.class);
+		APIRegistry.perms.registerPermission(PERM, PermissionLevel.TRUE, "Allows requesting chat push messages");
+		MinecraftForge.EVENT_BUS.register(this);
+		instance = this;
+	}
 
-        public String format;
+	@SubscribeEvent(priority = EventPriority.LOWEST)
+	public synchronized void chatEvent(ServerChatEvent event) {
+		IChatComponent message = event.getComponent();
+		String username = event.username;
+		pushMessage(message, username);
+	}
 
-        public Request(boolean enable, String format)
-        {
-            this.enable = enable;
-            this.format = format;
-        }
+	@Override
+	public synchronized RemoteResponse<?> handleData(RemoteSession session, RemoteRequest<Request> request) {
+		if (request.data.format != null) {
+			formats.put(session, ChatFormat.fromString(request.data.format));
+		}
+		if (hasPushSession(session) ^ !request.data.enable) {
+			error("chat push already " + (request.data.enable ? "enabled" : "disabled"));
+		}
+		if (request.data.enable) {
+			addPushSession(session);
+		} else {
+			removePushSession(session);
+		}
+		return success(request);
+	}
 
-    }
+	protected void pushMessage(IChatComponent message, String username) {
+		RemoteResponse<?>[] messages = new RemoteResponse<?>[ChatFormat.values().length];
+		if (!pushSessions.isEmpty()) {
+			Iterator<RemoteSession> it = pushSessions.iterator();
+			while (it.hasNext()) {
+				RemoteSession session = it.next();
+				if (session.isClosed()) {
+					it.remove();
+					continue;
+				}
+				ChatFormat format = formats.get(session);
+				if (format == null) {
+					format = ChatFormat.PLAINTEXT;
+				}
+				if (messages[format.ordinal()] == null) {
+					messages[format.ordinal()] = new RemoteResponse<>(RemoteMessageID.CHAT,
+							new ChatResponse(username, format.format(message)));
+				}
+				session.trySendMessage(messages[format.ordinal()]);
+			}
+		}
+	}
 
 }

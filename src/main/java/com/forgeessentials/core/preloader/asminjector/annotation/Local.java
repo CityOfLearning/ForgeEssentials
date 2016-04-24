@@ -7,14 +7,13 @@ import java.lang.annotation.Target;
 
 @Target({ ElementType.PARAMETER })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Local
-{
+public @interface Local {
 
-    /**
-     * Possible local variable names
-     *
-     * @return possible local variable names
-     */
-    public String[] value() default "";
+	/**
+	 * Possible local variable names
+	 *
+	 * @return possible local variable names
+	 */
+	public String[] value() default "";
 
 }

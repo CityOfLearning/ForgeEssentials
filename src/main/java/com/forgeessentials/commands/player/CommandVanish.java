@@ -4,6 +4,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.forgeessentials.api.APIRegistry;
+import com.forgeessentials.api.UserIdent;
+import com.forgeessentials.commands.ModuleCommands;
+import com.forgeessentials.core.commands.ParserCommandBase;
+import com.forgeessentials.core.misc.TranslatedCommandException;
+import com.forgeessentials.core.preloader.api.EntityTrackerHelper;
+import com.forgeessentials.util.CommandParserArgs;
+
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.EntityTrackerEntry;
@@ -13,122 +21,101 @@ import net.minecraft.network.play.server.S19PacketEntityStatus;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.permission.PermissionLevel;
 
-import com.forgeessentials.api.APIRegistry;
-import com.forgeessentials.api.UserIdent;
-import com.forgeessentials.commands.ModuleCommands;
-import com.forgeessentials.core.commands.ParserCommandBase;
-import com.forgeessentials.core.misc.TranslatedCommandException;
-import com.forgeessentials.core.preloader.api.EntityTrackerHelper;
-import com.forgeessentials.util.CommandParserArgs;
+public class CommandVanish extends ParserCommandBase {
 
-public class CommandVanish extends ParserCommandBase
-{
+	public static final String PERM = "fe.commands.vanish";
 
-    public static final String PERM = "fe.commands.vanish";
+	public static final String PERM_OTHERS = PERM + ".others";
 
-    public static final String PERM_OTHERS = PERM + ".others";
+	private static Set<UserIdent> vanishedPlayers = new HashSet<UserIdent>();
 
-    private static Set<UserIdent> vanishedPlayers = new HashSet<UserIdent>();
+	public static boolean isVanished(UserIdent ident) {
+		return vanishedPlayers.contains(ident);
+	}
 
-    @Override
-    public String getCommandName()
-    {
-        return "vanish";
-    }
+	public static void vanish(UserIdent ident, boolean vanish) {
+		EntityPlayerMP player = ident.getPlayerMP();
+		WorldServer world = (WorldServer) player.worldObj;
+		@SuppressWarnings("unchecked")
+		List<EntityPlayer> players = world.playerEntities;
+		if (vanish) {
+			vanishedPlayers.add(ident);
+			S19PacketEntityStatus packet = new S19PacketEntityStatus(player, (byte) 3);
+			for (EntityPlayer otherPlayer : players) {
+				if (otherPlayer != player) {
+					((EntityPlayerMP) otherPlayer).playerNetServerHandler.sendPacket(packet);
+				}
+			}
+		} else {
+			vanishedPlayers.remove(ident);
+			EntityTrackerEntry tracker = ((EntityTrackerHelper) world.getEntityTracker()).getEntityTrackerEntry(player);
+			for (EntityPlayer otherPlayer : players) {
+				if (otherPlayer != player) {
+					tracker.trackingPlayers.remove(otherPlayer);
+					tracker.updatePlayerEntity((EntityPlayerMP) otherPlayer);
+				}
+			}
+		}
+	}
 
-    @Override
-    public String getCommandUsage(ICommandSender sender)
-    {
-        return "/vanish: Become invisible";
-    }
+	public static void vanishToggle(UserIdent ident) {
+		vanish(ident, !isVanished(ident));
+	}
 
-    @Override
-    public PermissionLevel getPermissionLevel()
-    {
-        return PermissionLevel.OP;
-    }
+	@Override
+	public boolean canConsoleUseCommand() {
+		return true;
+	}
 
-    @Override
-    public String getPermissionNode()
-    {
-        return ModuleCommands.PERM + "." + getCommandName();
-    }
+	@Override
+	public String getCommandName() {
+		return "vanish";
+	}
 
-    @Override
-    public void registerExtraPermissions()
-    {
-        APIRegistry.perms.registerPermission(PERM_OTHERS, PermissionLevel.OP, "Allow to vanish other players");
-    }
+	@Override
+	public String getCommandUsage(ICommandSender sender) {
+		return "/vanish: Become invisible";
+	}
 
-    @Override
-    public boolean canConsoleUseCommand()
-    {
-        return true;
-    }
+	@Override
+	public PermissionLevel getPermissionLevel() {
+		return PermissionLevel.OP;
+	}
 
-    @Override
-    public void parse(CommandParserArgs arguments) throws CommandException
-    {
-        UserIdent player;
-        if (arguments.isEmpty())
-        {
-            if (arguments.ident == null)
-            {
-                return;
-            }
-            player = arguments.ident;
-        }
-        else
-        {
-            if (!arguments.hasPermission(PERM_OTHERS))
-                throw new TranslatedCommandException("You don't have permission to vanish other players");
-            player = arguments.parsePlayer(true, true);
-        }
-        if (arguments.isTabCompletion)
-            return;
+	@Override
+	public String getPermissionNode() {
+		return ModuleCommands.PERM + "." + getCommandName();
+	}
 
-        vanishToggle(player);
-        if (isVanished(player))
-            arguments.confirm("You are vanished now");
-        else
-            arguments.confirm("You are visible now");
-    }
+	@Override
+	public void parse(CommandParserArgs arguments) throws CommandException {
+		UserIdent player;
+		if (arguments.isEmpty()) {
+			if (arguments.ident == null) {
+				return;
+			}
+			player = arguments.ident;
+		} else {
+			if (!arguments.hasPermission(PERM_OTHERS)) {
+				throw new TranslatedCommandException("You don't have permission to vanish other players");
+			}
+			player = arguments.parsePlayer(true, true);
+		}
+		if (arguments.isTabCompletion) {
+			return;
+		}
 
-    public static void vanishToggle(UserIdent ident)
-    {
-        vanish(ident, !isVanished(ident));
-    }
+		vanishToggle(player);
+		if (isVanished(player)) {
+			arguments.confirm("You are vanished now");
+		} else {
+			arguments.confirm("You are visible now");
+		}
+	}
 
-    public static boolean isVanished(UserIdent ident)
-    {
-        return vanishedPlayers.contains(ident);
-    }
-
-    public static void vanish(UserIdent ident, boolean vanish)
-    {
-        EntityPlayerMP player = ident.getPlayerMP();
-        WorldServer world = (WorldServer) player.worldObj;
-        @SuppressWarnings("unchecked")
-        List<EntityPlayer> players = world.playerEntities;
-        if (vanish)
-        {
-            vanishedPlayers.add(ident);
-            S19PacketEntityStatus packet = new S19PacketEntityStatus(player, (byte) 3);
-            for (EntityPlayer otherPlayer : players)
-                if (otherPlayer != player)
-                    ((EntityPlayerMP)otherPlayer).playerNetServerHandler.sendPacket(packet);
-        }
-        else
-        {
-            vanishedPlayers.remove(ident);
-            EntityTrackerEntry tracker = ((EntityTrackerHelper) world.getEntityTracker()).getEntityTrackerEntry(player);
-            for (EntityPlayer otherPlayer : players)
-                if (otherPlayer != player)
-                {
-                    tracker.trackingPlayers.remove(otherPlayer);
-                    tracker.updatePlayerEntity((EntityPlayerMP)otherPlayer);
-                }
-        }
-    }
+	@Override
+	public void registerExtraPermissions() {
+		APIRegistry.perms.registerPermission(PERM_OTHERS, PermissionLevel.OP, "Allow to vanish other players");
+	}
 
 }

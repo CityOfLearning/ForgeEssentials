@@ -1,32 +1,33 @@
 package com.forgeessentials.api.economy;
 
-public interface Wallet
-{
+public interface Wallet {
 
-    public long get();
+	public void add(double amount);
 
-    public void set(long value);
+	public void add(long amount);
 
-    public void add(long amount);
+	/**
+	 * Checks, if the wallet has enough currency in it to cover the withdraw
+	 * 
+	 * @param value
+	 * @return
+	 */
+	public boolean covers(long value);
 
-    public void add(double amount);
+	public long get();
 
-    /**
-     * Checks, if the wallet has enough currency in it to cover the withdraw
-     * 
-     * @param value
-     * @return
-     */
-    public boolean covers(long value);
+	public void set(long value);
 
-    public boolean withdraw(long value);
+	/**
+	 * Get the amount in this wallet described as string together with the
+	 * currency
+	 * 
+	 * @return Returns the amount in this wallet described as string together
+	 *         with the currency
+	 */
+	@Override
+	public String toString();
 
-    /**
-     * Get the amount in this wallet described as string together with the currency
-     * 
-     * @return Returns the amount in this wallet described as string together with the currency
-     */
-    @Override
-    public String toString();
+	public boolean withdraw(long value);
 
 }

@@ -14,6 +14,15 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import com.forgeessentials.api.APIRegistry;
+import com.forgeessentials.commands.util.FEcmdModuleCommands;
+import com.forgeessentials.core.ForgeEssentials;
+import com.forgeessentials.core.misc.FECommandManager.ConfigurableCommand;
+import com.forgeessentials.core.misc.TranslatedCommandException;
+import com.forgeessentials.core.misc.Translator;
+import com.forgeessentials.util.output.ChatOutputHandler;
+import com.forgeessentials.util.output.LoggingHandler;
+
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
@@ -29,390 +38,311 @@ import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.permission.PermissionLevel;
 import net.minecraftforge.permission.PermissionManager;
 
-import com.forgeessentials.api.APIRegistry;
-import com.forgeessentials.commands.util.FEcmdModuleCommands;
-import com.forgeessentials.core.ForgeEssentials;
-import com.forgeessentials.core.misc.FECommandManager.ConfigurableCommand;
-import com.forgeessentials.core.misc.TranslatedCommandException;
-import com.forgeessentials.core.misc.Translator;
-import com.forgeessentials.util.output.ChatOutputHandler;
-import com.forgeessentials.util.output.LoggingHandler;
+public class CommandRules extends FEcmdModuleCommands implements ConfigurableCommand {
 
-public class CommandRules extends FEcmdModuleCommands implements ConfigurableCommand
-{
+	public static final String[] autocomargs = { "add", "remove", "move", "change", "book" };
+	public static ArrayList<String> rules;
+	public static File rulesFile = new File(ForgeEssentials.getFEDirectory(), "rules.txt");
 
-    public static final String[] autocomargs = { "add", "remove", "move", "change", "book" };
-    public static ArrayList<String> rules;
-    public static File rulesFile = new File(ForgeEssentials.getFEDirectory(), "rules.txt");
+	@Override
+	public List<String> addTabCompletionOptions(ICommandSender sender, String[] args, BlockPos pos) {
+		if (args.length == 1) {
+			return getListOfStringsMatchingLastWord(args, autocomargs);
+		} else if (args.length == 2) {
+			List<String> opt = new ArrayList<String>();
+			for (int i = 1; i < (rules.size() + 1); i++) {
+				opt.add(i + "");
+			}
+			return opt;
+		} else if ((args.length == 3) && args[0].equalsIgnoreCase("move")) {
+			List<String> opt = new ArrayList<String>();
+			for (int i = 1; i < (rules.size() + 2); i++) {
+				opt.add(i + "");
+			}
+			return opt;
+		} else {
+			return null;
+		}
+	}
 
-    public ArrayList<String> loadRules()
-    {
-        ArrayList<String> rules = new ArrayList<String>();
+	@Override
+	public boolean canConsoleUseCommand() {
+		return true;
+	}
 
-        if (!rulesFile.exists())
-        {
-            LoggingHandler.felog.info("No rules file found. Generating with default rules..");
-            try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(rulesFile))))
-            {
-                writer.write("# " + rulesFile.getName() + " | numbers are automatically added");
-                writer.newLine();
+	@Override
+	public String getCommandName() {
+		return "rules";
+	}
 
-                writer.write("Obey the Admins");
-                rules.add("Obey the Admins");
-                writer.newLine();
+	@Override
+	public String getCommandUsage(ICommandSender sender) {
+		// Needs elaboration.
+		if (sender instanceof EntityPlayer) {
+			return "/rules [#|add|remove|move|change|help|book] Gets or sets the rules of the server.";
+		} else {
+			return "/rules [#|add|remove|move|change|help] Gets or sets the rules of the server.";
+		}
+	}
 
-                writer.write("Do not grief");
-                rules.add("Do not grief");
-                writer.newLine();
+	@Override
+	public PermissionLevel getPermissionLevel() {
+		return PermissionLevel.TRUE;
+	}
 
-                LoggingHandler.felog.info("Completed generating rules file.");
-            }
-            catch (IOException e)
-            {
-                LoggingHandler.felog.error("Error writing the Rules file: " + rulesFile.getName());
-            }
-        }
-        else
-        {
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(rulesFile))))
-            {
-                String line;
-                while ((line = reader.readLine()) != null)
-                {
-                    if (line.startsWith("#"))
-                        continue;
-                    rules.add(line);
-                }
-            }
-            catch (IOException e)
-            {
-                LoggingHandler.felog.error("Error writing the Rules file: " + rulesFile.getName());
-            }
-        }
+	@Override
+	public void loadConfig(Configuration config, String category) {
+		rulesFile = new File(ForgeEssentials.getFEDirectory(),
+				config.get(category, "filename", "rules.txt").getString());
+		rules = loadRules();
+	}
 
-        return rules;
-    }
+	@Override
+	public void loadData() {
+		/* do nothing */
+	}
 
-    public void saveRules()
-    {
-        try
-        {
-            LoggingHandler.felog.info("Saving rules");
+	public ArrayList<String> loadRules() {
+		ArrayList<String> rules = new ArrayList<String>();
 
-            if (!rulesFile.exists())
-            {
-                rulesFile.createNewFile();
-            }
+		if (!rulesFile.exists()) {
+			LoggingHandler.felog.info("No rules file found. Generating with default rules..");
+			try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(rulesFile)))) {
+				writer.write("# " + rulesFile.getName() + " | numbers are automatically added");
+				writer.newLine();
 
-            // create streams
-            FileOutputStream stream = new FileOutputStream(rulesFile);
-            OutputStreamWriter streamWriter = new OutputStreamWriter(stream);
-            BufferedWriter writer = new BufferedWriter(streamWriter);
+				writer.write("Obey the Admins");
+				rules.add("Obey the Admins");
+				writer.newLine();
 
-            writer.write("# " + rulesFile.getName() + " | numbers are automatically added");
-            writer.newLine();
+				writer.write("Do not grief");
+				rules.add("Do not grief");
+				writer.newLine();
 
-            for (String rule : rules)
-            {
-                writer.write(rule);
-                writer.newLine();
-            }
+				LoggingHandler.felog.info("Completed generating rules file.");
+			} catch (IOException e) {
+				LoggingHandler.felog.error("Error writing the Rules file: " + rulesFile.getName());
+			}
+		} else {
+			try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(rulesFile)))) {
+				String line;
+				while ((line = reader.readLine()) != null) {
+					if (line.startsWith("#")) {
+						continue;
+					}
+					rules.add(line);
+				}
+			} catch (IOException e) {
+				LoggingHandler.felog.error("Error writing the Rules file: " + rulesFile.getName());
+			}
+		}
 
-            writer.close();
-            streamWriter.close();
-            stream.close();
+		return rules;
+	}
 
-            LoggingHandler.felog.info("Completed saving rules file.");
-        }
-        catch (IOException e)
-        {
-            LoggingHandler.felog.error("Error writing the Rules file: " + rulesFile.getName());
-        }
-    }
+	@Override
+	public void processCommandConsole(ICommandSender sender, String[] args) throws CommandException {
+		if (args.length == 0) {
+			for (String rule : rules) {
+				ChatOutputHandler.sendMessage(sender, rule);
+			}
+			return;
+		}
+		if (args.length == 1) {
+			if (args[0].equalsIgnoreCase("help")) {
+				ChatOutputHandler.chatConfirmation(sender, " - /rules [#]");
+				ChatOutputHandler.chatConfirmation(sender, " - /rules &lt;#> [changedRule]");
+				ChatOutputHandler.chatConfirmation(sender, " - /rules add &lt;newRule>");
+				ChatOutputHandler.chatConfirmation(sender, " - /rules remove &lt;#>");
+				ChatOutputHandler.chatConfirmation(sender, " - /rules move &lt;#> &lt;#>");
 
-    @Override
-    public String getCommandName()
-    {
-        return "rules";
-    }
+			}
 
-    @Override
-    public void processCommandPlayer(EntityPlayerMP sender, String[] args) throws CommandException
-    {
-        if (args.length == 0)
-        {
-            for (String rule : rules)
-            {
-                ChatOutputHandler.chatNotification(sender, rule);
-            }
-            return;
-        }
-        else if (args[0].equalsIgnoreCase("book"))
-        {
-            NBTTagCompound tag = new NBTTagCompound();
-            NBTTagList pages = new NBTTagList();
+			ChatOutputHandler.sendMessage(sender, rules.get(parseInt(args[0], 1, rules.size()) - 1));
+			return;
+		}
 
-            HashMap<String, String> map = new HashMap<String, String>();
+		int index;
 
-            for (int i = 0; i < rules.size(); i++)
-            {
-                map.put(EnumChatFormatting.UNDERLINE + "Rule #" + (i + 1) + "\n\n", EnumChatFormatting.RESET + ChatOutputHandler.formatColors(rules.get(i)));
-            }
+		if (args[0].equalsIgnoreCase("remove")) {
+			index = parseInt(args[1], 1, rules.size());
 
-            SortedSet<String> keys = new TreeSet<String>(map.keySet());
-            for (String name : keys)
-            {
-                pages.appendTag(new NBTTagString(name + map.get(name)));
-            }
+			rules.remove(index - 1);
+			ChatOutputHandler.chatConfirmation(sender, Translator.format("Rule # %s removed", args[1]));
+		} else if (args[0].equalsIgnoreCase("add")) {
+			String newRule = "";
+			for (int i = 1; i < args.length; i++) {
+				newRule = newRule + args[i] + " ";
+			}
+			newRule = ChatOutputHandler.formatColors(newRule);
+			rules.add(newRule);
+			ChatOutputHandler.chatConfirmation(sender, Translator.format("Rule added as # %s.", args[1]));
+		} else if (args[0].equalsIgnoreCase("move")) {
+			index = parseInt(args[1], 1, rules.size());
 
-            tag.setString("author", "ForgeEssentials");
-            tag.setString("title", "Rule Book");
-            tag.setTag("pages", pages);
+			String temp = rules.remove(index - 1);
 
-            ItemStack is = new ItemStack(Items.written_book);
-            is.setTagCompound(tag);
-            sender.inventory.addItemStackToInventory(is);
-            return;
-        }
-        else if (args.length == 1)
-        {
+			index = parseInt(args[2], 1, Integer.MAX_VALUE);
+			if (index < rules.size()) {
+				rules.add(index - 1, temp);
+				ChatOutputHandler.chatConfirmation(sender,
+						Translator.format("Rule # %1$s moved to # %2$s", args[1], args[2]));
+			} else {
+				rules.add(temp);
+				ChatOutputHandler.chatConfirmation(sender,
+						Translator.format("Rule # %1$s moved to last position.", args[1]));
+			}
+		} else if (args[0].equalsIgnoreCase("change")) {
+			index = parseInt(args[1], 1, rules.size());
 
-            if (args[0].equalsIgnoreCase("help"))
-            {
-                ChatOutputHandler.chatNotification(sender, " - /rules [#]");
-                if (PermissionManager.checkPermission(sender, getPermissionNode() + ".edit"))
-                {
-                    ChatOutputHandler.chatNotification(sender, " - /rules &lt;#> [changedRule]");
-                    ChatOutputHandler.chatNotification(sender, " - /rules add &lt;newRule>");
-                    ChatOutputHandler.chatNotification(sender, " - /rules remove &lt;#>");
-                    ChatOutputHandler.chatNotification(sender, " - /rules move &lt;#> &lt;#>");
-                }
-                return;
-            }
+			String newRule = "";
+			for (int i = 2; i < args.length; i++) {
+				newRule = newRule + args[i] + " ";
+			}
+			newRule = ChatOutputHandler.formatColors(newRule);
+			rules.set(index - 1, newRule);
+			ChatOutputHandler.chatConfirmation(sender,
+					Translator.format("Rules # %1$s changed to '%2$s'.", index + "", newRule));
+		} else {
+			throw new TranslatedCommandException(getCommandUsage(sender));
+		}
+		saveRules();
+	}
 
-            ChatOutputHandler.chatNotification(sender, rules.get(parseInt(args[0], 1, rules.size()) - 1));
-            return;
-        }
+	@Override
+	public void processCommandPlayer(EntityPlayerMP sender, String[] args) throws CommandException {
+		if (args.length == 0) {
+			for (String rule : rules) {
+				ChatOutputHandler.chatNotification(sender, rule);
+			}
+			return;
+		} else if (args[0].equalsIgnoreCase("book")) {
+			NBTTagCompound tag = new NBTTagCompound();
+			NBTTagList pages = new NBTTagList();
 
-        if (!PermissionManager.checkPermission(sender, getPermissionNode() + ".edit"))
-            throw new TranslatedCommandException(
-                    "You have insufficient permissions to do that. If you believe you received this message in error, please talk to a server admin.");
+			HashMap<String, String> map = new HashMap<String, String>();
 
-        int index;
+			for (int i = 0; i < rules.size(); i++) {
+				map.put(EnumChatFormatting.UNDERLINE + "Rule #" + (i + 1) + "\n\n",
+						EnumChatFormatting.RESET + ChatOutputHandler.formatColors(rules.get(i)));
+			}
 
-        if (args[0].equalsIgnoreCase("remove"))
-        {
-            index = parseInt(args[1], 1, rules.size());
+			SortedSet<String> keys = new TreeSet<String>(map.keySet());
+			for (String name : keys) {
+				pages.appendTag(new NBTTagString(name + map.get(name)));
+			}
 
-            rules.remove(index - 1);
-            ChatOutputHandler.chatConfirmation(sender, Translator.format("Rule # %s removed", args[1]));
-        }
-        else if (args[0].equalsIgnoreCase("add"))
-        {
-            String newRule = "";
-            for (int i = 1; i < args.length; i++)
-            {
-                newRule = newRule + args[i] + " ";
-            }
-            newRule = ChatOutputHandler.formatColors(newRule);
-            rules.add(newRule);
-            ChatOutputHandler.chatConfirmation(sender, Translator.format("Rule added as # %s.", args[1]));
-        }
-        else if (args[0].equalsIgnoreCase("move"))
-        {
-            index = parseInt(args[1], 1, rules.size());
+			tag.setString("author", "ForgeEssentials");
+			tag.setString("title", "Rule Book");
+			tag.setTag("pages", pages);
 
-            String temp = rules.remove(index - 1);
+			ItemStack is = new ItemStack(Items.written_book);
+			is.setTagCompound(tag);
+			sender.inventory.addItemStackToInventory(is);
+			return;
+		} else if (args.length == 1) {
 
-            index = parseInt(args[2], 1, Integer.MAX_VALUE);
-            if (index < rules.size())
-            {
-                rules.add(index - 1, temp);
-                ChatOutputHandler.chatConfirmation(sender, Translator.format("Rule # %1$s moved to # %2$s", args[1], args[2]));
-            }
-            else
-            {
-                rules.add(temp);
-                ChatOutputHandler.chatConfirmation(sender, Translator.format("Rule # %1$s moved to last position.", args[1]));
-            }
-        }
-        else if (args[0].equalsIgnoreCase("change"))
-        {
-            index = parseInt(args[1], 1, rules.size());
+			if (args[0].equalsIgnoreCase("help")) {
+				ChatOutputHandler.chatNotification(sender, " - /rules [#]");
+				if (PermissionManager.checkPermission(sender, getPermissionNode() + ".edit")) {
+					ChatOutputHandler.chatNotification(sender, " - /rules &lt;#> [changedRule]");
+					ChatOutputHandler.chatNotification(sender, " - /rules add &lt;newRule>");
+					ChatOutputHandler.chatNotification(sender, " - /rules remove &lt;#>");
+					ChatOutputHandler.chatNotification(sender, " - /rules move &lt;#> &lt;#>");
+				}
+				return;
+			}
 
-            String newRule = "";
-            for (int i = 2; i < args.length; i++)
-            {
-                newRule = newRule + args[i] + " ";
-            }
-            newRule = ChatOutputHandler.formatColors(newRule);
-            rules.set(index - 1, newRule);
-            ChatOutputHandler.chatConfirmation(sender, Translator.format("Rules # %1$s changed to '%2$s'.", index + "", newRule));
-        }
-        else
-            throw new TranslatedCommandException(getCommandUsage(sender));
-        saveRules();
-    }
+			ChatOutputHandler.chatNotification(sender, rules.get(parseInt(args[0], 1, rules.size()) - 1));
+			return;
+		}
 
-    @Override
-    public void processCommandConsole(ICommandSender sender, String[] args) throws CommandException
-    {
-        if (args.length == 0)
-        {
-            for (String rule : rules)
-            {
-                ChatOutputHandler.sendMessage(sender, rule);
-            }
-            return;
-        }
-        if (args.length == 1)
-        {
-            if (args[0].equalsIgnoreCase("help"))
-            {
-                ChatOutputHandler.chatConfirmation(sender, " - /rules [#]");
-                ChatOutputHandler.chatConfirmation(sender, " - /rules &lt;#> [changedRule]");
-                ChatOutputHandler.chatConfirmation(sender, " - /rules add &lt;newRule>");
-                ChatOutputHandler.chatConfirmation(sender, " - /rules remove &lt;#>");
-                ChatOutputHandler.chatConfirmation(sender, " - /rules move &lt;#> &lt;#>");
+		if (!PermissionManager.checkPermission(sender, getPermissionNode() + ".edit")) {
+			throw new TranslatedCommandException(
+					"You have insufficient permissions to do that. If you believe you received this message in error, please talk to a server admin.");
+		}
 
-            }
+		int index;
 
-            ChatOutputHandler.sendMessage(sender, rules.get(parseInt(args[0], 1, rules.size()) - 1));
-            return;
-        }
+		if (args[0].equalsIgnoreCase("remove")) {
+			index = parseInt(args[1], 1, rules.size());
 
-        int index;
+			rules.remove(index - 1);
+			ChatOutputHandler.chatConfirmation(sender, Translator.format("Rule # %s removed", args[1]));
+		} else if (args[0].equalsIgnoreCase("add")) {
+			String newRule = "";
+			for (int i = 1; i < args.length; i++) {
+				newRule = newRule + args[i] + " ";
+			}
+			newRule = ChatOutputHandler.formatColors(newRule);
+			rules.add(newRule);
+			ChatOutputHandler.chatConfirmation(sender, Translator.format("Rule added as # %s.", args[1]));
+		} else if (args[0].equalsIgnoreCase("move")) {
+			index = parseInt(args[1], 1, rules.size());
 
-        if (args[0].equalsIgnoreCase("remove"))
-        {
-            index = parseInt(args[1], 1, rules.size());
+			String temp = rules.remove(index - 1);
 
-            rules.remove(index - 1);
-            ChatOutputHandler.chatConfirmation(sender, Translator.format("Rule # %s removed", args[1]));
-        }
-        else if (args[0].equalsIgnoreCase("add"))
-        {
-            String newRule = "";
-            for (int i = 1; i < args.length; i++)
-            {
-                newRule = newRule + args[i] + " ";
-            }
-            newRule = ChatOutputHandler.formatColors(newRule);
-            rules.add(newRule);
-            ChatOutputHandler.chatConfirmation(sender, Translator.format("Rule added as # %s.", args[1]));
-        }
-        else if (args[0].equalsIgnoreCase("move"))
-        {
-            index = parseInt(args[1], 1, rules.size());
+			index = parseInt(args[2], 1, Integer.MAX_VALUE);
+			if (index < rules.size()) {
+				rules.add(index - 1, temp);
+				ChatOutputHandler.chatConfirmation(sender,
+						Translator.format("Rule # %1$s moved to # %2$s", args[1], args[2]));
+			} else {
+				rules.add(temp);
+				ChatOutputHandler.chatConfirmation(sender,
+						Translator.format("Rule # %1$s moved to last position.", args[1]));
+			}
+		} else if (args[0].equalsIgnoreCase("change")) {
+			index = parseInt(args[1], 1, rules.size());
 
-            String temp = rules.remove(index - 1);
+			String newRule = "";
+			for (int i = 2; i < args.length; i++) {
+				newRule = newRule + args[i] + " ";
+			}
+			newRule = ChatOutputHandler.formatColors(newRule);
+			rules.set(index - 1, newRule);
+			ChatOutputHandler.chatConfirmation(sender,
+					Translator.format("Rules # %1$s changed to '%2$s'.", index + "", newRule));
+		} else {
+			throw new TranslatedCommandException(getCommandUsage(sender));
+		}
+		saveRules();
+	}
 
-            index = parseInt(args[2], 1, Integer.MAX_VALUE);
-            if (index < rules.size())
-            {
-                rules.add(index - 1, temp);
-                ChatOutputHandler.chatConfirmation(sender, Translator.format("Rule # %1$s moved to # %2$s", args[1], args[2]));
-            }
-            else
-            {
-                rules.add(temp);
-                ChatOutputHandler.chatConfirmation(sender, Translator.format("Rule # %1$s moved to last position.", args[1]));
-            }
-        }
-        else if (args[0].equalsIgnoreCase("change"))
-        {
-            index = parseInt(args[1], 1, rules.size());
+	@Override
+	public void registerExtraPermissions() {
+		APIRegistry.perms.registerPermission(getPermissionNode() + ".edit", PermissionLevel.OP);
+	}
 
-            String newRule = "";
-            for (int i = 2; i < args.length; i++)
-            {
-                newRule = newRule + args[i] + " ";
-            }
-            newRule = ChatOutputHandler.formatColors(newRule);
-            rules.set(index - 1, newRule);
-            ChatOutputHandler.chatConfirmation(sender, Translator.format("Rules # %1$s changed to '%2$s'.", index + "", newRule));
-        }
-        else
-        {
-            throw new TranslatedCommandException(getCommandUsage(sender));
-        }
-        saveRules();
-    }
+	public void saveRules() {
+		try {
+			LoggingHandler.felog.info("Saving rules");
 
-    @Override
-    public boolean canConsoleUseCommand()
-    {
-        return true;
-    }
+			if (!rulesFile.exists()) {
+				rulesFile.createNewFile();
+			}
 
-    @Override
-    public void registerExtraPermissions()
-    {
-        APIRegistry.perms.registerPermission(getPermissionNode() + ".edit", PermissionLevel.OP);
-    }
+			// create streams
+			FileOutputStream stream = new FileOutputStream(rulesFile);
+			OutputStreamWriter streamWriter = new OutputStreamWriter(stream);
+			BufferedWriter writer = new BufferedWriter(streamWriter);
 
-    @Override
-    public List<String> addTabCompletionOptions(ICommandSender sender, String[] args, BlockPos pos)
-    {
-        if (args.length == 1)
-        {
-            return getListOfStringsMatchingLastWord(args, autocomargs);
-        }
-        else if (args.length == 2)
-        {
-            List<String> opt = new ArrayList<String>();
-            for (int i = 1; i < rules.size() + 1; i++)
-            {
-                opt.add(i + "");
-            }
-            return opt;
-        }
-        else if (args.length == 3 && args[0].equalsIgnoreCase("move"))
-        {
-            List<String> opt = new ArrayList<String>();
-            for (int i = 1; i < rules.size() + 2; i++)
-            {
-                opt.add(i + "");
-            }
-            return opt;
-        }
-        else
-        {
-            return null;
-        }
-    }
+			writer.write("# " + rulesFile.getName() + " | numbers are automatically added");
+			writer.newLine();
 
-    @Override
-    public PermissionLevel getPermissionLevel()
-    {
-        return PermissionLevel.TRUE;
-    }
+			for (String rule : rules) {
+				writer.write(rule);
+				writer.newLine();
+			}
 
-    @Override
-    public String getCommandUsage(ICommandSender sender)
-    {
-        // Needs elaboration.
-        if (sender instanceof EntityPlayer)
-        {
-            return "/rules [#|add|remove|move|change|help|book] Gets or sets the rules of the server.";
-        }
-        else
-        {
-            return "/rules [#|add|remove|move|change|help] Gets or sets the rules of the server.";
-        }
-    }
+			writer.close();
+			streamWriter.close();
+			stream.close();
 
-    @Override
-    public void loadConfig(Configuration config, String category)
-    {
-        rulesFile = new File(ForgeEssentials.getFEDirectory(), config.get(category, "filename", "rules.txt").getString());
-        rules = loadRules();
-    }
-
-    @Override
-    public void loadData()
-    {
-        /* do nothing */
-    }
+			LoggingHandler.felog.info("Completed saving rules file.");
+		} catch (IOException e) {
+			LoggingHandler.felog.error("Error writing the Rules file: " + rulesFile.getName());
+		}
+	}
 
 }

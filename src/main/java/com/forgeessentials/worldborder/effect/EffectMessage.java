@@ -1,34 +1,37 @@
 package com.forgeessentials.worldborder.effect;
 
-import net.minecraft.entity.player.EntityPlayerMP;
-
 import com.forgeessentials.chat.ModuleChat;
+import com.forgeessentials.util.PlayerInfo;
 import com.forgeessentials.util.output.ChatOutputHandler;
 import com.forgeessentials.util.output.LoggingHandler;
-import com.forgeessentials.util.PlayerInfo;
 import com.forgeessentials.worldborder.WorldBorder;
 import com.forgeessentials.worldborder.WorldBorderEffect;
 
-public class EffectMessage extends WorldBorderEffect
-{
+import net.minecraft.entity.player.EntityPlayerMP;
 
-    public String message = "You left the worldborder. Please return!";
+public class EffectMessage extends WorldBorderEffect {
 
-    public int interval = 6000;
+	public String message = "You left the worldborder. Please return!";
 
-    @Override
-    public void activate(WorldBorder border, EntityPlayerMP player)
-    {
-        if (interval <= 0)
-            doEffect(player);
-    }
+	public int interval = 6000;
 
-    @Override
-    public void tick(WorldBorder border, EntityPlayerMP player)
-    {
-        if (interval <= 0)
-            return;
-        PlayerInfo pi;
+	@Override
+	public void activate(WorldBorder border, EntityPlayerMP player) {
+		if (interval <= 0) {
+			doEffect(player);
+		}
+	}
+
+	public void doEffect(EntityPlayerMP player) {
+		ChatOutputHandler.chatError(player, ModuleChat.processChatReplacements(player, message));
+	}
+
+	@Override
+	public void tick(WorldBorder border, EntityPlayerMP player) {
+		if (interval <= 0) {
+			return;
+		}
+		PlayerInfo pi;
 		try {
 			pi = PlayerInfo.get(player);
 
@@ -39,11 +42,6 @@ public class EffectMessage extends WorldBorderEffect
 		} catch (Exception e) {
 			LoggingHandler.felog.error("Error getting player Info");
 		}
-    }
-
-    public void doEffect(EntityPlayerMP player)
-    {
-        ChatOutputHandler.chatError(player, ModuleChat.processChatReplacements(player, message));
-    }
+	}
 
 }

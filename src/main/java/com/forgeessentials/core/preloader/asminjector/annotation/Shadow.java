@@ -7,12 +7,11 @@ import java.lang.annotation.Target;
 
 @Target({ ElementType.METHOD, ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Shadow
-{
+public @interface Shadow {
 
-    /**
-     * Aliases for this shadowed field
-     */
-    public String[] value() default {};
+	/**
+	 * Aliases for this shadowed field
+	 */
+	public String[] value() default {};
 
 }

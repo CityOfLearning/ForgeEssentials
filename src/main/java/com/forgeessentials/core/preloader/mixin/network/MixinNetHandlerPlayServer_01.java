@@ -1,5 +1,9 @@
 package com.forgeessentials.core.preloader.mixin.network;
 
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
+import org.spongepowered.asm.mixin.Shadow;
+
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.NetHandlerPlayServer;
 import net.minecraft.network.PacketThreadUtil;
@@ -17,67 +21,60 @@ import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fe.event.world.SignEditEvent;
 
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
-import org.spongepowered.asm.mixin.Shadow;
-
 @Mixin(NetHandlerPlayServer.class)
-public abstract class MixinNetHandlerPlayServer_01 implements INetHandlerPlayServer, ITickable
-{
+public abstract class MixinNetHandlerPlayServer_01 implements INetHandlerPlayServer, ITickable {
 
-    @Shadow
-    public MinecraftServer serverController;
+	@Shadow
+	public MinecraftServer serverController;
 
-    @Shadow
-    public EntityPlayerMP playerEntity;
+	@Shadow
+	public EntityPlayerMP playerEntity;
 
-    @Override
-    @Overwrite
-    public void processUpdateSign(C12PacketUpdateSign packetIn)
-    {
-        PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.playerEntity.getServerForPlayer());
-        this.playerEntity.markPlayerActive();
-        WorldServer worldserver = this.serverController.worldServerForDimension(this.playerEntity.dimension);
-        BlockPos blockpos = packetIn.getPosition();
+	private IChatComponent[] onSignEditEvent(C12PacketUpdateSign data, EntityPlayerMP player) {
+		SignEditEvent e = new SignEditEvent(data.getPosition(), data.getLines(), player);
+		if (MinecraftForge.EVENT_BUS.post(e)) {
+			return null;
+		}
+		return e.text;
 
-        if (worldserver.isBlockLoaded(blockpos))
-        {
-            TileEntity tileentity = worldserver.getTileEntity(blockpos);
+	}
 
-            if (!(tileentity instanceof TileEntitySign))
-            {
-                return;
-            }
+	@Override
+	@Overwrite
+	public void processUpdateSign(C12PacketUpdateSign packetIn) {
+		PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, playerEntity.getServerForPlayer());
+		playerEntity.markPlayerActive();
+		WorldServer worldserver = serverController.worldServerForDimension(playerEntity.dimension);
+		BlockPos blockpos = packetIn.getPosition();
 
-            TileEntitySign tileentitysign = (TileEntitySign)tileentity;
+		if (worldserver.isBlockLoaded(blockpos)) {
+			TileEntity tileentity = worldserver.getTileEntity(blockpos);
 
-            if (!tileentitysign.getIsEditable() || tileentitysign.getPlayer() != this.playerEntity)
-            {
-                this.serverController.logWarning("Player " + this.playerEntity.getName() + " just tried to change non-editable sign");
-                return;
-            }
+			if (!(tileentity instanceof TileEntitySign)) {
+				return;
+			}
 
-            IChatComponent[] aichatcomponent = onSignEditEvent(packetIn, playerEntity); if (aichatcomponent == null){ return;}//FE: sign edit event
+			TileEntitySign tileentitysign = (TileEntitySign) tileentity;
 
-            for (int i = 0; i < aichatcomponent.length; ++i)
-            {
-                tileentitysign.signText[i] = new ChatComponentText(EnumChatFormatting.getTextWithoutFormattingCodes(aichatcomponent[i].getUnformattedText()));
-            }
+			if (!tileentitysign.getIsEditable() || (tileentitysign.getPlayer() != playerEntity)) {
+				serverController
+						.logWarning("Player " + playerEntity.getName() + " just tried to change non-editable sign");
+				return;
+			}
 
-            tileentitysign.markDirty();
-            worldserver.markBlockForUpdate(blockpos);
-        }
-    }
+			IChatComponent[] aichatcomponent = onSignEditEvent(packetIn, playerEntity);
+			if (aichatcomponent == null) {
+				return;
+			} // FE: sign edit event
 
-    private IChatComponent[] onSignEditEvent(C12PacketUpdateSign data, EntityPlayerMP player)
-    {
-        SignEditEvent e = new SignEditEvent(data.getPosition(), data.getLines(), player);
-        if (MinecraftForge.EVENT_BUS.post(e))
-        {
-            return null;
-        }
-        return e.text;
+			for (int i = 0; i < aichatcomponent.length; ++i) {
+				tileentitysign.signText[i] = new ChatComponentText(
+						EnumChatFormatting.getTextWithoutFormattingCodes(aichatcomponent[i].getUnformattedText()));
+			}
 
-    }
+			tileentitysign.markDirty();
+			worldserver.markBlockForUpdate(blockpos);
+		}
+	}
 
 }

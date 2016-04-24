@@ -3,11 +3,6 @@ package com.forgeessentials.protection.commands;
 import java.util.Arrays;
 import java.util.List;
 
-import net.minecraft.command.CommandException;
-import net.minecraft.command.ICommandSender;
-import net.minecraft.item.ItemStack;
-import net.minecraftforge.permission.PermissionLevel;
-
 import com.forgeessentials.api.APIRegistry;
 import com.forgeessentials.api.permissions.FEPermissions;
 import com.forgeessentials.api.permissions.Zone;
@@ -16,106 +11,107 @@ import com.forgeessentials.core.misc.TranslatedCommandException;
 import com.forgeessentials.protection.ModuleProtection;
 import com.forgeessentials.util.CommandParserArgs;
 
-public class CommandItemPermission extends ParserCommandBase
-{
+import net.minecraft.command.CommandException;
+import net.minecraft.command.ICommandSender;
+import net.minecraft.item.ItemStack;
+import net.minecraftforge.permission.PermissionLevel;
 
-    @Override
-    public String getCommandName()
-    {
-        return "itemperm";
-    }
+public class CommandItemPermission extends ParserCommandBase {
 
-    @Override
-    public String getCommandUsage(ICommandSender sender)
-    {
-        return "/itemperm [break|place|inventory|exist] [allow|deny|clear]: Show / control item permissions";
-    }
+	@Override
+	public boolean canConsoleUseCommand() {
+		return false;
+	}
 
-    @Override
-    public String getPermissionNode()
-    {
-        return "fe.protection.cmd.itemperm";
-    }
+	@Override
+	public String getCommandName() {
+		return "itemperm";
+	}
 
-    @Override
-    public PermissionLevel getPermissionLevel()
-    {
-        return PermissionLevel.TRUE;
-    }
+	@Override
+	public String getCommandUsage(ICommandSender sender) {
+		return "/itemperm [break|place|inventory|exist] [allow|deny|clear]: Show / control item permissions";
+	}
 
-    @Override
-    public boolean canConsoleUseCommand()
-    {
-        return false;
-    }
+	@Override
+	public PermissionLevel getPermissionLevel() {
+		return PermissionLevel.TRUE;
+	}
 
-    @Override
-    public void parse(CommandParserArgs arguments) throws CommandException
-    {
-        ItemStack stack = arguments.senderPlayer.getCurrentEquippedItem();
+	@Override
+	public String getPermissionNode() {
+		return "fe.protection.cmd.itemperm";
+	}
 
-        if (arguments.isEmpty())
-        {
-            if (stack == null)
-                throw new TranslatedCommandException("No item equipped!");
-            arguments.notify(ModuleProtection.getItemPermission(stack));
-            return;
-        }
+	@Override
+	public void parse(CommandParserArgs arguments) throws CommandException {
+		ItemStack stack = arguments.senderPlayer.getCurrentEquippedItem();
 
-        List<String> types = Arrays.asList("break", "place", "inventory", "exist");
-        arguments.tabComplete(types);
-        String type = arguments.remove().toLowerCase();
-        if (!types.contains(type))
-            throw new TranslatedCommandException(FEPermissions.MSG_UNKNOWN_SUBCOMMAND, type);
+		if (arguments.isEmpty()) {
+			if (stack == null) {
+				throw new TranslatedCommandException("No item equipped!");
+			}
+			arguments.notify(ModuleProtection.getItemPermission(stack));
+			return;
+		}
 
-        Boolean value;
-        if (!arguments.isEmpty())
-        {
-            arguments.tabComplete("allow", "deny", "clear");
-            switch (arguments.remove().toLowerCase())
-            {
-            case "allow":
-                value = true;
-                break;
-            case "deny":
-                value = false;
-                break;
-            case "clear":
-                value = null;
-                break;
-            default:
-                throw new TranslatedCommandException("Need to specify allow, deny or clear");
-            }
-        }
-        else
-            value = false;
+		List<String> types = Arrays.asList("break", "place", "inventory", "exist");
+		arguments.tabComplete(types);
+		String type = arguments.remove().toLowerCase();
+		if (!types.contains(type)) {
+			throw new TranslatedCommandException(FEPermissions.MSG_UNKNOWN_SUBCOMMAND, type);
+		}
 
-        if (stack == null)
-            throw new TranslatedCommandException("No item equipped!");
+		Boolean value;
+		if (!arguments.isEmpty()) {
+			arguments.tabComplete("allow", "deny", "clear");
+			switch (arguments.remove().toLowerCase()) {
+			case "allow":
+				value = true;
+				break;
+			case "deny":
+				value = false;
+				break;
+			case "clear":
+				value = null;
+				break;
+			default:
+				throw new TranslatedCommandException("Need to specify allow, deny or clear");
+			}
+		} else {
+			value = false;
+		}
 
-        String permStart = ModuleProtection.BASE_PERM + '.';
-        String permEnd;
-        if (!arguments.isEmpty())
-        {
-            arguments.tabComplete("all", "*");
-            String arg = arguments.remove();
-            if (!arg.equalsIgnoreCase("all") && !arg.equalsIgnoreCase("*"))
-                throw new TranslatedCommandException(FEPermissions.MSG_UNKNOWN_SUBCOMMAND, arg);
-            permEnd = '.' + ModuleProtection.getItemPermission(stack, false) + ".*";
-        }
-        else
-        {
-            permEnd = '.' + ModuleProtection.getItemPermission(stack, true);
-        }
+		if (stack == null) {
+			throw new TranslatedCommandException("No item equipped!");
+		}
 
-        if (arguments.isTabCompletion)
-            return;
+		String permStart = ModuleProtection.BASE_PERM + '.';
+		String permEnd;
+		if (!arguments.isEmpty()) {
+			arguments.tabComplete("all", "*");
+			String arg = arguments.remove();
+			if (!arg.equalsIgnoreCase("all") && !arg.equalsIgnoreCase("*")) {
+				throw new TranslatedCommandException(FEPermissions.MSG_UNKNOWN_SUBCOMMAND, arg);
+			}
+			permEnd = '.' + ModuleProtection.getItemPermission(stack, false) + ".*";
+		} else {
+			permEnd = '.' + ModuleProtection.getItemPermission(stack, true);
+		}
 
-        if (value == null)
-            APIRegistry.perms.getServerZone().clearGroupPermission(Zone.GROUP_DEFAULT, permStart + type + permEnd);
-        else
-            APIRegistry.perms.getServerZone().setGroupPermission(Zone.GROUP_DEFAULT, permStart + type + permEnd, value);
-        arguments.confirm(value == null ? "Cleared [%s] for item %s" : //
-                (value ? "Allowed [%s] for item %s" : "Denied [%s] for item %s"), type, ModuleProtection.getItemPermission(stack, false));
-    }
+		if (arguments.isTabCompletion) {
+			return;
+		}
+
+		if (value == null) {
+			APIRegistry.perms.getServerZone().clearGroupPermission(Zone.GROUP_DEFAULT, permStart + type + permEnd);
+		} else {
+			APIRegistry.perms.getServerZone().setGroupPermission(Zone.GROUP_DEFAULT, permStart + type + permEnd, value);
+		}
+		arguments.confirm(
+				value == null ? "Cleared [%s] for item %s"
+						: //
+						(value ? "Allowed [%s] for item %s" : "Denied [%s] for item %s"),
+				type, ModuleProtection.getItemPermission(stack, false));
+	}
 }

@@ -9,91 +9,91 @@ import com.google.gson.Gson;
 /**
  *
  */
-public interface RemoteSession
-{
+public interface RemoteSession {
 
-    /**
-     * Sends a message to the client. Throws a {@link SessionClosedException}, if the session was already closed.
-     * 
-     * @param message
-     * @throws IOException
-     */
-    void sendMessage(RemoteResponse<?> message) throws IOException;
+	/**
+	 * Thrown, when a message should be sent to the remote-client, but the
+	 * session was already terminated
+	 */
+	public static class SessionClosedException extends Exception {
+		private static final long serialVersionUID = -7782278063344870691L;
 
-    /**
-     * Sends a message to the client. Throws a {@link SessionClosedException}, if the session was already closed.
-     * 
-     * @param message
-     */
-    boolean trySendMessage(RemoteResponse<?> message);
+		private final RemoteSession session;
 
-    /**
-     * Transforms a generic request into one with the correctly deserialized data
-     * 
-     * @param request
-     * @param clazz
-     */
-    <T> RemoteRequest<T> transformRemoteRequest(JsonRemoteRequest request, Class<T> clazz);
+		public SessionClosedException(RemoteSession session) {
+			this.session = session;
+		}
 
-    /**
-     * Returns the hostname of the remote client
-     */
-    String getRemoteHostname();
+		public RemoteSession getSession() {
+			return session;
+		}
 
-    /**
-     * Returns the IP address of the remote client
-     */
-    String getRemoteAddress();
+	}
 
-    /**
-     * Gets the UserIdent of the authenticated user
-     */
-    UserIdent getUserIdent();
+	/**
+	 * Closes the session
+	 */
+	void close();
 
-    /**
-     * Closes the session
-     */
-    void close();
+	/**
+	 * Closes the session
+	 */
+	void close(String reason, int rid);
 
-    /**
-     * Closes the session
-     */
-    void close(String reason, int rid);
+	/**
+	 * Get the Gson instance of the remote manager
+	 */
+	Gson getGson();
 
-    /**
-     * Checks, if the session was closed
-     */
-    boolean isClosed();
+	/**
+	 * Returns the IP address of the remote client
+	 */
+	String getRemoteAddress();
 
-    /**
-     * Get the Gson instance of the remote manager
-     */
-    Gson getGson();
+	/**
+	 * Returns the hostname of the remote client
+	 */
+	String getRemoteHostname();
 
-    /**
-     * Gets the remote manager of this session
-     */
-    RemoteManager getRemoteManager();
+	/**
+	 * Gets the remote manager of this session
+	 */
+	RemoteManager getRemoteManager();
 
-    /**
-     * Thrown, when a message should be sent to the remote-client, but the session was already terminated
-     */
-    public static class SessionClosedException extends Exception
-    {
-        private static final long serialVersionUID = -7782278063344870691L;
+	/**
+	 * Gets the UserIdent of the authenticated user
+	 */
+	UserIdent getUserIdent();
 
-        private final RemoteSession session;
+	/**
+	 * Checks, if the session was closed
+	 */
+	boolean isClosed();
 
-        public SessionClosedException(RemoteSession session)
-        {
-            this.session = session;
-        }
+	/**
+	 * Sends a message to the client. Throws a {@link SessionClosedException},
+	 * if the session was already closed.
+	 * 
+	 * @param message
+	 * @throws IOException
+	 */
+	void sendMessage(RemoteResponse<?> message) throws IOException;
 
-        public RemoteSession getSession()
-        {
-            return session;
-        }
+	/**
+	 * Transforms a generic request into one with the correctly deserialized
+	 * data
+	 * 
+	 * @param request
+	 * @param clazz
+	 */
+	<T> RemoteRequest<T> transformRemoteRequest(JsonRemoteRequest request, Class<T> clazz);
 
-    }
+	/**
+	 * Sends a message to the client. Throws a {@link SessionClosedException},
+	 * if the session was already closed.
+	 * 
+	 * @param message
+	 */
+	boolean trySendMessage(RemoteResponse<?> message);
 
 }

@@ -8,9 +8,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.world.World;
-
 import com.forgeessentials.commons.selections.AreaBase;
 import com.forgeessentials.commons.selections.AreaShape;
 import com.forgeessentials.commons.selections.Point;
@@ -24,163 +21,150 @@ import com.forgeessentials.worldborder.effect.EffectMessage;
 import com.forgeessentials.worldborder.effect.EffectPotion;
 import com.google.gson.annotations.Expose;
 
-public class WorldBorder implements Loadable
-{
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.World;
 
-    private boolean enabled = false;
+public class WorldBorder implements Loadable {
 
-    private Point center;
+	public static WorldBorder load(World world) {
+		// TODO: Better way to identify dimensions
+		String key = Integer.toString(world.provider.getDimensionId());
+		return DataManager.getInstance().load(WorldBorder.class, key);
+	}
 
-    private Point size;
+	private boolean enabled = false;
 
-    private AreaShape shape = AreaShape.BOX;
+	private Point center;
 
-    private List<WorldBorderEffect> effects = new ArrayList<>();
+	private Point size;
 
-    int dimID;
+	private AreaShape shape = AreaShape.BOX;
 
-    @Expose(serialize = false)
-    private AreaBase area;
+	private List<WorldBorderEffect> effects = new ArrayList<>();
 
-    @Expose(serialize = false)
-    private Map<EntityPlayer, Set<WorldBorderEffect>> activeEffects = new WeakHashMap<>();
+	int dimID;
 
-    public WorldBorder(Point center, int xSize, int zSize, int dimID)
-    {
-        this.center = center;
-        this.size = new Point(xSize, 0, zSize);
-        updateArea();
+	@Expose(serialize = false)
+	private AreaBase area;
 
-        WorldBorderEffect effect = new EffectMessage();
-        effect.triggerDistance = 16;
-        effects.add(effect);
+	@Expose(serialize = false)
+	private Map<EntityPlayer, Set<WorldBorderEffect>> activeEffects = new WeakHashMap<>();
 
-        effect = new EffectDamage();
-        effect.triggerDistance = 8;
-        effects.add(effect);
+	public WorldBorder(Point center, int xSize, int zSize, int dimID) {
+		this.center = center;
+		size = new Point(xSize, 0, zSize);
+		updateArea();
 
-        effect = new EffectKnockback();
-        effect.triggerDistance = 0;
-        effects.add(effect);
+		WorldBorderEffect effect = new EffectMessage();
+		effect.triggerDistance = 16;
+		effects.add(effect);
 
-        effect = new EffectKick();
-        effect.triggerDistance = -1000;
-        effects.add(effect);
+		effect = new EffectDamage();
+		effect.triggerDistance = 8;
+		effects.add(effect);
 
-        effect = new EffectPotion();
-        effect.triggerDistance = -1000;
-        effects.add(effect);
+		effect = new EffectKnockback();
+		effect.triggerDistance = 0;
+		effects.add(effect);
 
-        effect = new EffectCommand();
-        effect.triggerDistance = -1000;
-        effects.add(effect);
-    }
+		effect = new EffectKick();
+		effect.triggerDistance = -1000;
+		effects.add(effect);
 
-    @Override
-    public void afterLoad()
-    {
-        if (effects == null)
-            effects = new ArrayList<>();
-        for (Iterator<WorldBorderEffect> iterator = effects.iterator(); iterator.hasNext();)
-            if (iterator.next() == null)
-                iterator.remove();
-        activeEffects = new WeakHashMap<>();
-        updateArea();
-    }
+		effect = new EffectPotion();
+		effect.triggerDistance = -1000;
+		effects.add(effect);
 
-    public boolean isEnabled()
-    {
-        return enabled;
-    }
+		effect = new EffectCommand();
+		effect.triggerDistance = -1000;
+		effects.add(effect);
+	}
 
-    public void setEnabled(boolean enabled)
-    {
-        this.enabled = enabled;
-    }
+	@Override
+	public void afterLoad() {
+		if (effects == null) {
+			effects = new ArrayList<>();
+		}
+		for (Iterator<WorldBorderEffect> iterator = effects.iterator(); iterator.hasNext();) {
+			if (iterator.next() == null) {
+				iterator.remove();
+			}
+		}
+		activeEffects = new WeakHashMap<>();
+		updateArea();
+	}
 
-    public Point getCenter()
-    {
-        return center;
-    }
+	public Set<WorldBorderEffect> getActiveEffects(EntityPlayer player) {
+		return activeEffects.get(player);
+	}
 
-    public void setCenter(Point center)
-    {
-        this.center = center;
-        updateArea();
-    }
+	public AreaBase getArea() {
+		return area;
+	}
 
-    public Point getSize()
-    {
-        return size;
-    }
+	public Point getCenter() {
+		return center;
+	}
 
-    public void setSize(Point size)
-    {
-        this.size = size;
-        updateArea();
-    }
+	public List<WorldBorderEffect> getEffects() {
+		return effects;
+	}
 
-    public List<WorldBorderEffect> getEffects()
-    {
-        return effects;
-    }
+	public Set<WorldBorderEffect> getOrCreateActiveEffects(EntityPlayer player) {
+		Set<WorldBorderEffect> effects = activeEffects.get(player);
+		if (effects == null) {
+			effects = new HashSet<WorldBorderEffect>();
+			activeEffects.put(player, effects);
+		}
+		return effects;
+	}
 
-    public AreaShape getShape()
-    {
-        return shape;
-    }
+	public AreaShape getShape() {
+		return shape;
+	}
 
-    public void setShape(AreaShape shape)
-    {
-        this.shape = shape;
-    }
+	public Point getSize() {
+		return size;
+	}
 
-    public AreaBase getArea()
-    {
-        return area;
-    }
+	public boolean isEnabled() {
+		return enabled;
+	}
 
-    public void updateArea()
-    {
-        Point minP = new Point( //
-                center.getX() - size.getX(),//
-                center.getY() - size.getY(), //
-                center.getZ() - size.getZ());
-        Point maxP = new Point( //
-                center.getX() + size.getX(),//
-                center.getY() + size.getY(), //
-                center.getZ() + size.getZ());
-        area = new AreaBase(minP, maxP);
-    }
+	public void save() {
+		// TODO: Better way to identify dimensions
+		String key = Integer.toString(dimID);
+		DataManager.getInstance().save(this, key);
+	}
 
-    public Set<WorldBorderEffect> getOrCreateActiveEffects(EntityPlayer player)
-    {
-        Set<WorldBorderEffect> effects = activeEffects.get(player);
-        if (effects == null)
-        {
-            effects = new HashSet<WorldBorderEffect>();
-            activeEffects.put(player, effects);
-        }
-        return effects;
-    }
+	public void setCenter(Point center) {
+		this.center = center;
+		updateArea();
+	}
 
-    public Set<WorldBorderEffect> getActiveEffects(EntityPlayer player)
-    {
-        return activeEffects.get(player);
-    }
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+	}
 
-    public void save()
-    {
-        // TODO: Better way to identify dimensions
-        String key = Integer.toString(dimID);
-        DataManager.getInstance().save(this, key);
-    }
+	public void setShape(AreaShape shape) {
+		this.shape = shape;
+	}
 
-    public static WorldBorder load(World world)
-    {
-        // TODO: Better way to identify dimensions
-        String key = Integer.toString(world.provider.getDimensionId());
-        return DataManager.getInstance().load(WorldBorder.class, key);
-    }
+	public void setSize(Point size) {
+		this.size = size;
+		updateArea();
+	}
+
+	public void updateArea() {
+		Point minP = new Point( //
+				center.getX() - size.getX(), //
+				center.getY() - size.getY(), //
+				center.getZ() - size.getZ());
+		Point maxP = new Point( //
+				center.getX() + size.getX(), //
+				center.getY() + size.getY(), //
+				center.getZ() + size.getZ());
+		area = new AreaBase(minP, maxP);
+	}
 
 }

@@ -2,11 +2,10 @@ package com.forgeessentials.core.moduleLauncher.config;
 
 import net.minecraftforge.common.config.Configuration;
 
-public interface ConfigLoader
-{
+public interface ConfigLoader {
 
-    void load(Configuration config, boolean isReload);
+	void load(Configuration config, boolean isReload);
 
-    boolean supportsCanonicalConfig();
+	boolean supportsCanonicalConfig();
 
 }

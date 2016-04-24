@@ -2,10 +2,6 @@ package com.forgeessentials.teleport.portal;
 
 import java.util.Map.Entry;
 
-import net.minecraft.command.CommandException;
-import net.minecraft.command.ICommandSender;
-import net.minecraftforge.permission.PermissionLevel;
-
 import com.forgeessentials.commons.selections.Point;
 import com.forgeessentials.commons.selections.Selection;
 import com.forgeessentials.core.commands.ParserCommandBase;
@@ -15,204 +11,200 @@ import com.forgeessentials.util.NamedWorldArea;
 import com.forgeessentials.util.NamedWorldPoint;
 import com.forgeessentials.util.selections.SelectionHandler;
 
-public class CommandPortal extends ParserCommandBase
-{
+import net.minecraft.command.CommandException;
+import net.minecraft.command.ICommandSender;
+import net.minecraftforge.permission.PermissionLevel;
 
-    public static final String PERM = "fe.teleport.portal";
+public class CommandPortal extends ParserCommandBase {
 
-    @Override
-    public String getCommandName()
-    {
-        return "portal";
-    }
+	public static final String PERM = "fe.teleport.portal";
 
-    @Override
-    public String getCommandUsage(ICommandSender p_71518_1_)
-    {
-        return "/portal delete|create|recreate|list|target [name] [x y z] [dim] Manage portals.";
-    }
+	/**
+	 * Print lists of portals, their locations and dimensions
+	 */
+	private static void listPortals(CommandParserArgs arguments) {
+		if (arguments.isTabCompletion) {
+			return;
+		}
+		arguments.confirm("Registered portals:");
+		for (Entry<String, Portal> entry : PortalManager.getInstance().portals.entrySet()) {
+			arguments.confirm("- " + entry.getKey() + ": " + entry.getValue().getPortalArea().toString());
+		}
+	}
 
-    @Override
-    public boolean canConsoleUseCommand()
-    {
-        return false;
-    }
+	private static void parseCreate(CommandParserArgs arguments, boolean recreate) throws CommandException {
+		if (arguments.isEmpty()) {
+			arguments.confirm("/portal create <name> [frame|noframe] [x y z] [dim]");
+			return;
+		}
 
-    @Override
-    public String getPermissionNode()
-    {
-        return PERM;
-    }
+		String name = arguments.remove();
+		if (!recreate && PortalManager.getInstance().portals.containsKey(name)) {
+			throw new TranslatedCommandException("Portal by that name already exists. Use recreate!");
+		}
 
-    @Override
-    public PermissionLevel getPermissionLevel()
-    {
-        return PermissionLevel.OP;
-    }
+		arguments.tabComplete("noframe", "frame");
 
-    @Override
-    public void parse(CommandParserArgs arguments) throws CommandException
-    {
-        if (arguments.isEmpty())
-        {
-            arguments.confirm(getCommandUsage(arguments.sender));
-            return;
-        }
+		boolean frame = true;
+		if (!arguments.isEmpty()) {
+			switch (arguments.peek().toLowerCase()) {
+			case "noframe":
+				frame = false;
+				arguments.remove();
+				break;
+			case "frame":
+				frame = true;
+				arguments.remove();
+				break;
+			}
+		}
 
-        arguments.tabComplete("create", "recreate", "target", "delete", "list");
+		NamedWorldPoint target = new NamedWorldPoint(arguments.senderPlayer);
+		if (!arguments.isEmpty()) {
+			if (arguments.size() < 3) {
+				throw new TranslatedCommandException("Expected arguments [x y z]");
+			}
+			int x = parseInt(arguments.remove());
+			int y = parseInt(arguments.remove());
+			int z = parseInt(arguments.remove());
+			int dim = arguments.senderPlayer.dimension;
+			if (!arguments.isEmpty()) {
+				dim = parseInt(arguments.remove());
+			}
+			target = new NamedWorldPoint(dim, x, y, z);
+		}
 
-        String subcommand = arguments.remove().toLowerCase();
-        switch (subcommand)
-        {
-        case "create":
-            parseCreate(arguments, false);
-            break;
-        case "recreate":
-            parseCreate(arguments, true);
-            break;
-        case "target":
-            parseTarget(arguments);
-            break;
-        case "delete":
-            parseDelete(arguments);
-            break;
-        case "list":
-            listPortals(arguments);
-            break;
-        default:
-            arguments.warn("Valid subcommands: delete, create, recreate, list, target");
-            throw new TranslatedCommandException("Unknown subcommand " + subcommand);
-        }
-    }
+		if (arguments.isTabCompletion) {
+			return;
+		}
 
-    private static void parseCreate(CommandParserArgs arguments, boolean recreate) throws CommandException
-    {
-        if (arguments.isEmpty())
-        {
-            arguments.confirm("/portal create <name> [frame|noframe] [x y z] [dim]");
-            return;
-        }
+		Selection selection = SelectionHandler.getSelection(arguments.senderPlayer);
+		if ((selection == null) || !selection.isValid()) {
+			throw new TranslatedCommandException("Missing selection");
+		}
 
-        String name = arguments.remove();
-        if (!recreate && PortalManager.getInstance().portals.containsKey(name))
-            throw new TranslatedCommandException("Portal by that name already exists. Use recreate!");
+		Point size = selection.getSize();
+		if ((size.getX() > 0) && (size.getY() > 0) && (size.getZ() > 0)) {
+			throw new TranslatedCommandException("Portal selection must be flat in one axis");
+		}
 
-        arguments.tabComplete("noframe", "frame");
+		Portal portal = new Portal(new NamedWorldArea(selection.getDimension(), selection), target, frame);
+		PortalManager.getInstance().add(name, portal);
+		arguments.confirm("Created new portal leading to %s", target.toString());
+	}
 
-        boolean frame = true;
-        if (!arguments.isEmpty())
-        {
-            switch (arguments.peek().toLowerCase())
-            {
-            case "noframe":
-                frame = false;
-                arguments.remove();
-                break;
-            case "frame":
-                frame = true;
-                arguments.remove();
-                break;
-            }
-        }
+	private static void parseDelete(CommandParserArgs arguments) throws CommandException {
+		if (arguments.isEmpty()) {
+			arguments.confirm("/portal delete <name>");
+			return;
+		}
 
-        NamedWorldPoint target = new NamedWorldPoint(arguments.senderPlayer);
-        if (!arguments.isEmpty())
-        {
-            if (arguments.size() < 3)
-                throw new TranslatedCommandException("Expected arguments [x y z]");
-            int x = parseInt(arguments.remove());
-            int y = parseInt(arguments.remove());
-            int z = parseInt(arguments.remove());
-            int dim = arguments.senderPlayer.dimension;
-            if (!arguments.isEmpty())
-                dim = parseInt(arguments.remove());
-            target = new NamedWorldPoint(dim, x, y, z);
-        }
+		arguments.tabComplete(PortalManager.getInstance().portals.keySet());
+		if (arguments.isTabCompletion) {
+			return;
+		}
 
-        if (arguments.isTabCompletion)
-            return;
+		String name = arguments.remove();
+		if (!PortalManager.getInstance().portals.containsKey(name)) {
+			throw new TranslatedCommandException("Portal by that name does not exist.");
+		}
 
-        Selection selection = SelectionHandler.getSelection(arguments.senderPlayer);
-        if (selection == null || !selection.isValid())
-            throw new TranslatedCommandException("Missing selection");
+		PortalManager.getInstance().remove(name);
+		arguments.confirm("Deleted portal " + name);
+	}
 
-        Point size = selection.getSize();
-        if (size.getX() > 0 && size.getY() > 0 && size.getZ() > 0)
-            throw new TranslatedCommandException("Portal selection must be flat in one axis");
+	private static void parseTarget(CommandParserArgs arguments) throws CommandException {
+		if (arguments.isEmpty()) {
+			arguments.confirm("/portal target <name> [x y z] [dim]");
+			arguments.confirm("  Set portal's target to the current / specified location");
+			return;
+		}
 
-        Portal portal = new Portal(new NamedWorldArea(selection.getDimension(), selection), target, frame);
-        PortalManager.getInstance().add(name, portal);
-        arguments.confirm("Created new portal leading to %s", target.toString());
-    }
+		arguments.tabComplete(PortalManager.getInstance().portals.keySet());
 
-    private static void parseTarget(CommandParserArgs arguments) throws CommandException
-    {
-        if (arguments.isEmpty())
-        {
-            arguments.confirm("/portal target <name> [x y z] [dim]");
-            arguments.confirm("  Set portal's target to the current / specified location");
-            return;
-        }
+		String name = arguments.remove();
+		if (!PortalManager.getInstance().portals.containsKey(name)) {
+			throw new TranslatedCommandException("Portal by that name does not exist.");
+		}
 
-        arguments.tabComplete(PortalManager.getInstance().portals.keySet());
+		NamedWorldPoint target = new NamedWorldPoint(arguments.senderPlayer);
+		if (!arguments.isEmpty()) {
+			if (arguments.size() < 3) {
+				throw new TranslatedCommandException("Expected arguments [x y z]");
+			}
+			int x = parseInt(arguments.remove());
+			int y = parseInt(arguments.remove());
+			int z = parseInt(arguments.remove());
+			int dim = arguments.senderPlayer.dimension;
+			if (!arguments.isEmpty()) {
+				dim = parseInt(arguments.remove());
+			}
+			target = new NamedWorldPoint(dim, x, y, z);
+		}
 
-        String name = arguments.remove();
-        if (!PortalManager.getInstance().portals.containsKey(name))
-            throw new TranslatedCommandException("Portal by that name does not exist.");
+		if (arguments.isTabCompletion) {
+			return;
+		}
 
-        NamedWorldPoint target = new NamedWorldPoint(arguments.senderPlayer);
-        if (!arguments.isEmpty())
-        {
-            if (arguments.size() < 3)
-                throw new TranslatedCommandException("Expected arguments [x y z]");
-            int x = parseInt(arguments.remove());
-            int y = parseInt(arguments.remove());
-            int z = parseInt(arguments.remove());
-            int dim = arguments.senderPlayer.dimension;
-            if (!arguments.isEmpty())
-                dim = parseInt(arguments.remove());
-            target = new NamedWorldPoint(dim, x, y, z);
-        }
+		PortalManager.getInstance().get(name).target = target;
+		arguments.confirm("Set target for portal %s to %s", name, target.toString());
+	}
 
-        if (arguments.isTabCompletion)
-            return;
+	@Override
+	public boolean canConsoleUseCommand() {
+		return false;
+	}
 
-        PortalManager.getInstance().get(name).target = target;
-        arguments.confirm("Set target for portal %s to %s", name, target.toString());
-    }
+	@Override
+	public String getCommandName() {
+		return "portal";
+	}
 
-    private static void parseDelete(CommandParserArgs arguments) throws CommandException
-    {
-        if (arguments.isEmpty())
-        {
-            arguments.confirm("/portal delete <name>");
-            return;
-        }
+	@Override
+	public String getCommandUsage(ICommandSender p_71518_1_) {
+		return "/portal delete|create|recreate|list|target [name] [x y z] [dim] Manage portals.";
+	}
 
-        arguments.tabComplete(PortalManager.getInstance().portals.keySet());
-        if (arguments.isTabCompletion)
-            return;
+	@Override
+	public PermissionLevel getPermissionLevel() {
+		return PermissionLevel.OP;
+	}
 
-        String name = arguments.remove();
-        if (!PortalManager.getInstance().portals.containsKey(name))
-            throw new TranslatedCommandException("Portal by that name does not exist.");
+	@Override
+	public String getPermissionNode() {
+		return PERM;
+	}
 
-        PortalManager.getInstance().remove(name);
-        arguments.confirm("Deleted portal " + name);
-    }
+	@Override
+	public void parse(CommandParserArgs arguments) throws CommandException {
+		if (arguments.isEmpty()) {
+			arguments.confirm(getCommandUsage(arguments.sender));
+			return;
+		}
 
-    /**
-     * Print lists of portals, their locations and dimensions
-     */
-    private static void listPortals(CommandParserArgs arguments)
-    {
-        if (arguments.isTabCompletion)
-            return;
-        arguments.confirm("Registered portals:");
-        for (Entry<String, Portal> entry : PortalManager.getInstance().portals.entrySet())
-        {
-            arguments.confirm("- " + entry.getKey() + ": " + entry.getValue().getPortalArea().toString());
-        }
-    }
+		arguments.tabComplete("create", "recreate", "target", "delete", "list");
+
+		String subcommand = arguments.remove().toLowerCase();
+		switch (subcommand) {
+		case "create":
+			parseCreate(arguments, false);
+			break;
+		case "recreate":
+			parseCreate(arguments, true);
+			break;
+		case "target":
+			parseTarget(arguments);
+			break;
+		case "delete":
+			parseDelete(arguments);
+			break;
+		case "list":
+			listPortals(arguments);
+			break;
+		default:
+			arguments.warn("Valid subcommands: delete, create, recreate, list, target");
+			throw new TranslatedCommandException("Unknown subcommand " + subcommand);
+		}
+	}
 
 }

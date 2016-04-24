@@ -1,5 +1,10 @@
 package com.forgeessentials.commands.world;
 
+import com.forgeessentials.api.UserIdent;
+import com.forgeessentials.commands.util.FEcmdModuleCommands;
+import com.forgeessentials.core.misc.TranslatedCommandException;
+import com.forgeessentials.util.output.ChatOutputHandler;
+
 import net.minecraft.block.BlockButton;
 import net.minecraft.block.BlockLever;
 import net.minecraft.block.state.IBlockState;
@@ -16,165 +21,134 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 import net.minecraftforge.permission.PermissionLevel;
 
-import com.forgeessentials.api.UserIdent;
-import com.forgeessentials.commands.util.FEcmdModuleCommands;
-import com.forgeessentials.core.misc.TranslatedCommandException;
-import com.forgeessentials.util.output.ChatOutputHandler;
+public class CommandPush extends FEcmdModuleCommands {
 
-public class CommandPush extends FEcmdModuleCommands
-{
+	@Override
+	public boolean canConsoleUseCommand() {
+		return true;
+	}
 
-    @Override
-    public String getCommandName()
-    {
-        return "push";
-    }
+	private double func_82367_a(ICommandSender par1ICommandSender, double par2, String par4Str, int par5, int par6)
+			throws CommandException {
+		boolean flag = par4Str.startsWith("~");
+		double d1 = flag ? par2 : 0.0D;
 
-    @Override
-    public String getCommandUsage(ICommandSender par1ICommandSender)
-    {
-        return "/push <X> <Y> <Z>";
-    }
+		if (!flag || (par4Str.length() > 1)) {
+			boolean flag1 = par4Str.contains(".");
 
-    @Override
-    public void processCommandConsole(ICommandSender sender, String[] args) throws CommandException
-    {
-        if (args.length != 3)
-        {
-            throw new TranslatedCommandException(getCommandUsage(sender));
-        }
-        else
-        {
-            int x = 0;
-            int y = 0;
-            int z = 0;
-            World world = null;
+			if (flag) {
+				par4Str = par4Str.substring(1);
+			}
 
-            if (sender instanceof TileEntity)
-            {
-                x = (int) this.func_82368_a(sender, ((TileEntity) sender).getPos().getX(), args[0]);
-                y = (int) this.func_82367_a(sender, ((TileEntity) sender).getPos().getY(), args[1], 0, 0);
-                z = (int) this.func_82368_a(sender, ((TileEntity) sender).getPos().getZ(), args[2]);
-                world = ((TileEntity) sender).getWorld();
-            }
-            else if (sender instanceof EntityPlayerMP)
-            {
-                x = (int) this.func_82368_a(sender, ((EntityPlayerMP) sender).posX, args[0]);
-                y = (int) this.func_82367_a(sender, ((EntityPlayerMP) sender).posY, args[1], 0, 0);
-                z = (int) this.func_82368_a(sender, ((EntityPlayerMP) sender).posZ, args[2]);
-                world = ((EntityPlayerMP) sender).worldObj;
-            }
-            else if (sender instanceof DedicatedServer)
-            {
-                x = (int) this.func_82368_a(sender, 0.0D, args[0]);
-                y = (int) this.func_82367_a(sender, 0.0D, args[1], 0, 0);
-                z = (int) this.func_82368_a(sender, 0.0D, args[2]);
-                world = ((DedicatedServer) sender).worldServerForDimension(0);
-            }
-            BlockPos pos = new BlockPos(x, y, z);
-            IBlockState state = world.getBlockState(pos);
-            
-            if ((state == Blocks.air.getDefaultState() || !(state.getBlock() instanceof BlockButton))
-                    && !(state.getBlock() instanceof BlockLever))
-            {
-                throw new TranslatedCommandException("Button/Lever Not Found");
-            }
-            else
-            {
-                state.getBlock().onBlockActivated(world, pos, state, (EntityPlayer) null, EnumFacing.DOWN, 0.0F, 0.0F, 0.0F);
-                ChatOutputHandler.chatConfirmation(sender, "Button/Lever Pushed");
-            }
-        }
-    }
+			d1 += parseDouble(par4Str);
 
-    @Override
-    public void processCommandPlayer(EntityPlayerMP sender, String[] args) throws CommandException
-    {
-        EntityPlayerMP playermp = UserIdent.getPlayerByMatchOrUsername(sender, sender.getName());
-        if (args.length != 3)
-        {
-            throw new TranslatedCommandException("/push <X> <Y> <Z>", new Object[0]);
-        }
-        else
-        {
-            int x = 0;
-            int y = 0;
-            int z = 0;
-            World world = null;
+			if (!flag1 && !flag) {
+				d1 += 0.5D;
+			}
+		}
 
-            x = (int) this.func_82368_a(playermp, playermp.posX, args[0]);
-            y = (int) this.func_82367_a(playermp, playermp.posY, args[1], 0, 0);
-            z = (int) this.func_82368_a(playermp, playermp.posZ, args[2]);
-            world = playermp.worldObj;
-            BlockPos pos = new BlockPos(x, y, z);
-            IBlockState state = world.getBlockState(pos);
-            
-            if ((state == Blocks.air.getDefaultState() || !(state.getBlock() instanceof BlockButton))
-                    && !(state.getBlock() instanceof BlockLever))
-            {
-                throw new TranslatedCommandException("Button/Lever Not Found");
-            }
-            else
-            {
-                state.getBlock().onBlockActivated(world, pos, state, (EntityPlayer) null, EnumFacing.DOWN, 0.0F, 0.0F, 0.0F);
-                ChatOutputHandler.chatConfirmation(sender, "Button/Lever Pushed");
-            }
-        }
-    }
+		if ((par5 != 0) || (par6 != 0)) {
+			if (d1 < par5) {
+				throw new NumberInvalidException("commands.generic.double.tooSmall",
+						new Object[] { Double.valueOf(d1), Integer.valueOf(par5) });
+			}
 
-    private double func_82368_a(ICommandSender par1ICommandSender, double par2, String par4Str) throws CommandException
-    {
-        return this.func_82367_a(par1ICommandSender, par2, par4Str, -30000000, 30000000);
-    }
+			if (d1 > par6) {
+				throw new NumberInvalidException("commands.generic.double.tooBig",
+						new Object[] { Double.valueOf(d1), Integer.valueOf(par6) });
+			}
+		}
 
-    private double func_82367_a(ICommandSender par1ICommandSender, double par2, String par4Str, int par5, int par6) throws CommandException
-    {
-        boolean flag = par4Str.startsWith("~");
-        double d1 = flag ? par2 : 0.0D;
+		return d1;
+	}
 
-        if (!flag || par4Str.length() > 1)
-        {
-            boolean flag1 = par4Str.contains(".");
+	private double func_82368_a(ICommandSender par1ICommandSender, double par2, String par4Str)
+			throws CommandException {
+		return func_82367_a(par1ICommandSender, par2, par4Str, -30000000, 30000000);
+	}
 
-            if (flag)
-            {
-                par4Str = par4Str.substring(1);
-            }
+	@Override
+	public String getCommandName() {
+		return "push";
+	}
 
-            d1 += parseDouble(par4Str);
+	@Override
+	public String getCommandUsage(ICommandSender par1ICommandSender) {
+		return "/push <X> <Y> <Z>";
+	}
 
-            if (!flag1 && !flag)
-            {
-                d1 += 0.5D;
-            }
-        }
+	@Override
+	public PermissionLevel getPermissionLevel() {
+		return PermissionLevel.TRUE;
+	}
 
-        if (par5 != 0 || par6 != 0)
-        {
-            if (d1 < par5)
-            {
-                throw new NumberInvalidException("commands.generic.double.tooSmall", new Object[] { Double.valueOf(d1), Integer.valueOf(par5) });
-            }
+	@Override
+	public void processCommandConsole(ICommandSender sender, String[] args) throws CommandException {
+		if (args.length != 3) {
+			throw new TranslatedCommandException(getCommandUsage(sender));
+		} else {
+			int x = 0;
+			int y = 0;
+			int z = 0;
+			World world = null;
 
-            if (d1 > par6)
-            {
-                throw new NumberInvalidException("commands.generic.double.tooBig", new Object[] { Double.valueOf(d1), Integer.valueOf(par6) });
-            }
-        }
+			if (sender instanceof TileEntity) {
+				x = (int) func_82368_a(sender, ((TileEntity) sender).getPos().getX(), args[0]);
+				y = (int) func_82367_a(sender, ((TileEntity) sender).getPos().getY(), args[1], 0, 0);
+				z = (int) func_82368_a(sender, ((TileEntity) sender).getPos().getZ(), args[2]);
+				world = ((TileEntity) sender).getWorld();
+			} else if (sender instanceof EntityPlayerMP) {
+				x = (int) func_82368_a(sender, ((EntityPlayerMP) sender).posX, args[0]);
+				y = (int) func_82367_a(sender, ((EntityPlayerMP) sender).posY, args[1], 0, 0);
+				z = (int) func_82368_a(sender, ((EntityPlayerMP) sender).posZ, args[2]);
+				world = ((EntityPlayerMP) sender).worldObj;
+			} else if (sender instanceof DedicatedServer) {
+				x = (int) func_82368_a(sender, 0.0D, args[0]);
+				y = (int) func_82367_a(sender, 0.0D, args[1], 0, 0);
+				z = (int) func_82368_a(sender, 0.0D, args[2]);
+				world = ((DedicatedServer) sender).worldServerForDimension(0);
+			}
+			BlockPos pos = new BlockPos(x, y, z);
+			IBlockState state = world.getBlockState(pos);
 
-        return d1;
-    }
+			if (((state == Blocks.air.getDefaultState()) || !(state.getBlock() instanceof BlockButton))
+					&& !(state.getBlock() instanceof BlockLever)) {
+				throw new TranslatedCommandException("Button/Lever Not Found");
+			} else {
+				state.getBlock().onBlockActivated(world, pos, state, (EntityPlayer) null, EnumFacing.DOWN, 0.0F, 0.0F,
+						0.0F);
+				ChatOutputHandler.chatConfirmation(sender, "Button/Lever Pushed");
+			}
+		}
+	}
 
-    @Override
-    public boolean canConsoleUseCommand()
-    {
-        return true;
-    }
+	@Override
+	public void processCommandPlayer(EntityPlayerMP sender, String[] args) throws CommandException {
+		EntityPlayerMP playermp = UserIdent.getPlayerByMatchOrUsername(sender, sender.getName());
+		if (args.length != 3) {
+			throw new TranslatedCommandException("/push <X> <Y> <Z>", new Object[0]);
+		} else {
+			int x = 0;
+			int y = 0;
+			int z = 0;
+			World world = null;
 
-    @Override
-    public PermissionLevel getPermissionLevel()
-    {
-        return PermissionLevel.TRUE;
-    }
+			x = (int) func_82368_a(playermp, playermp.posX, args[0]);
+			y = (int) func_82367_a(playermp, playermp.posY, args[1], 0, 0);
+			z = (int) func_82368_a(playermp, playermp.posZ, args[2]);
+			world = playermp.worldObj;
+			BlockPos pos = new BlockPos(x, y, z);
+			IBlockState state = world.getBlockState(pos);
+
+			if (((state == Blocks.air.getDefaultState()) || !(state.getBlock() instanceof BlockButton))
+					&& !(state.getBlock() instanceof BlockLever)) {
+				throw new TranslatedCommandException("Button/Lever Not Found");
+			} else {
+				state.getBlock().onBlockActivated(world, pos, state, (EntityPlayer) null, EnumFacing.DOWN, 0.0F, 0.0F,
+						0.0F);
+				ChatOutputHandler.chatConfirmation(sender, "Button/Lever Pushed");
+			}
+		}
+	}
 
 }

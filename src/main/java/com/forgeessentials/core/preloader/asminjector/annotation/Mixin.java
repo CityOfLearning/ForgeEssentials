@@ -10,21 +10,20 @@ import java.lang.annotation.Target;
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Mixin
-{
+public @interface Mixin {
 
-    /**
-     * Target class(es) for this injector class
-     *
-     * @return target classes for this injector class
-     */
-    public Class<?>[] value();
+	/**
+	 * Target class name(es) for this injector class
+	 *
+	 * @return target classes for this injector class
+	 */
+	public String[] targets() default {};
 
-    /**
-     * Target class name(es) for this injector class
-     *
-     * @return target classes for this injector class
-     */
-    public String[] targets() default {};
+	/**
+	 * Target class(es) for this injector class
+	 *
+	 * @return target classes for this injector class
+	 */
+	public Class<?>[] value();
 
 }

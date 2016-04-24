@@ -2,9 +2,8 @@ package com.forgeessentials.core.moduleLauncher.config;
 
 import net.minecraftforge.common.config.Configuration;
 
-public interface ConfigSaver extends ConfigLoader
-{
+public interface ConfigSaver extends ConfigLoader {
 
-    void save(Configuration config);
+	void save(Configuration config);
 
 }

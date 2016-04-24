@@ -5,19 +5,6 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import net.minecraft.command.CommandException;
-import net.minecraft.command.ICommandSender;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.nbt.CompressedStreamTools;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldServer;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.storage.AnvilChunkLoader;
-import net.minecraft.world.chunk.storage.RegionFileCache;
-import net.minecraft.world.gen.ChunkProviderServer;
-import net.minecraftforge.permission.PermissionLevel;
-
 import com.forgeessentials.api.APIRegistry;
 import com.forgeessentials.api.permissions.FEPermissions;
 import com.forgeessentials.commands.ModuleCommands;
@@ -32,350 +19,319 @@ import com.forgeessentials.util.output.ChatOutputHandler;
 import com.forgeessentials.worldborder.ModuleWorldBorder;
 import com.forgeessentials.worldborder.WorldBorder;
 
-public class CommandPregen extends ParserCommandBase implements TickTask
-{
+import net.minecraft.command.CommandException;
+import net.minecraft.command.ICommandSender;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.nbt.CompressedStreamTools;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
+import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.chunk.storage.AnvilChunkLoader;
+import net.minecraft.world.chunk.storage.RegionFileCache;
+import net.minecraft.world.gen.ChunkProviderServer;
+import net.minecraftforge.permission.PermissionLevel;
 
-    private boolean running = false;
+public class CommandPregen extends ParserCommandBase implements TickTask {
 
-    private WorldServer world;
+	private static Method writeChunkToNBT;
 
-    private boolean fullPregen;
+	static {
+		Class<?>[] cArg = new Class[] { Chunk.class, World.class, NBTTagCompound.class };
+		try {
+			writeChunkToNBT = AnvilChunkLoader.class.getDeclaredMethod("func_75820_a", cArg); // writeChunkToNBT
+		} catch (NoSuchMethodException e) {
+			try {
+				writeChunkToNBT = AnvilChunkLoader.class.getDeclaredMethod("writeChunkToNBT", cArg);
+			} catch (NoSuchMethodException e1) {
+				throw new RuntimeException(
+						"Pregen: Unable to obtain access to private method AnvilChunkLoader.writeChunkToNBT");
+			}
+		}
+		writeChunkToNBT.setAccessible(true);
+	}
 
-    private AreaShape shape;
+	private static void saveChunk(ChunkProviderServer provider, Chunk chunk) {
+		AnvilChunkLoader loader = (AnvilChunkLoader) provider.chunkLoader;
+		try {
+			NBTTagCompound chunkTag = new NBTTagCompound();
+			NBTTagCompound levelTag = new NBTTagCompound();
+			chunkTag.setTag("Level", levelTag);
+			writeChunkToNBT(provider.worldObj, loader, chunk, levelTag);
+			writeChunkData(provider.worldObj, loader, chunk, chunkTag);
+		} catch (Exception exception) {
+			exception.printStackTrace();
+		}
+	}
 
-    private int minX;
+	private static void writeChunkData(WorldServer world, AnvilChunkLoader loader, Chunk chunk, NBTTagCompound tag)
+			throws IOException {
+		try (DataOutputStream dataoutputstream = RegionFileCache.getChunkOutputStream(world.getChunkSaveLocation(),
+				chunk.xPosition, chunk.zPosition)) {
+			CompressedStreamTools.write(tag, dataoutputstream);
+		}
+	}
 
-    private int minZ;
+	/* wrapper for AnvilChunkLoader.writeChunkToNBT */
+	private static void writeChunkToNBT(WorldServer world, AnvilChunkLoader loader, Chunk chunk, NBTTagCompound tag) {
+		Object[] args = new Object[] { chunk, world, tag };
+		try {
+			writeChunkToNBT.invoke(loader, args);
+		} catch (IllegalAccessException | IllegalArgumentException e) {
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			e.getCause().printStackTrace();
+		}
+	}
 
-    private int maxX;
+	private boolean running = false;
 
-    private int maxZ;
+	private WorldServer world;
 
-    private int centerX;
+	private boolean fullPregen;
 
-    private int centerZ;
+	private AreaShape shape;
 
-    private int sizeX;
+	private int minX;
 
-    private int sizeZ;
+	private int minZ;
 
-    private int x;
+	private int maxX;
 
-    private int z;
+	private int maxZ;
 
-    private int totalTicks;
+	private int centerX;
 
-    private int totalChunks;
+	private int centerZ;
 
-    @Override
-    public String getCommandName()
-    {
-        return "fepregen";
-    }
+	private int sizeX;
 
-    @Override
-    public String[] getDefaultAliases()
-    {
-        return new String[] { "pregen", "filler" };
-    }
+	private int sizeZ;
 
-    @Override
-    public String getCommandUsage(ICommandSender sender)
-    {
-        return "/pregen start [dim]";
-    }
+	private int x;
 
-    @Override
-    public String getPermissionNode()
-    {
-        return ModuleCommands.PERM + ".pregen";
-    }
+	private int z;
 
-    @Override
-    public PermissionLevel getPermissionLevel()
-    {
-        return PermissionLevel.OP;
-    }
+	private int totalTicks;
 
-    @Override
-    public boolean canConsoleUseCommand()
-    {
-        return true;
-    }
+	private int totalChunks;
 
-    @Override
-    public void parse(CommandParserArgs arguments) throws CommandException
-    {
-        if (arguments.isEmpty())
-        {
-            if (running)
-            {
-                arguments.confirm("Pregen running");
-            }
-            else
-            {
-                arguments.confirm("No pregen running");
-                arguments.notify("/pregen start [full-pregen] [dim]");
-            }
-            return;
-        }
+	@Override
+	public boolean canConsoleUseCommand() {
+		return true;
+	}
 
-        arguments.tabComplete("start", "stop");
-        String subCmd = arguments.remove().toLowerCase();
-        switch (subCmd)
-        {
-        case "start":
-            parseStart(arguments);
-            break;
-        case "stop":
-            parseStop(arguments);
-            break;
-        case "flush":
-            flush(arguments);
-            break;
-        default:
-            throw new TranslatedCommandException(FEPermissions.MSG_UNKNOWN_SUBCOMMAND, subCmd);
-        }
-    }
+	@Override
+	public boolean editsBlocks() {
+		return true;
+	}
 
-    /* ------------------------------------------------------------ */
+	/* ------------------------------------------------------------ */
 
-    private void parseStart(CommandParserArgs arguments) throws CommandException
-    {
-        if (running)
-        {
-            arguments.error("Pregen already running");
-            return;
-        }
+	private void flush(CommandParserArgs arguments) {
+		if (!running) {
+			arguments.error("No pregen running");
+			return;
+		}
+		ChunkProviderServer providerServer = (ChunkProviderServer) world.getChunkProvider();
+		providerServer.unloadAllChunks();
+		arguments.confirm("Queued all chunks for unloading");
+	}
 
-        world = null;
-        fullPregen = true;
-        if (!arguments.isEmpty())
-            fullPregen = arguments.parseBoolean();
-        world = arguments.parseWorld();
+	@Override
+	public String getCommandName() {
+		return "fepregen";
+	}
 
-        WorldBorder border = ModuleWorldBorder.getInstance().getBorder(world);
-        if (border == null)
-            throw new TranslatedCommandException("No worldborder defined");
+	@Override
+	public String getCommandUsage(ICommandSender sender) {
+		return "/pregen start [dim]";
+	}
 
-        centerX = border.getCenter().getX() / 16;
-        centerZ = border.getCenter().getZ() / 16;
-        sizeX = border.getSize().getX() / 16;
-        sizeZ = border.getSize().getZ() / 16;
-        minX = border.getArea().getLowPoint().getX() / 16;
-        minZ = border.getArea().getLowPoint().getZ() / 16;
-        maxX = border.getArea().getHighPoint().getX() / 16;
-        maxZ = border.getArea().getHighPoint().getZ() / 16;
-        shape = border.getShape();
+	@Override
+	public String[] getDefaultAliases() {
+		return new String[] { "pregen", "filler" };
+	}
 
-        x = minX - 1;
-        z = minZ;
-        running = true;
-        totalTicks = 0;
-        totalChunks = 0;
+	@Override
+	public PermissionLevel getPermissionLevel() {
+		return PermissionLevel.OP;
+	}
 
-        TaskRegistry.schedule(this);
-        arguments.confirm("Pregen started");
-    }
+	@Override
+	public String getPermissionNode() {
+		return ModuleCommands.PERM + ".pregen";
+	}
 
-    private void parseStop(CommandParserArgs arguments)
-    {
-        if (!running)
-        {
-            arguments.error("No pregen running");
-            return;
-        }
-        running = false;
-    }
+	private boolean next() {
+		switch (shape) {
+		default:
+		case BOX:
+			if (++x > maxX) {
+				x = minX;
+				if (++z > maxZ) {
+					return false;
+				}
+			}
+			return true;
+		case CYLINDER:
+		case ELLIPSOID:
+			while (true) {
+				if (++x > maxX) {
+					x = minX;
+					if (++z > maxZ) {
+						return false;
+					}
+				}
+				double dx = (double) (centerX - x) / sizeX;
+				double dz = (double) (centerZ - z) / sizeZ;
+				if (((dx * dx) + (dz * dz)) <= 1) {
+					return true;
+				}
+			}
+		}
+	}
 
-    private void flush(CommandParserArgs arguments)
-    {
-        if (!running)
-        {
-            arguments.error("No pregen running");
-            return;
-        }
-        ChunkProviderServer providerServer = (ChunkProviderServer) world.getChunkProvider();
-        providerServer.unloadAllChunks();
-        arguments.confirm("Queued all chunks for unloading");
-    }
+	/* ------------------------------------------------------------ */
 
-    @Override
-    public boolean tick()
-    {
-        if (!running)
-        {
-            notifyPlayers("Pregen stopped");
-            return true;
-        }
-        totalTicks++;
+	public void notifyPlayers(String message) {
+		for (EntityPlayerMP player : ServerUtil.getPlayerList()) {
+			if (APIRegistry.perms.checkPermission(player, getPermissionNode())) {
+				ChatOutputHandler.chatNotification(player, message);
+			}
+		}
+	}
 
-        ChunkProviderServer providerServer = (ChunkProviderServer) world.getChunkProvider();
+	@Override
+	public void parse(CommandParserArgs arguments) throws CommandException {
+		if (arguments.isEmpty()) {
+			if (running) {
+				arguments.confirm("Pregen running");
+			} else {
+				arguments.confirm("No pregen running");
+				arguments.notify("/pregen start [full-pregen] [dim]");
+			}
+			return;
+		}
 
-        double tps = ServerUtil.getTPS();
-        if (totalTicks % 80 == 0)
-            notifyPlayers(String.format("Pregen: %d/%d chunks, tps:%.1f, lc:%d", totalChunks, sizeX * sizeZ * 4, tps,
-                    providerServer.getLoadedChunkCount()));
-        for (int i = 0; i < 1; i++)
-        {
-            int skippedChunks = 0;
-            while (true)
-            {
-                totalChunks++;
-                if (!next())
-                {
-                    running = false;
-                    notifyPlayers("World pregen finished");
-                    return true;
-                }
+		arguments.tabComplete("start", "stop");
+		String subCmd = arguments.remove().toLowerCase();
+		switch (subCmd) {
+		case "start":
+			parseStart(arguments);
+			break;
+		case "stop":
+			parseStop(arguments);
+			break;
+		case "flush":
+			flush(arguments);
+			break;
+		default:
+			throw new TranslatedCommandException(FEPermissions.MSG_UNKNOWN_SUBCOMMAND, subCmd);
+		}
+	}
 
-                if (RegionFileCache.createOrLoadRegionFile(world.getChunkSaveLocation(), x, z).chunkExists(x & 0x1F, z & 0x1F))
-                {
-                    skippedChunks++;
-                    if (skippedChunks > 16 * 16)
-                        break;
-                    else
-                        continue;
-                }
+	private void parseStart(CommandParserArgs arguments) throws CommandException {
+		if (running) {
+			arguments.error("Pregen already running");
+			return;
+		}
 
-                if (fullPregen)
-                {
-                    providerServer.provideChunk(x, z);
-                }
-                else
-                {
-                    try
-                    {
-                        Chunk chunk = providerServer.chunkLoader.loadChunk(world, x, z);
-                        chunk.populateChunk(providerServer, providerServer, x, z);
-                        saveChunk(providerServer, chunk);
-                    }
-                    catch (Exception exception)
-                    {
-                        // logger.error("Couldn\'t load chunk", exception);
-                    }
-                }
+		world = null;
+		fullPregen = true;
+		if (!arguments.isEmpty()) {
+			fullPregen = arguments.parseBoolean();
+		}
+		world = arguments.parseWorld();
 
-                // TODO 1.8 check
-                // if (providerServer.getLoadedChunkCount() > 256)
-                // providerServer.unloadChunksIfNotNearSpawn(x, z);
+		WorldBorder border = ModuleWorldBorder.getInstance().getBorder(world);
+		if (border == null) {
+			throw new TranslatedCommandException("No worldborder defined");
+		}
 
-                break;
-            }
-        }
-        return false;
-    }
+		centerX = border.getCenter().getX() / 16;
+		centerZ = border.getCenter().getZ() / 16;
+		sizeX = border.getSize().getX() / 16;
+		sizeZ = border.getSize().getZ() / 16;
+		minX = border.getArea().getLowPoint().getX() / 16;
+		minZ = border.getArea().getLowPoint().getZ() / 16;
+		maxX = border.getArea().getHighPoint().getX() / 16;
+		maxZ = border.getArea().getHighPoint().getZ() / 16;
+		shape = border.getShape();
 
-    private boolean next()
-    {
-        switch (shape)
-        {
-        default:
-        case BOX:
-            if (++x > maxX)
-            {
-                x = minX;
-                if (++z > maxZ)
-                    return false;
-            }
-            return true;
-        case CYLINDER:
-        case ELLIPSOID:
-            while (true)
-            {
-                if (++x > maxX)
-                {
-                    x = minX;
-                    if (++z > maxZ)
-                        return false;
-                }
-                double dx = (double) (centerX - x) / sizeX;
-                double dz = (double) (centerZ - z) / sizeZ;
-                if (dx * dx + dz * dz <= 1)
-                    return true;
-            }
-        }
-    }
+		x = minX - 1;
+		z = minZ;
+		running = true;
+		totalTicks = 0;
+		totalChunks = 0;
 
-    @Override
-    public boolean editsBlocks()
-    {
-        return true;
-    }
+		TaskRegistry.schedule(this);
+		arguments.confirm("Pregen started");
+	}
 
-    public void notifyPlayers(String message)
-    {
-        for (EntityPlayerMP player : ServerUtil.getPlayerList())
-            if (APIRegistry.perms.checkPermission(player, getPermissionNode()))
-                ChatOutputHandler.chatNotification(player, message);
-    }
+	private void parseStop(CommandParserArgs arguments) {
+		if (!running) {
+			arguments.error("No pregen running");
+			return;
+		}
+		running = false;
+	}
 
-    /* ------------------------------------------------------------ */
+	@Override
+	public boolean tick() {
+		if (!running) {
+			notifyPlayers("Pregen stopped");
+			return true;
+		}
+		totalTicks++;
 
-    private static Method writeChunkToNBT;
+		ChunkProviderServer providerServer = (ChunkProviderServer) world.getChunkProvider();
 
-    static
-    {
-        Class<?>[] cArg = new Class[] { Chunk.class, World.class, NBTTagCompound.class };
-        try
-        {
-            writeChunkToNBT = AnvilChunkLoader.class.getDeclaredMethod("func_75820_a", cArg); // writeChunkToNBT
-        }
-        catch (NoSuchMethodException e)
-        {
-            try
-            {
-                writeChunkToNBT = AnvilChunkLoader.class.getDeclaredMethod("writeChunkToNBT", cArg);
-            }
-            catch (NoSuchMethodException e1)
-            {
-                throw new RuntimeException("Pregen: Unable to obtain access to private method AnvilChunkLoader.writeChunkToNBT");
-            }
-        }
-        writeChunkToNBT.setAccessible(true);
-    }
+		double tps = ServerUtil.getTPS();
+		if ((totalTicks % 80) == 0) {
+			notifyPlayers(String.format("Pregen: %d/%d chunks, tps:%.1f, lc:%d", totalChunks, sizeX * sizeZ * 4, tps,
+					providerServer.getLoadedChunkCount()));
+		}
+		for (int i = 0; i < 1; i++) {
+			int skippedChunks = 0;
+			while (true) {
+				totalChunks++;
+				if (!next()) {
+					running = false;
+					notifyPlayers("World pregen finished");
+					return true;
+				}
 
-    private static void saveChunk(ChunkProviderServer provider, Chunk chunk)
-    {
-        AnvilChunkLoader loader = (AnvilChunkLoader) provider.chunkLoader;
-        try
-        {
-            NBTTagCompound chunkTag = new NBTTagCompound();
-            NBTTagCompound levelTag = new NBTTagCompound();
-            chunkTag.setTag("Level", levelTag);
-            writeChunkToNBT(provider.worldObj, loader, chunk, levelTag);
-            writeChunkData(provider.worldObj, loader, chunk, chunkTag);
-        }
-        catch (Exception exception)
-        {
-            exception.printStackTrace();
-        }
-    }
+				if (RegionFileCache.createOrLoadRegionFile(world.getChunkSaveLocation(), x, z).chunkExists(x & 0x1F,
+						z & 0x1F)) {
+					skippedChunks++;
+					if (skippedChunks > (16 * 16)) {
+						break;
+					} else {
+						continue;
+					}
+				}
 
-    /* wrapper for AnvilChunkLoader.writeChunkToNBT */
-    private static void writeChunkToNBT(WorldServer world, AnvilChunkLoader loader, Chunk chunk, NBTTagCompound tag)
-    {
-        Object[] args = new Object[] { chunk, world, tag };
-        try
-        {
-            writeChunkToNBT.invoke(loader, args);
-        }
-        catch (IllegalAccessException | IllegalArgumentException e)
-        {
-            e.printStackTrace();
-        }
-        catch (InvocationTargetException e)
-        {
-            e.getCause().printStackTrace();
-        }
-    }
+				if (fullPregen) {
+					providerServer.provideChunk(x, z);
+				} else {
+					try {
+						Chunk chunk = providerServer.chunkLoader.loadChunk(world, x, z);
+						chunk.populateChunk(providerServer, providerServer, x, z);
+						saveChunk(providerServer, chunk);
+					} catch (Exception exception) {
+						// logger.error("Couldn\'t load chunk", exception);
+					}
+				}
 
-    private static void writeChunkData(WorldServer world, AnvilChunkLoader loader, Chunk chunk, NBTTagCompound tag) throws IOException
-    {
-        try (DataOutputStream dataoutputstream = RegionFileCache.getChunkOutputStream(world.getChunkSaveLocation(), chunk.xPosition, chunk.zPosition))
-        {
-            CompressedStreamTools.write(tag, dataoutputstream);
-        }
-    }
+				// TODO 1.8 check
+				// if (providerServer.getLoadedChunkCount() > 256)
+				// providerServer.unloadChunksIfNotNearSpawn(x, z);
+
+				break;
+			}
+		}
+		return false;
+	}
 
 }

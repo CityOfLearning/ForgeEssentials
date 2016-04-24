@@ -1,33 +1,27 @@
 package com.forgeessentials.protection.effect;
 
-import net.minecraft.command.CommandException;
-import net.minecraft.entity.player.EntityPlayerMP;
-
 import com.forgeessentials.scripting.ScriptParser;
 import com.forgeessentials.util.output.LoggingHandler;
 
-public class CommandEffect extends ZoneEffect
-{
+import net.minecraft.command.CommandException;
+import net.minecraft.entity.player.EntityPlayerMP;
 
-    protected String command;
+public class CommandEffect extends ZoneEffect {
 
-    public CommandEffect(EntityPlayerMP player, int interval, String command)
-    {
-        super(player, interval, false);
-        this.command = command;
-    }
+	protected String command;
 
-    @Override
-    public void execute()
-    {
-        try
-        {
-            ScriptParser.run(command, player, null);
-        }
-        catch (CommandException e)
-        {
-            LoggingHandler.felog.error(String.format("Error executing zone command: %s", e.getMessage()));
-        }
-    }
+	public CommandEffect(EntityPlayerMP player, int interval, String command) {
+		super(player, interval, false);
+		this.command = command;
+	}
+
+	@Override
+	public void execute() {
+		try {
+			ScriptParser.run(command, player, null);
+		} catch (CommandException e) {
+			LoggingHandler.felog.error(String.format("Error executing zone command: %s", e.getMessage()));
+		}
+	}
 
 }

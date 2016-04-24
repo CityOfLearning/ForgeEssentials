@@ -6,21 +6,19 @@ import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.fml.common.eventhandler.Cancelable;
 
 @Cancelable
-public class EntityAttackedEvent extends EntityEvent
-{
+public class EntityAttackedEvent extends EntityEvent {
 
-    public final DamageSource source;
+	public final DamageSource source;
 
-    public float damage;
+	public float damage;
 
-    public boolean result;
+	public boolean result;
 
-    public EntityAttackedEvent(Entity entity, DamageSource damageSource, float damage)
-    {
-        super(entity);
-        this.source = damageSource;
-        this.damage = damage;
-        this.result = true;
-    }
+	public EntityAttackedEvent(Entity entity, DamageSource damageSource, float damage) {
+		super(entity);
+		source = damageSource;
+		this.damage = damage;
+		result = true;
+	}
 
 }

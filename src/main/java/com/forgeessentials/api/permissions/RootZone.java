@@ -5,86 +5,76 @@ import com.forgeessentials.commons.selections.WorldArea;
 import com.forgeessentials.commons.selections.WorldPoint;
 
 /**
- * {@link RootZone} is the root of the permission tree and has the lowest priority of all zones. It's purpose is to hold
- * default permissions, which have been set by {@link IPermissionsHelper#registerPermissionProperty(String, String)}
+ * {@link RootZone} is the root of the permission tree and has the lowest
+ * priority of all zones. It's purpose is to hold default permissions, which
+ * have been set by
+ * {@link IPermissionsHelper#registerPermissionProperty(String, String)}
  */
-public class RootZone extends Zone
-{
+public class RootZone extends Zone {
 
-    protected ServerZone serverZone;
+	protected ServerZone serverZone;
 
-    protected IPermissionsHelper permissionHelper;
+	protected IPermissionsHelper permissionHelper;
 
-    protected PermissionDebugger permissionDebugger;
+	protected PermissionDebugger permissionDebugger;
 
-    public RootZone(IPermissionsHelper permissionHelper)
-    {
-        super(0);
-        this.permissionHelper = permissionHelper;
-    }
+	public RootZone(IPermissionsHelper permissionHelper) {
+		super(0);
+		this.permissionHelper = permissionHelper;
+	}
 
-    @Override
-    public boolean isInZone(WorldPoint point)
-    {
-        return true;
-    }
+	@Override
+	public String getName() {
+		return "_ROOT_";
+	}
 
-    @Override
-    public boolean isInZone(WorldArea point)
-    {
-        return true;
-    }
+	@Override
+	public Zone getParent() {
+		return null;
+	}
 
-    @Override
-    public boolean isPartOfZone(WorldArea point)
-    {
-        return true;
-    }
+	public PermissionDebugger getPermissionDebugger() {
+		return permissionDebugger;
+	}
 
-    @Override
-    public String getName()
-    {
-        return "_ROOT_";
-    }
+	public IPermissionsHelper getPermissionHelper() {
+		return permissionHelper;
+	}
 
-    @Override
-    public Zone getParent()
-    {
-        return null;
-    }
+	@Override
+	public ServerZone getServerZone() {
+		return serverZone;
+	}
 
-    @Override
-    public ServerZone getServerZone()
-    {
-        return serverZone;
-    }
+	@Override
+	public boolean isInZone(WorldArea point) {
+		return true;
+	}
 
-    public void setServerZone(ServerZone serverZone)
-    {
-        this.serverZone = serverZone;
-        if (serverZone != null)
-            serverZone.setRootZone(this);
-    }
+	@Override
+	public boolean isInZone(WorldPoint point) {
+		return true;
+	}
 
-    public IPermissionsHelper getPermissionHelper()
-    {
-        return permissionHelper;
-    }
+	@Override
+	public boolean isPartOfZone(WorldArea point) {
+		return true;
+	}
 
-    public void setPermissionDebugger(PermissionDebugger permissionDebugger)
-    {
-        this.permissionDebugger = permissionDebugger;
-    }
+	@Override
+	public void setDirty() {
+		permissionHelper.setDirty(true);
+	}
 
-    public PermissionDebugger getPermissionDebugger()
-    {
-        return permissionDebugger;
-    }
+	public void setPermissionDebugger(PermissionDebugger permissionDebugger) {
+		this.permissionDebugger = permissionDebugger;
+	}
 
-    @Override
-    public void setDirty()
-    {
-        permissionHelper.setDirty(true);
-    }
+	public void setServerZone(ServerZone serverZone) {
+		this.serverZone = serverZone;
+		if (serverZone != null) {
+			serverZone.setRootZone(this);
+		}
+	}
 
 }

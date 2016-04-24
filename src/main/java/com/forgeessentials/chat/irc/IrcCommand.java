@@ -2,72 +2,67 @@ package com.forgeessentials.chat.irc;
 
 import java.util.Collection;
 
-import net.minecraft.command.CommandException;
-import net.minecraft.command.ICommandSender;
-
 import com.forgeessentials.core.misc.Translator;
 import com.forgeessentials.util.CommandParserArgs;
 import com.forgeessentials.util.output.ChatOutputHandler;
 
-public interface IrcCommand
-{
+import net.minecraft.command.CommandException;
+import net.minecraft.command.ICommandSender;
 
-    public static final String COMMAND_CHAR = IrcHandler.COMMAND_CHAR;
+public interface IrcCommand {
 
-    public Collection<String> getCommandNames();
+	public static abstract class IrcCommandParser implements IrcCommand {
 
-    public String getCommandUsage();
+		public static class IrcCommandParserArgs extends CommandParserArgs {
 
-    public String getCommandHelp();
+			public final IrcCommand ircCommand;
 
-    public boolean isAdminCommand();
+			public IrcCommandParserArgs(IrcCommand command, String[] args, ICommandSender sender) {
+				super(null, args, sender);
+				ircCommand = command;
+			}
 
-    public void processCommand(ICommandSender sender, String[] args) throws CommandException;
+			@Override
+			public void error(String message, Object... args) {
+				if (!isTabCompletion) {
+					ChatOutputHandler.chatError(sender, "Error: " + Translator.format(message, args));
+				}
+			}
 
-    public static abstract class IrcCommandParser implements IrcCommand
-    {
+		}
 
-        public static class IrcCommandParserArgs extends CommandParserArgs
-        {
+		@Override
+		public abstract String getCommandHelp();
 
-            public final IrcCommand ircCommand;
+		@Override
+		public abstract Collection<String> getCommandNames();
 
-            public IrcCommandParserArgs(IrcCommand command, String[] args, ICommandSender sender)
-            {
-                super(null, args, sender);
-                ircCommand = command;
-            }
+		@Override
+		public abstract String getCommandUsage();
 
-            @Override
-            public void error(String message, Object... args)
-            {
-                if (!isTabCompletion)
-                    ChatOutputHandler.chatError(sender, "Error: " + Translator.format(message, args));
-            }
+		@Override
+		public abstract boolean isAdminCommand();
 
-        }
+		public abstract void parse(CommandParserArgs arguments) throws CommandException;
 
-        @Override
-        public abstract Collection<String> getCommandNames();
+		@Override
+		public void processCommand(ICommandSender sender, String[] args) throws CommandException {
+			CommandParserArgs arguments = new IrcCommandParserArgs(null, args, sender);
+			parse(arguments);
+		}
 
-        @Override
-        public abstract String getCommandUsage();
+	}
 
-        @Override
-        public abstract String getCommandHelp();
+	public static final String COMMAND_CHAR = IrcHandler.COMMAND_CHAR;
 
-        @Override
-        public abstract boolean isAdminCommand();
+	public String getCommandHelp();
 
-        @Override
-        public void processCommand(ICommandSender sender, String[] args) throws CommandException
-        {
-            CommandParserArgs arguments = new IrcCommandParserArgs(null, args, sender);
-            parse(arguments);
-        }
+	public Collection<String> getCommandNames();
 
-        public abstract void parse(CommandParserArgs arguments) throws CommandException;
+	public String getCommandUsage();
 
-    }
+	public boolean isAdminCommand();
+
+	public void processCommand(ICommandSender sender, String[] args) throws CommandException;
 
 }

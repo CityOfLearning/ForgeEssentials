@@ -2,13 +2,6 @@ package com.forgeessentials.economy.commands;
 
 import java.util.List;
 
-import net.minecraft.command.CommandException;
-import net.minecraft.command.ICommandSender;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.util.BlockPos;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.permission.PermissionLevel;
-
 import com.forgeessentials.api.APIRegistry;
 import com.forgeessentials.api.UserIdent;
 import com.forgeessentials.core.commands.ForgeEssentialsCommandBase;
@@ -16,92 +9,86 @@ import com.forgeessentials.core.misc.TranslatedCommandException;
 import com.forgeessentials.core.misc.Translator;
 import com.forgeessentials.util.output.ChatOutputHandler;
 
-public class CommandRequestPayment extends ForgeEssentialsCommandBase
-{
+import net.minecraft.command.CommandException;
+import net.minecraft.command.ICommandSender;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.util.BlockPos;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.permission.PermissionLevel;
 
-    @Override
-    public String getCommandName()
-    {
-        return "requestpayment";
-    }
+public class CommandRequestPayment extends ForgeEssentialsCommandBase {
 
-    @Override
-    public void processCommandPlayer(EntityPlayerMP sender, String[] args) throws CommandException
-    {
-        if (args.length != 2)
-            throw new TranslatedCommandException("Improper syntax. Please try this instead: <player> <amountRequested>");
-        EntityPlayerMP player = UserIdent.getPlayerByMatchOrUsername(sender, args[0]);
-        if (player == null)
-        {
-            ChatOutputHandler.chatError(sender, args[0] + " not found!");
-        }
-        else
-        {
-            int amount = parseInt(args[1], 0, Integer.MAX_VALUE);
-            ChatOutputHandler.chatConfirmation(sender,
-                    Translator.format("You requested %s to pay %s", player.getName(), APIRegistry.economy.toString(amount)));
-            ChatOutputHandler.chatConfirmation(player,
-                    Translator.format("You have been requested to pay %s by %s", APIRegistry.economy.toString(amount), sender.getName()));
-        }
-    }
+	@Override
+	public List<String> addTabCompletionOptions(ICommandSender sender, String[] args, BlockPos pos) {
+		if (args.length == 1) {
+			return getListOfStringsMatchingLastWord(args,
+					FMLCommonHandler.instance().getMinecraftServerInstance().getAllUsernames());
+		} else {
+			return null;
+		}
+	}
 
-    @Override
-    public void processCommandConsole(ICommandSender sender, String[] args) throws CommandException
-    {
-        if (args.length != 2)
-            throw new TranslatedCommandException("Improper syntax. Please try this instead: <player> <amountRequested>");
+	@Override
+	public boolean canConsoleUseCommand() {
+		return false;
+	}
 
-        EntityPlayerMP player = UserIdent.getPlayerByMatchOrUsername(sender, args[0]);
-        if (player == null)
-        {
-            ChatOutputHandler.chatError(sender, args[0] + " not found!");
-        }
-        else
-        {
-            int amount = parseInt(args[1], 0, Integer.MAX_VALUE);
-            ChatOutputHandler.chatConfirmation(sender,
-                    Translator.format("You requested %s to pay %s", player.getName(), APIRegistry.economy.toString(amount)));
-            ChatOutputHandler
-                    .chatConfirmation(player, Translator.format("You have been requested to pay %s by the server", APIRegistry.economy.toString(amount)));
-        }
-    }
+	@Override
+	public String getCommandName() {
+		return "requestpayment";
+	}
 
-    @Override
-    public boolean canConsoleUseCommand()
-    {
-        return false;
-    }
+	@Override
+	public String getCommandUsage(ICommandSender sender) {
 
-    @Override
-    public String getPermissionNode()
-    {
-        return "fe.economy." + getCommandName();
-    }
+		return "/requestpayment <player> <amountRequested> Request a player to pay you a specified amount.";
+	}
 
-    @Override
-    public List<String> addTabCompletionOptions(ICommandSender sender, String[] args, BlockPos pos)
-    {
-        if (args.length == 1)
-        {
-            return getListOfStringsMatchingLastWord(args, FMLCommonHandler.instance().getMinecraftServerInstance().getAllUsernames());
-        }
-        else
-        {
-            return null;
-        }
-    }
+	@Override
+	public PermissionLevel getPermissionLevel() {
 
-    @Override
-    public String getCommandUsage(ICommandSender sender)
-    {
+		return PermissionLevel.TRUE;
+	}
 
-        return "/requestpayment <player> <amountRequested> Request a player to pay you a specified amount.";
-    }
+	@Override
+	public String getPermissionNode() {
+		return "fe.economy." + getCommandName();
+	}
 
-    @Override
-    public PermissionLevel getPermissionLevel()
-    {
+	@Override
+	public void processCommandConsole(ICommandSender sender, String[] args) throws CommandException {
+		if (args.length != 2) {
+			throw new TranslatedCommandException(
+					"Improper syntax. Please try this instead: <player> <amountRequested>");
+		}
 
-        return PermissionLevel.TRUE;
-    }
+		EntityPlayerMP player = UserIdent.getPlayerByMatchOrUsername(sender, args[0]);
+		if (player == null) {
+			ChatOutputHandler.chatError(sender, args[0] + " not found!");
+		} else {
+			int amount = parseInt(args[1], 0, Integer.MAX_VALUE);
+			ChatOutputHandler.chatConfirmation(sender, Translator.format("You requested %s to pay %s", player.getName(),
+					APIRegistry.economy.toString(amount)));
+			ChatOutputHandler.chatConfirmation(player, Translator
+					.format("You have been requested to pay %s by the server", APIRegistry.economy.toString(amount)));
+		}
+	}
+
+	@Override
+	public void processCommandPlayer(EntityPlayerMP sender, String[] args) throws CommandException {
+		if (args.length != 2) {
+			throw new TranslatedCommandException(
+					"Improper syntax. Please try this instead: <player> <amountRequested>");
+		}
+		EntityPlayerMP player = UserIdent.getPlayerByMatchOrUsername(sender, args[0]);
+		if (player == null) {
+			ChatOutputHandler.chatError(sender, args[0] + " not found!");
+		} else {
+			int amount = parseInt(args[1], 0, Integer.MAX_VALUE);
+			ChatOutputHandler.chatConfirmation(sender, Translator.format("You requested %s to pay %s", player.getName(),
+					APIRegistry.economy.toString(amount)));
+			ChatOutputHandler.chatConfirmation(player, Translator.format("You have been requested to pay %s by %s",
+					APIRegistry.economy.toString(amount), sender.getName()));
+		}
+	}
 }

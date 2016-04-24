@@ -4,6 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import com.forgeessentials.commons.selections.WarpPoint;
+import com.forgeessentials.core.misc.TeleportHelper;
+import com.forgeessentials.data.v2.DataManager;
+import com.forgeessentials.util.ServerUtil;
+import com.forgeessentials.util.WorldUtil;
+import com.google.gson.annotations.Expose;
+
 import net.minecraft.command.CommandException;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
@@ -12,255 +19,234 @@ import net.minecraft.world.WorldServer;
 import net.minecraft.world.WorldType;
 import net.minecraftforge.common.DimensionManager;
 
-import com.forgeessentials.commons.selections.WarpPoint;
-import com.forgeessentials.core.misc.TeleportHelper;
-import com.forgeessentials.data.v2.DataManager;
-import com.forgeessentials.util.ServerUtil;
-import com.forgeessentials.util.WorldUtil;
-import com.google.gson.annotations.Expose;
-
 /**
- * 
+ *
  * @author Olee
  */
-public class Multiworld
-{
+public class Multiworld {
 
-    protected String name;
+	public static void displayDepartMessage(EntityPlayerMP player) {
+		// String msg = player.worldObj.provider.getDepartMessage();
+		// if (msg == null)
+		// msg = "Leaving the Overworld.";
+		// if (player.dimension > 1 || player.dimension < -1)
+		// msg += " (#" + player.dimension + ")";
+		// ChatOutputHandler.sendMessage(player, new ChatComponentText(msg));
+	}
 
-    protected int dimensionId;
+	public static void displayWelcomeMessage(EntityPlayerMP player) {
+		// String msg = player.worldObj.provider.getWelcomeMessage();
+		// if (msg == null)
+		// msg = "Entering the Overworld.";
+		// if (player.dimension > 1 || player.dimension < -1)
+		// msg += " (#" + player.dimension + ")";
+		// ChatOutputHandler.sendMessage(player, new ChatComponentText(msg));
+	}
 
-    protected String provider;
+	/**
+	 * Teleport the player to the multiworld
+	 * 
+	 * @throws CommandException
+	 */
+	public static void teleport(EntityPlayerMP player, WorldServer world, boolean instant) throws CommandException {
+		teleport(player, world, player.posX, player.posY, player.posZ, instant);
+	}
 
-    protected String worldType;
+	/**
+	 * Teleport the player to the multiworld
+	 * 
+	 * @throws CommandException
+	 */
+	public static void teleport(EntityPlayerMP player, WorldServer world, double x, double y, double z, boolean instant)
+			throws CommandException {
+		boolean worldChange = player.worldObj.provider.getDimensionId() != world.provider.getDimensionId();
+		if (worldChange) {
+			displayDepartMessage(player);
+		}
 
-    protected List<String> biomes = new ArrayList<String>();
+		y = WorldUtil.placeInWorld(world, (int) x, (int) y, (int) z);
+		WarpPoint target = new WarpPoint(world.provider.getDimensionId(), x, y, z, player.rotationPitch,
+				player.rotationYaw);
+		if (instant) {
+			TeleportHelper.checkedTeleport(player, target);
+		} else {
+			TeleportHelper.teleport(player, target);
+		}
 
-    protected long seed;
+		if (worldChange) {
+			displayWelcomeMessage(player);
+		}
+	}
 
-    // protected GameType gameType = GameType.CREATIVE;
-    //
-    // protected EnumDifficulty difficulty = EnumDifficulty.PEACEFUL;
-    //
-    // protected boolean allowHostileCreatures = true;
-    //
-    // protected boolean allowPeacefulCreatures = true;
+	protected String name;
 
-    protected boolean mapFeaturesEnabled = true;
+	protected int dimensionId;
 
-    @Expose(serialize = false)
-    protected boolean worldLoaded;
+	// protected GameType gameType = GameType.CREATIVE;
+	//
+	// protected EnumDifficulty difficulty = EnumDifficulty.PEACEFUL;
+	//
+	// protected boolean allowHostileCreatures = true;
+	//
+	// protected boolean allowPeacefulCreatures = true;
 
-    @Expose(serialize = false)
-    protected boolean error;
+	protected String provider;
 
-    @Expose(serialize = false)
-    protected int providerId;
+	protected String worldType;
 
-    @Expose(serialize = false)
-    protected WorldType worldTypeObj;
+	protected List<String> biomes = new ArrayList<String>();
 
-    public Multiworld(String name, String provider, String worldType, long seed)
-    {
-        this.name = name;
-        this.provider = provider;
-        this.worldType = worldType;
+	protected long seed;
 
-        this.seed = seed;
-        // this.gameType = MinecraftServer.getServer().getGameType();
-        // this.difficulty = MinecraftServer.getServer().func_147135_j();
-        // this.allowHostileCreatures = true;
-        // this.allowPeacefulCreatures = true;
-    }
+	protected boolean mapFeaturesEnabled = true;
 
-    public Multiworld(String name, String provider, String worldType)
-    {
-        this(name, provider, worldType, new Random().nextLong());
-    }
+	@Expose(serialize = false)
+	protected boolean worldLoaded;
 
-    public void removeAllPlayersFromWorld()
-    {
-        WorldServer overworld = MinecraftServer.getServer().worldServerForDimension(0);
-        for (EntityPlayerMP player : ServerUtil.getPlayerList())
-        {
-            if (player.dimension == dimensionId)
-            {
-                BlockPos playerPos = player.getPosition();
-                int y = WorldUtil.placeInWorld(player.worldObj, playerPos.getX(), playerPos.getY(), playerPos.getZ());
-                WarpPoint point = new WarpPoint(overworld, playerPos.getX(), y, playerPos.getZ(), 0, 0);
-                TeleportHelper.doTeleport(player, point);
-            }
-        }
-    }
+	@Expose(serialize = false)
+	protected boolean error;
 
-    public void updateWorldSettings()
-    {
-        if (!worldLoaded)
-            return;
-        // WorldServer worldServer = getWorldServer();
-        // worldServer.difficultySetting = difficulty;
-        // worldServer.setAllowedSpawnTypes(allowHostileCreatures, allowPeacefulCreatures);
-    }
+	@Expose(serialize = false)
+	protected int providerId;
 
-    public String getName()
-    {
-        return name;
-    }
+	@Expose(serialize = false)
+	protected WorldType worldTypeObj;
 
-    public WorldServer getWorldServer()
-    {
-        if (!worldLoaded)
-            return null;
-        return DimensionManager.getWorld(dimensionId);
-    }
+	public Multiworld(String name, String provider, String worldType) {
+		this(name, provider, worldType, new Random().nextLong());
+	}
 
-    public int getDimensionId()
-    {
-        return dimensionId;
-    }
+	public Multiworld(String name, String provider, String worldType, long seed) {
+		this.name = name;
+		this.provider = provider;
+		this.worldType = worldType;
 
-    public int getProviderId()
-    {
-        return providerId;
-    }
+		this.seed = seed;
+		// this.gameType = MinecraftServer.getServer().getGameType();
+		// this.difficulty = MinecraftServer.getServer().func_147135_j();
+		// this.allowHostileCreatures = true;
+		// this.allowPeacefulCreatures = true;
+	}
 
-    public String getProvider()
-    {
-        return provider;
-    }
+	protected void delete() {
+		DataManager.getInstance().delete(this.getClass(), name);
+	}
 
-    public List<String> getBiomes()
-    {
-        return biomes;
-    }
+	public List<String> getBiomes() {
+		return biomes;
+	}
 
-    public boolean isError()
-    {
-        return error;
-    }
+	public int getDimensionId() {
+		return dimensionId;
+	}
 
-    public boolean isLoaded()
-    {
-        return worldLoaded;
-    }
+	public String getName() {
+		return name;
+	}
 
-    public long getSeed()
-    {
-        return seed;
-    }
+	public String getProvider() {
+		return provider;
+	}
 
-    // public GameType getGameType()
-    // {
-    // return gameType;
-    // }
-    //
-    // public void setGameType(GameType gameType)
-    // {
-    // this.gameType = gameType;
-    // }
-    //
-    // public EnumDifficulty getDifficulty()
-    // {
-    // return difficulty;
-    // }
-    //
-    // public void setDifficulty(EnumDifficulty difficulty)
-    // {
-    // this.difficulty = difficulty;
-    // updateWorldSettings();
-    // }
-    //
-    // public boolean isAllowHostileCreatures()
-    // {
-    // return allowHostileCreatures;
-    // }
-    //
-    // public void setAllowHostileCreatures(boolean allowHostileCreatures)
-    // {
-    // this.allowHostileCreatures = allowHostileCreatures;
-    // updateWorldSettings();
-    // }
-    //
-    // public boolean isAllowPeacefulCreatures()
-    // {
-    // return allowPeacefulCreatures;
-    // }
-    //
-    // public void setAllowPeacefulCreatures(boolean allowPeacefulCreatures)
-    // {
-    // this.allowPeacefulCreatures = allowPeacefulCreatures;
-    // updateWorldSettings();
-    // }
+	public int getProviderId() {
+		return providerId;
+	}
 
-    protected void save()
-    {
-        DataManager.getInstance().save(this, this.name);
-    }
+	public long getSeed() {
+		return seed;
+	}
 
-    protected void delete()
-    {
-        DataManager.getInstance().delete(this.getClass(), name);
-    }
+	// public GameType getGameType()
+	// {
+	// return gameType;
+	// }
+	//
+	// public void setGameType(GameType gameType)
+	// {
+	// this.gameType = gameType;
+	// }
+	//
+	// public EnumDifficulty getDifficulty()
+	// {
+	// return difficulty;
+	// }
+	//
+	// public void setDifficulty(EnumDifficulty difficulty)
+	// {
+	// this.difficulty = difficulty;
+	// updateWorldSettings();
+	// }
+	//
+	// public boolean isAllowHostileCreatures()
+	// {
+	// return allowHostileCreatures;
+	// }
+	//
+	// public void setAllowHostileCreatures(boolean allowHostileCreatures)
+	// {
+	// this.allowHostileCreatures = allowHostileCreatures;
+	// updateWorldSettings();
+	// }
+	//
+	// public boolean isAllowPeacefulCreatures()
+	// {
+	// return allowPeacefulCreatures;
+	// }
+	//
+	// public void setAllowPeacefulCreatures(boolean allowPeacefulCreatures)
+	// {
+	// this.allowPeacefulCreatures = allowPeacefulCreatures;
+	// updateWorldSettings();
+	// }
 
-    /**
-     * Teleport the player to the multiworld
-     * @throws CommandException 
-     */
-    public void teleport(EntityPlayerMP player, boolean instant) throws CommandException
-    {
-        teleport(player, getWorldServer(), instant);
-    }
+	public WorldServer getWorldServer() {
+		if (!worldLoaded) {
+			return null;
+		}
+		return DimensionManager.getWorld(dimensionId);
+	}
 
-    /**
-     * Teleport the player to the multiworld
-     * 
-     * @throws CommandException
-     */
-    public static void teleport(EntityPlayerMP player, WorldServer world, boolean instant) throws CommandException
-    {
-        teleport(player, world, player.posX, player.posY, player.posZ, instant);
-    }
+	public boolean isError() {
+		return error;
+	}
 
-    /**
-     * Teleport the player to the multiworld
-     * 
-     * @throws CommandException
-     */
-    public static void teleport(EntityPlayerMP player, WorldServer world, double x, double y, double z, boolean instant) throws CommandException
-    {
-        boolean worldChange = player.worldObj.provider.getDimensionId() != world.provider.getDimensionId();
-        if (worldChange)
-            displayDepartMessage(player);
+	public boolean isLoaded() {
+		return worldLoaded;
+	}
 
-        y = WorldUtil.placeInWorld(world, (int) x, (int) y, (int) z);
-        WarpPoint target = new WarpPoint(world.provider.getDimensionId(), x, y, z, player.rotationPitch, player.rotationYaw);
-        if (instant)
-            TeleportHelper.checkedTeleport(player, target);
-        else
-            TeleportHelper.teleport(player, target);
+	public void removeAllPlayersFromWorld() {
+		WorldServer overworld = MinecraftServer.getServer().worldServerForDimension(0);
+		for (EntityPlayerMP player : ServerUtil.getPlayerList()) {
+			if (player.dimension == dimensionId) {
+				BlockPos playerPos = player.getPosition();
+				int y = WorldUtil.placeInWorld(player.worldObj, playerPos.getX(), playerPos.getY(), playerPos.getZ());
+				WarpPoint point = new WarpPoint(overworld, playerPos.getX(), y, playerPos.getZ(), 0, 0);
+				TeleportHelper.doTeleport(player, point);
+			}
+		}
+	}
 
-        if (worldChange)
-            displayWelcomeMessage(player);
-    }
+	protected void save() {
+		DataManager.getInstance().save(this, name);
+	}
 
-    public static void displayDepartMessage(EntityPlayerMP player)
-    {
-        // String msg = player.worldObj.provider.getDepartMessage();
-        // if (msg == null)
-        // msg = "Leaving the Overworld.";
-        // if (player.dimension > 1 || player.dimension < -1)
-        // msg += " (#" + player.dimension + ")";
-        // ChatOutputHandler.sendMessage(player, new ChatComponentText(msg));
-    }
+	/**
+	 * Teleport the player to the multiworld
+	 * 
+	 * @throws CommandException
+	 */
+	public void teleport(EntityPlayerMP player, boolean instant) throws CommandException {
+		teleport(player, getWorldServer(), instant);
+	}
 
-    public static void displayWelcomeMessage(EntityPlayerMP player)
-    {
-        // String msg = player.worldObj.provider.getWelcomeMessage();
-        // if (msg == null)
-        // msg = "Entering the Overworld.";
-        // if (player.dimension > 1 || player.dimension < -1)
-        // msg += " (#" + player.dimension + ")";
-        // ChatOutputHandler.sendMessage(player, new ChatComponentText(msg));
-    }
+	public void updateWorldSettings() {
+		if (!worldLoaded) {
+			return;
+			// WorldServer worldServer = getWorldServer();
+			// worldServer.difficultySetting = difficulty;
+			// worldServer.setAllowedSpawnTypes(allowHostileCreatures,
+			// allowPeacefulCreatures);
+		}
+	}
 
 }

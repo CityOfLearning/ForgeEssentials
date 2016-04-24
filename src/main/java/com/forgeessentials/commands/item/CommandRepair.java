@@ -2,6 +2,11 @@ package com.forgeessentials.commands.item;
 
 import java.util.List;
 
+import com.forgeessentials.api.APIRegistry;
+import com.forgeessentials.api.UserIdent;
+import com.forgeessentials.commands.util.FEcmdModuleCommands;
+import com.forgeessentials.core.misc.TranslatedCommandException;
+
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
@@ -12,113 +17,89 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.permission.PermissionLevel;
 import net.minecraftforge.permission.PermissionManager;
 
-import com.forgeessentials.api.APIRegistry;
-import com.forgeessentials.api.UserIdent;
-import com.forgeessentials.commands.util.FEcmdModuleCommands;
-import com.forgeessentials.core.misc.TranslatedCommandException;
+public class CommandRepair extends FEcmdModuleCommands {
+	@Override
+	public List<String> addTabCompletionOptions(ICommandSender sender, String[] args, BlockPos pos) {
+		if (args.length == 1) {
+			return getListOfStringsMatchingLastWord(args,
+					FMLCommonHandler.instance().getMinecraftServerInstance().getAllUsernames());
+		} else {
+			return null;
+		}
+	}
 
-public class CommandRepair extends FEcmdModuleCommands
-{
-    @Override
-    public String getCommandName()
-    {
-        return "repair";
-    }
+	@Override
+	public boolean canConsoleUseCommand() {
+		return true;
+	}
 
-    @Override
-    public void processCommandPlayer(EntityPlayerMP sender, String[] args) throws CommandException
-    {
-        if (args.length == 0)
-        {
-            ItemStack item = sender.getHeldItem();
-            if (item == null)
-                throw new TranslatedCommandException("You are not holding a reparable item.");
-            item.setItemDamage(0);
-        }
-        else if (args.length == 1 && PermissionManager.checkPermission(sender, getPermissionNode() + ".others"))
-        {
-            EntityPlayerMP player = UserIdent.getPlayerByMatchOrUsername(sender, args[0]);
-            if (player == null)
-                throw new TranslatedCommandException("Player %s does not exist, or is not online.", args[0]);
+	@Override
+	public String getCommandName() {
+		return "repair";
+	}
 
-            ItemStack item = player.getHeldItem();
-            if (item != null)
-                item.setItemDamage(0);
-        }
-        else
-        {
-            throw new TranslatedCommandException(getCommandUsage(sender));
-        }
-    }
+	@Override
+	public String getCommandUsage(ICommandSender sender) {
+		if (sender instanceof EntityPlayer) {
+			return "/repair [player] Repairs the item you or another player is holding.";
+		} else {
+			return "/repair <player> Repairs the item the player is holding.";
+		}
 
-    @Override
-    public void processCommandConsole(ICommandSender sender, String[] args) throws CommandException
-    {
-        if (args.length == 1)
-        {
-            // PlayerSelector.matchPlayers(sender, args[0])
-            EntityPlayerMP player = UserIdent.getPlayerByMatchOrUsername(sender, args[0]);
-            if (player != null)
-            {
+	}
 
-                ItemStack item = player.getHeldItem();
+	@Override
+	public PermissionLevel getPermissionLevel() {
+		return PermissionLevel.OP;
+	}
 
-                if (item != null)
-                {
-                    item.setItemDamage(0);
-                }
+	@Override
+	public void processCommandConsole(ICommandSender sender, String[] args) throws CommandException {
+		if (args.length == 1) {
+			// PlayerSelector.matchPlayers(sender, args[0])
+			EntityPlayerMP player = UserIdent.getPlayerByMatchOrUsername(sender, args[0]);
+			if (player != null) {
 
-            }
-            else
-                throw new TranslatedCommandException("Player %s does not exist, or is not online.", args[0]);
-        }
-        else
-            throw new TranslatedCommandException(getCommandUsage(sender));
-    }
+				ItemStack item = player.getHeldItem();
 
-    @Override
-    public boolean canConsoleUseCommand()
-    {
-        return true;
-    }
+				if (item != null) {
+					item.setItemDamage(0);
+				}
 
-    @Override
-    public void registerExtraPermissions()
-    {
-        APIRegistry.perms.registerPermission(getPermissionNode() + ".others", PermissionLevel.OP);
-    }
+			} else {
+				throw new TranslatedCommandException("Player %s does not exist, or is not online.", args[0]);
+			}
+		} else {
+			throw new TranslatedCommandException(getCommandUsage(sender));
+		}
+	}
 
-    @Override
-    public List<String> addTabCompletionOptions(ICommandSender sender, String[] args, BlockPos pos)
-    {
-        if (args.length == 1)
-        {
-            return getListOfStringsMatchingLastWord(args, FMLCommonHandler.instance().getMinecraftServerInstance().getAllUsernames());
-        }
-        else
-        {
-            return null;
-        }
-    }
+	@Override
+	public void processCommandPlayer(EntityPlayerMP sender, String[] args) throws CommandException {
+		if (args.length == 0) {
+			ItemStack item = sender.getHeldItem();
+			if (item == null) {
+				throw new TranslatedCommandException("You are not holding a reparable item.");
+			}
+			item.setItemDamage(0);
+		} else if ((args.length == 1) && PermissionManager.checkPermission(sender, getPermissionNode() + ".others")) {
+			EntityPlayerMP player = UserIdent.getPlayerByMatchOrUsername(sender, args[0]);
+			if (player == null) {
+				throw new TranslatedCommandException("Player %s does not exist, or is not online.", args[0]);
+			}
 
-    @Override
-    public PermissionLevel getPermissionLevel()
-    {
-        return PermissionLevel.OP;
-    }
+			ItemStack item = player.getHeldItem();
+			if (item != null) {
+				item.setItemDamage(0);
+			}
+		} else {
+			throw new TranslatedCommandException(getCommandUsage(sender));
+		}
+	}
 
-    @Override
-    public String getCommandUsage(ICommandSender sender)
-    {
-        if (sender instanceof EntityPlayer)
-        {
-            return "/repair [player] Repairs the item you or another player is holding.";
-        }
-        else
-        {
-            return "/repair <player> Repairs the item the player is holding.";
-        }
-
-    }
+	@Override
+	public void registerExtraPermissions() {
+		APIRegistry.perms.registerPermission(getPermissionNode() + ".others", PermissionLevel.OP);
+	}
 
 }

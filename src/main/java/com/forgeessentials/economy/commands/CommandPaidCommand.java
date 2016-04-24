@@ -2,12 +2,6 @@ package com.forgeessentials.economy.commands;
 
 import java.util.Arrays;
 
-import net.minecraft.command.CommandException;
-import net.minecraft.command.ICommandSender;
-import net.minecraft.command.PlayerNotFoundException;
-import net.minecraft.server.MinecraftServer;
-import net.minecraftforge.permission.PermissionLevel;
-
 import org.apache.commons.lang3.StringUtils;
 
 import com.forgeessentials.api.APIRegistry;
@@ -20,70 +14,71 @@ import com.forgeessentials.economy.ModuleEconomy;
 import com.forgeessentials.util.DoAsCommandSender;
 import com.forgeessentials.util.output.ChatOutputHandler;
 
-public class CommandPaidCommand extends ForgeEssentialsCommandBase
-{
-    @Override
-    public String getCommandName()
-    {
-        return "paidcommand";
-    }
+import net.minecraft.command.CommandException;
+import net.minecraft.command.ICommandSender;
+import net.minecraft.command.PlayerNotFoundException;
+import net.minecraft.server.MinecraftServer;
+import net.minecraftforge.permission.PermissionLevel;
 
-    @Override
-    public String[] getDefaultAliases()
-    {
-        return new String[] { "pc", "pcmd" };
-    }
+public class CommandPaidCommand extends ForgeEssentialsCommandBase {
+	@Override
+	public boolean canConsoleUseCommand() {
+		return true;
+	}
 
-    @Override
-    public String getPermissionNode()
-    {
-        return ModuleEconomy.PERM_COMMAND + ".paidcommand";
-    }
+	@Override
+	public String getCommandName() {
+		return "paidcommand";
+	}
 
-    @Override
-    public PermissionLevel getPermissionLevel()
-    {
-        return PermissionLevel.FALSE;
-    }
+	@Override
+	public String getCommandUsage(ICommandSender sender) {
+		return "/paidcommand <player> <amount> <command...>";
+	}
 
-    @Override
-    public String getCommandUsage(ICommandSender sender)
-    {
-        return "/paidcommand <player> <amount> <command...>";
-    }
+	@Override
+	public String[] getDefaultAliases() {
+		return new String[] { "pc", "pcmd" };
+	}
 
-    @Override
-    public boolean canConsoleUseCommand()
-    {
-        return true;
-    }
+	@Override
+	public PermissionLevel getPermissionLevel() {
+		return PermissionLevel.FALSE;
+	}
 
-    /*
-     * Expected structure: "/paidcommand <player> <amount> <command...>"
-     */
-    @Override
-    public void processCommandConsole(ICommandSender sender, String[] args) throws CommandException
-    {
-        if (args.length < 3)
-            throw new InvalidSyntaxException(getCommandUsage(sender));
+	@Override
+	public String getPermissionNode() {
+		return ModuleEconomy.PERM_COMMAND + ".paidcommand";
+	}
 
-        UserIdent ident = UserIdent.get(args[0], sender);
-        if (!ident.hasPlayer())
-            throw new PlayerNotFoundException();
+	/*
+	 * Expected structure: "/paidcommand <player> <amount> <command...>"
+	 */
+	@Override
+	public void processCommandConsole(ICommandSender sender, String[] args) throws CommandException {
+		if (args.length < 3) {
+			throw new InvalidSyntaxException(getCommandUsage(sender));
+		}
 
-        int amount = parseInt(args[1], 0, Integer.MAX_VALUE);
-        Wallet wallet = APIRegistry.economy.getWallet(ident);
-        if (!wallet.withdraw(amount))
-        {
-            ChatOutputHandler.chatError(ident.getPlayerMP(), Translator.translate("You can't afford that"));
-            return;
-        }
+		UserIdent ident = UserIdent.get(args[0], sender);
+		if (!ident.hasPlayer()) {
+			throw new PlayerNotFoundException();
+		}
 
-        args = Arrays.copyOfRange(args, 2, args.length);
-        MinecraftServer.getServer().getCommandManager().executeCommand(new DoAsCommandSender(ModuleEconomy.ECONOMY_IDENT, ident.getPlayerMP()), StringUtils.join(args, " "));
+		int amount = parseInt(args[1], 0, Integer.MAX_VALUE);
+		Wallet wallet = APIRegistry.economy.getWallet(ident);
+		if (!wallet.withdraw(amount)) {
+			ChatOutputHandler.chatError(ident.getPlayerMP(), Translator.translate("You can't afford that"));
+			return;
+		}
 
-        ChatOutputHandler.chatConfirmation(ident.getPlayerMP(), Translator.format("That cost you %s", APIRegistry.economy.toString(amount)));
-        ModuleEconomy.confirmNewWalletAmount(ident, wallet);
-    }
+		args = Arrays.copyOfRange(args, 2, args.length);
+		MinecraftServer.getServer().getCommandManager().executeCommand(
+				new DoAsCommandSender(ModuleEconomy.ECONOMY_IDENT, ident.getPlayerMP()), StringUtils.join(args, " "));
+
+		ChatOutputHandler.chatConfirmation(ident.getPlayerMP(),
+				Translator.format("That cost you %s", APIRegistry.economy.toString(amount)));
+		ModuleEconomy.confirmNewWalletAmount(ident, wallet);
+	}
 
 }

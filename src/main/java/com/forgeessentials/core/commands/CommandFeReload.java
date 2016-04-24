@@ -1,62 +1,54 @@
 package com.forgeessentials.core.commands;
 
-import net.minecraft.command.ICommandSender;
-import net.minecraftforge.permission.PermissionLevel;
-
 import com.forgeessentials.core.ForgeEssentials;
 import com.forgeessentials.core.misc.Translator;
 import com.forgeessentials.core.moduleLauncher.ModuleLauncher;
 import com.forgeessentials.util.output.ChatOutputHandler;
 
-public class CommandFeReload extends ForgeEssentialsCommandBase
-{
+import net.minecraft.command.ICommandSender;
+import net.minecraftforge.permission.PermissionLevel;
 
-    @Override
-    public String getCommandName()
-    {
-        return "fereload";
-    }
+public class CommandFeReload extends ForgeEssentialsCommandBase {
 
-    @Override
-    public String[] getDefaultAliases()
-    {
-        return new String[] { "reload" };
-    }
+	public static void reload(ICommandSender sender) {
+		ModuleLauncher.instance.reloadConfigs();
+		ChatOutputHandler.chatConfirmation(sender,
+				Translator.translate("Reloaded configs. (may not work for all settings)"));
+	}
 
-    @Override
-    public String getCommandUsage(ICommandSender sender)
-    {
-        return "/fereload: Reload FE configuration";
-    }
+	@Override
+	public boolean canConsoleUseCommand() {
+		return true;
+	}
 
-    @Override
-    public String getPermissionNode()
-    {
-        return ForgeEssentials.PERM_RELOAD;
-    }
+	@Override
+	public String getCommandName() {
+		return "fereload";
+	}
 
-    @Override
-    public PermissionLevel getPermissionLevel()
-    {
-        return PermissionLevel.OP;
-    }
+	@Override
+	public String getCommandUsage(ICommandSender sender) {
+		return "/fereload: Reload FE configuration";
+	}
 
-    @Override
-    public boolean canConsoleUseCommand()
-    {
-        return true;
-    }
+	@Override
+	public String[] getDefaultAliases() {
+		return new String[] { "reload" };
+	}
 
-    @Override
-    public void processCommand(ICommandSender sender, String[] args)
-    {
-        reload(sender);
-    }
+	@Override
+	public PermissionLevel getPermissionLevel() {
+		return PermissionLevel.OP;
+	}
 
-    public static void reload(ICommandSender sender)
-    {
-        ModuleLauncher.instance.reloadConfigs();
-        ChatOutputHandler.chatConfirmation(sender, Translator.translate("Reloaded configs. (may not work for all settings)"));
-    }
+	@Override
+	public String getPermissionNode() {
+		return ForgeEssentials.PERM_RELOAD;
+	}
+
+	@Override
+	public void processCommand(ICommandSender sender, String[] args) {
+		reload(sender);
+	}
 
 }

@@ -1,25 +1,24 @@
 package com.forgeessentials.worldborder.effect;
 
-import net.minecraft.entity.player.EntityPlayerMP;
-
 import com.forgeessentials.core.misc.Translator;
+import com.forgeessentials.util.PlayerInfo;
 import com.forgeessentials.util.output.ChatOutputHandler;
 import com.forgeessentials.util.output.LoggingHandler;
-import com.forgeessentials.util.PlayerInfo;
 import com.forgeessentials.worldborder.WorldBorder;
 import com.forgeessentials.worldborder.WorldBorderEffect;
 
-public class EffectKick extends WorldBorderEffect
-{
+import net.minecraft.entity.player.EntityPlayerMP;
 
-    public static final int TIMEOUT = 10 * 1000;
+public class EffectKick extends WorldBorderEffect {
 
-    @Override
-    public void activate(WorldBorder border, EntityPlayerMP player)
-    {
-        // TODO: Maybe check if this is singleplayer and disable then?
-        ChatOutputHandler.chatError(player, Translator.format("You have %d seconds to return inside the world border, or you will get kicked!", TIMEOUT));
-        PlayerInfo pi;
+	public static final int TIMEOUT = 10 * 1000;
+
+	@Override
+	public void activate(WorldBorder border, EntityPlayerMP player) {
+		// TODO: Maybe check if this is singleplayer and disable then?
+		ChatOutputHandler.chatError(player, Translator
+				.format("You have %d seconds to return inside the world border, or you will get kicked!", TIMEOUT));
+		PlayerInfo pi;
 		try {
 			pi = PlayerInfo.get(player);
 
@@ -27,11 +26,10 @@ public class EffectKick extends WorldBorderEffect
 		} catch (Exception e) {
 			LoggingHandler.felog.error("Error getting player Info");
 		}
-    }
+	}
 
-    @Override
-    public void tick(WorldBorder border, EntityPlayerMP player)
-    {
+	@Override
+	public void tick(WorldBorder border, EntityPlayerMP player) {
 		PlayerInfo pi;
 		try {
 			pi = PlayerInfo.get(player);
@@ -44,6 +42,6 @@ public class EffectKick extends WorldBorderEffect
 		} catch (Exception e) {
 			LoggingHandler.felog.error("Error getting player Info");
 		}
-    }
+	}
 
 }

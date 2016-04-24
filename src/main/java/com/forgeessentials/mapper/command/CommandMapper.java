@@ -6,64 +6,55 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
-import net.minecraft.command.ICommandSender;
-import net.minecraft.world.WorldServer;
-import net.minecraftforge.permission.PermissionLevel;
-
 import com.forgeessentials.core.ForgeEssentials;
 import com.forgeessentials.core.commands.ParserCommandBase;
 import com.forgeessentials.mapper.MapperUtil;
 import com.forgeessentials.mapper.ModuleMapper;
 import com.forgeessentials.util.CommandParserArgs;
 
-public class CommandMapper extends ParserCommandBase
-{
+import net.minecraft.command.ICommandSender;
+import net.minecraft.world.WorldServer;
+import net.minecraftforge.permission.PermissionLevel;
 
-    @Override
-    public String getCommandName()
-    {
-        return "mapper";
-    }
+public class CommandMapper extends ParserCommandBase {
 
-    @Override
-    public String getCommandUsage(ICommandSender sender)
-    {
-        return "/mapper: Manage mapper settings";
-    }
+	@Override
+	public boolean canConsoleUseCommand() {
+		return true;
+	}
 
-    @Override
-    public String getPermissionNode()
-    {
-        return "fe.mapper.command";
-    }
+	@Override
+	public String getCommandName() {
+		return "mapper";
+	}
 
-    @Override
-    public PermissionLevel getPermissionLevel()
-    {
-        return PermissionLevel.OP;
-    }
+	@Override
+	public String getCommandUsage(ICommandSender sender) {
+		return "/mapper: Manage mapper settings";
+	}
 
-    @Override
-    public boolean canConsoleUseCommand()
-    {
-        return true;
-    }
+	@Override
+	public PermissionLevel getPermissionLevel() {
+		return PermissionLevel.OP;
+	}
 
-    @Override
-    public void parse(CommandParserArgs arguments)
-    {
-        int x = (int) Math.floor(arguments.senderPlayer.posX);
-        int z = (int) Math.floor(arguments.senderPlayer.posZ);
-        WorldServer world = (WorldServer) arguments.senderPlayer.worldObj;
-        BufferedImage img = ModuleMapper.getInstance().getRegionImage(world, MapperUtil.worldToRegion(x), MapperUtil.worldToRegion(z));
-        try
-        {
-            ImageIO.write(img, "png", new File(ForgeEssentials.getFEDirectory(), "region.png"));
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
-    }
+	@Override
+	public String getPermissionNode() {
+		return "fe.mapper.command";
+	}
+
+	@Override
+	public void parse(CommandParserArgs arguments) {
+		int x = (int) Math.floor(arguments.senderPlayer.posX);
+		int z = (int) Math.floor(arguments.senderPlayer.posZ);
+		WorldServer world = (WorldServer) arguments.senderPlayer.worldObj;
+		BufferedImage img = ModuleMapper.getInstance().getRegionImage(world, MapperUtil.worldToRegion(x),
+				MapperUtil.worldToRegion(z));
+		try {
+			ImageIO.write(img, "png", new File(ForgeEssentials.getFEDirectory(), "region.png"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 
 }

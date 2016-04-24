@@ -5,6 +5,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.apache.commons.lang3.StringUtils;
+
+import com.forgeessentials.commands.util.FEcmdModuleCommands;
+
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
@@ -19,115 +23,102 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraftforge.permission.PermissionLevel;
 import net.minecraftforge.permission.PermissionManager;
 
-import org.apache.commons.lang3.StringUtils;
+public class CommandGetCommandBook extends FEcmdModuleCommands {
 
-import com.forgeessentials.commands.util.FEcmdModuleCommands;
+	public static String joinAliases(Object[] par0ArrayOfObj) {
+		StringBuilder var1 = new StringBuilder();
 
-public class CommandGetCommandBook extends FEcmdModuleCommands
-{
+		for (int var2 = 0; var2 < par0ArrayOfObj.length; ++var2) {
+			String var3 = "/" + par0ArrayOfObj[var2].toString();
 
-    public static String joinAliases(Object[] par0ArrayOfObj)
-    {
-        StringBuilder var1 = new StringBuilder();
+			if (var2 > 0) {
+				var1.append(", ");
+			}
 
-        for (int var2 = 0; var2 < par0ArrayOfObj.length; ++var2)
-        {
-            String var3 = "/" + par0ArrayOfObj[var2].toString();
+			var1.append(var3);
+		}
 
-            if (var2 > 0)
-            {
-                var1.append(", ");
-            }
+		return var1.toString();
+	}
 
-            var1.append(var3);
-        }
+	@Override
+	public boolean canConsoleUseCommand() {
+		return false;
+	}
 
-        return var1.toString();
-    }
+	@Override
+	public String getCommandName() {
+		return "getcommandbook";
+	}
 
-    @Override
-    public String getCommandName()
-    {
-        return "getcommandbook";
-    }
+	@Override
+	public String getCommandUsage(ICommandSender sender) {
+		return "/getcommandbook Get a command book listing all commands.";
+	}
 
-    @Override
-    public String[] getDefaultAliases()
-    {
-        return new String[] { "cmdb", "gcmdb" };
-    }
+	@Override
+	public String[] getDefaultAliases() {
+		return new String[] { "cmdb", "gcmdb" };
+	}
 
-    @Override
-    public void processCommandPlayer(EntityPlayerMP sender, String[] args) throws CommandException
-    {
+	@Override
+	public PermissionLevel getPermissionLevel() {
+		return PermissionLevel.TRUE;
+	}
 
-        if (sender.inventory.hasItemStack(new ItemStack(Items.written_book)))
-        {
-            for (int i = 0; i < sender.inventory.mainInventory.length; i++)
-            {
-                ItemStack e = sender.inventory.mainInventory[i];
-                if (e != null && e.hasTagCompound() && e.getTagCompound().hasKey("title") && e.getTagCompound().hasKey("author")
-                        && e.getTagCompound().getString("title").equals("CommandBook") && e.getTagCompound().getString("author").equals("ForgeEssentials"))
-                {
-                    sender.inventory.setInventorySlotContents(i, null);
-                }
-            }
-        }
+	@Override
+	public void processCommandPlayer(EntityPlayerMP sender, String[] args) throws CommandException {
 
-        Set<String> pages = new TreeSet<String>();
-        for (Object cmdObj : MinecraftServer.getServer().getCommandManager().getCommands().values())
-        {
-            ICommand cmd = (ICommand) cmdObj;
-            if (!PermissionManager.checkPermission(sender, cmd))
-                continue;
+		if (sender.inventory.hasItemStack(new ItemStack(Items.written_book))) {
+			for (int i = 0; i < sender.inventory.mainInventory.length; i++) {
+				ItemStack e = sender.inventory.mainInventory[i];
+				if ((e != null) && e.hasTagCompound() && e.getTagCompound().hasKey("title")
+						&& e.getTagCompound().hasKey("author")
+						&& e.getTagCompound().getString("title").equals("CommandBook")
+						&& e.getTagCompound().getString("author").equals("ForgeEssentials")) {
+					sender.inventory.setInventorySlotContents(i, null);
+				}
+			}
+		}
 
-            Set<String> commands = new HashSet<>();
-            commands.add("/" + cmd.getCommandName());
+		Set<String> pages = new TreeSet<String>();
+		for (Object cmdObj : MinecraftServer.getServer().getCommandManager().getCommands().values()) {
+			ICommand cmd = (ICommand) cmdObj;
+			if (!PermissionManager.checkPermission(sender, cmd)) {
+				continue;
+			}
 
-            // Add aliases
-            List<?> aliases = cmd.getCommandAliases();
-            if (aliases != null && aliases.size() > 0)
-            {
-                for (Object alias : aliases)
-                    commands.add("/" + alias);
-            }
+			Set<String> commands = new HashSet<>();
+			commands.add("/" + cmd.getCommandName());
 
-            String perm = PermissionManager.getCommandPermission(cmd);
-            String text = EnumChatFormatting.GOLD + StringUtils.join(commands, ' ') + '\n' + //
-                    (perm != null ? EnumChatFormatting.DARK_RED + perm + "\n\n" : '\n') + EnumChatFormatting.BLACK + cmd.getCommandUsage(sender);
-            pages.add(text);
-        }
+			// Add aliases
+			List<?> aliases = cmd.getCommandAliases();
+			if ((aliases != null) && (aliases.size() > 0)) {
+				for (Object alias : aliases) {
+					commands.add("/" + alias);
+				}
+			}
 
-        NBTTagList pagesNbt = new NBTTagList();
-        for (String page : pages)
-            pagesNbt.appendTag(new NBTTagString(page));
+			String perm = PermissionManager.getCommandPermission(cmd);
+			String text = EnumChatFormatting.GOLD + StringUtils.join(commands, ' ') + '\n' + //
+					(perm != null ? EnumChatFormatting.DARK_RED + perm + "\n\n" : '\n') + EnumChatFormatting.BLACK
+					+ cmd.getCommandUsage(sender);
+			pages.add(text);
+		}
 
-        NBTTagCompound tag = new NBTTagCompound();
-        tag.setString("author", "ForgeEssentials");
-        tag.setString("title", "CommandBook");
-        tag.setTag("pages", pagesNbt);
+		NBTTagList pagesNbt = new NBTTagList();
+		for (String page : pages) {
+			pagesNbt.appendTag(new NBTTagString(page));
+		}
 
-        ItemStack is = new ItemStack(Items.written_book);
-        is.setTagCompound(tag);
-        sender.inventory.addItemStackToInventory(is);
-    }
+		NBTTagCompound tag = new NBTTagCompound();
+		tag.setString("author", "ForgeEssentials");
+		tag.setString("title", "CommandBook");
+		tag.setTag("pages", pagesNbt);
 
-    @Override
-    public boolean canConsoleUseCommand()
-    {
-        return false;
-    }
-
-    @Override
-    public PermissionLevel getPermissionLevel()
-    {
-        return PermissionLevel.TRUE;
-    }
-
-    @Override
-    public String getCommandUsage(ICommandSender sender)
-    {
-        return "/getcommandbook Get a command book listing all commands.";
-    }
+		ItemStack is = new ItemStack(Items.written_book);
+		is.setTagCompound(tag);
+		sender.inventory.addItemStackToInventory(is);
+	}
 
 }

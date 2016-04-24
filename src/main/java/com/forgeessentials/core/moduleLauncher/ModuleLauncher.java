@@ -18,138 +18,116 @@ import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.common.discovery.ASMDataTable.ASMData;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
-public class ModuleLauncher
-{
-    public ModuleLauncher()
-    {
-        instance = this;
-    }
+public class ModuleLauncher {
+	public static ModuleLauncher instance;
 
-    public static ModuleLauncher instance;
-    
-    private static TreeMap<String, ModuleContainer> containerMap = new TreeMap<String, ModuleContainer>();
+	private static TreeMap<String, ModuleContainer> containerMap = new TreeMap<String, ModuleContainer>();
 
-    public void preLoad(FMLPreInitializationEvent e)
-    {
-        LoggingHandler.felog.info("Discovering and loading modules...");
+	public static Collection<String> getModuleList() {
+		return containerMap.keySet();
+	}
 
-        // started ASM handling for the module loading
-        Set<ASMData> data = e.getAsmData().getAll(FEModule.class.getName());
+	public static Map<String, ModuleContainer> getModuleMap() {
+		return containerMap;
+	}
 
-        // LOAD THE MODULES!
-        ModuleContainer temp, other;
-        for (ASMData asm : data)
-        {
-            temp = new ModuleContainer(asm);
-            if (temp.isLoadable)
-            {
-                if (containerMap.containsKey(temp.name))
-                {
-                    other = containerMap.get(temp.name);
-                    if (temp.doesOverride && other.mod == ForgeEssentials.instance)
-                    {
-                        containerMap.put(temp.name, temp);
-                    }
-                    else if (temp.mod == ForgeEssentials.instance && other.doesOverride)
-                    {
-                        continue;
-                    }
-                    else
-                    {
-                        throw new RuntimeException("{FE-Module-Launcher} " + temp.name + " is conflicting with " + other.name);
-                    }
-                }
-                else
-                {
-                    containerMap.put(temp.name, temp);
-                }
+	public ModuleLauncher() {
+		instance = this;
+	}
 
-                temp.createAndPopulate();
-                LoggingHandler.felog.debug("Discovered FE module " + temp.name);
-            }
-        }
+	public void preLoad(FMLPreInitializationEvent e) {
+		LoggingHandler.felog.info("Discovering and loading modules...");
 
-        CallableMap map = new CallableMap();
+		// started ASM handling for the module loading
+		Set<ASMData> data = e.getAsmData().getAll(FEModule.class.getName());
 
-        data = e.getAsmData().getAll(ForgeEssentialsRegistrar.class.getName());
-        Class<?> c;
-        Object obj = null;
-        for (ASMData asm : data)
-        {
-            try
-            {
-                obj = null;
-                c = Class.forName(asm.getClassName());
+		// LOAD THE MODULES!
+		ModuleContainer temp, other;
+		for (ASMData asm : data) {
+			temp = new ModuleContainer(asm);
+			if (temp.isLoadable) {
+				if (containerMap.containsKey(temp.name)) {
+					other = containerMap.get(temp.name);
+					if (temp.doesOverride && (other.mod == ForgeEssentials.instance)) {
+						containerMap.put(temp.name, temp);
+					} else if ((temp.mod == ForgeEssentials.instance) && other.doesOverride) {
+						continue;
+					} else {
+						throw new RuntimeException(
+								"{FE-Module-Launcher} " + temp.name + " is conflicting with " + other.name);
+					}
+				} else {
+					containerMap.put(temp.name, temp);
+				}
 
-                try
-                {
-                    obj = c.newInstance();
-                    map.scanObject(obj);
-                    // this works?? skip everything else and go on to the next one.
-                    continue;
-                }
-                catch (Exception e1)
-                {
-                    // do nothing.
-                }
+				temp.createAndPopulate();
+				LoggingHandler.felog.debug("Discovered FE module " + temp.name);
+			}
+		}
 
-                // if this isn't skipped.. it grabs the class, and all static methods.
-                map.scanClass(c);
+		CallableMap map = new CallableMap();
 
-            }
-            catch (ClassNotFoundException e1)
-            {
-                // nothing needed.
-            }
-        }
+		data = e.getAsmData().getAll(ForgeEssentialsRegistrar.class.getName());
+		Class<?> c;
+		Object obj = null;
+		for (ASMData asm : data) {
+			try {
+				obj = null;
+				c = Class.forName(asm.getClassName());
 
-        for (ModContainer container : Loader.instance().getModList())
-            if (container.getMod() != null)
-                map.scanObject(container);
+				try {
+					obj = c.newInstance();
+					map.scanObject(obj);
+					// this works?? skip everything else and go on to the next
+					// one.
+					continue;
+				} catch (Exception e1) {
+					// do nothing.
+				}
 
-        // Check modules for callables
-        for (ModuleContainer module : containerMap.values())
-            map.scanObject(module);
+				// if this isn't skipped.. it grabs the class, and all static
+				// methods.
+				map.scanClass(c);
 
-        // Register modules with configuration manager
-        for (ModuleContainer module : containerMap.values())
-        {
-            if (module.module instanceof ConfigLoader)
-            {
-                LoggingHandler.felog.debug("Registering configuration for FE module " + module.name);
-                ForgeEssentials.getConfigManager().registerLoader(module.name, (ConfigLoader) module.module, false);
-            }
-            else
-            {
-                LoggingHandler.felog.debug("No configuration for FE module " + module.name);
-            }
-        }
+			} catch (ClassNotFoundException e1) {
+				// nothing needed.
+			}
+		}
 
-        APIRegistry.getFEEventBus().post(new FEModulePreInitEvent(e));
+		for (ModContainer container : Loader.instance().getModList()) {
+			if (container.getMod() != null) {
+				map.scanObject(container);
+			}
+		}
 
-        ForgeEssentials.getConfigManager().load(false);
-    }
+		// Check modules for callables
+		for (ModuleContainer module : containerMap.values()) {
+			map.scanObject(module);
+		}
 
-    public void reloadConfigs()
-    {
-        ForgeEssentials.getConfigManager().load(true);
-        APIRegistry.getFEEventBus().post(new ConfigReloadEvent());
-    }
+		// Register modules with configuration manager
+		for (ModuleContainer module : containerMap.values()) {
+			if (module.module instanceof ConfigLoader) {
+				LoggingHandler.felog.debug("Registering configuration for FE module " + module.name);
+				ForgeEssentials.getConfigManager().registerLoader(module.name, (ConfigLoader) module.module, false);
+			} else {
+				LoggingHandler.felog.debug("No configuration for FE module " + module.name);
+			}
+		}
 
-    public void unregister(String moduleName)
-    {
-        ModuleContainer container = containerMap.get(moduleName);
-        APIRegistry.getFEEventBus().unregister(container.module);
-        containerMap.remove(moduleName);
-    }
+		APIRegistry.getFEEventBus().post(new FEModulePreInitEvent(e));
 
-    public static Collection<String> getModuleList()
-    {
-        return containerMap.keySet();
-    }
+		ForgeEssentials.getConfigManager().load(false);
+	}
 
-    public static Map<String, ModuleContainer> getModuleMap()
-    {
-        return containerMap;
-    }
+	public void reloadConfigs() {
+		ForgeEssentials.getConfigManager().load(true);
+		APIRegistry.getFEEventBus().post(new ConfigReloadEvent());
+	}
+
+	public void unregister(String moduleName) {
+		ModuleContainer container = containerMap.get(moduleName);
+		APIRegistry.getFEEventBus().unregister(container.module);
+		containerMap.remove(moduleName);
+	}
 }

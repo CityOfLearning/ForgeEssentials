@@ -4,6 +4,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.forgeessentials.commons.selections.WorldPoint;
+import com.forgeessentials.core.misc.TeleportHelper;
+import com.forgeessentials.data.v2.DataManager;
+import com.forgeessentials.util.events.FEModuleEvent.FEModuleServerStoppedEvent;
+import com.forgeessentials.util.events.PlayerMoveEvent;
+import com.forgeessentials.util.events.ServerEventHandler;
+
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
@@ -15,184 +22,175 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-import com.forgeessentials.commons.selections.WorldPoint;
-import com.forgeessentials.core.misc.TeleportHelper;
-import com.forgeessentials.data.v2.DataManager;
-import com.forgeessentials.util.events.FEModuleEvent.FEModuleServerStoppedEvent;
-import com.forgeessentials.util.events.PlayerMoveEvent;
-import com.forgeessentials.util.events.ServerEventHandler;
-
 /**
- * 
+ *
  */
-public class PortalManager extends ServerEventHandler
-{
+public class PortalManager extends ServerEventHandler {
 
-    private static PortalManager instance;
+	private static PortalManager instance;
 
-    protected Map<String, Portal> portals = new HashMap<>();
+	public static Block portalBlock = Blocks.portal;
 
-    private static boolean mixinLoaded = false;
+	private static void buildPortalFrame(Portal portal) {
+		if (!portal.hasFrame()) {
+			return;
+		}
+		World world = DimensionManager.getWorld(portal.getPortalArea().getDimension());
+		if (world != null) {
+			for (int ix = portal.getPortalArea().getLowPoint().getX(); ix <= portal.getPortalArea().getHighPoint()
+					.getX(); ix++) {
+				for (int iy = portal.getPortalArea().getLowPoint().getY(); iy <= portal.getPortalArea().getHighPoint()
+						.getY(); iy++) {
+					for (int iz = portal.getPortalArea().getLowPoint().getZ(); iz <= portal.getPortalArea()
+							.getHighPoint().getZ(); iz++) {
+						BlockPos pos = new BlockPos(ix, iy, iz);
+						if (world.getBlockState(pos).getBlock() != portalBlock) {
+							world.setBlockState(pos, portalBlock.getDefaultState());
+						}
+					}
+				}
+			}
+		}
+	}
 
-    public static Block portalBlock = Blocks.portal;
+	private static void destroyPortalFrame(Portal portal) {
+		if (!portal.hasFrame()) {
+			return;
+		}
+		World world = DimensionManager.getWorld(portal.getPortalArea().getDimension());
+		if (world != null) {
+			for (int ix = portal.getPortalArea().getLowPoint().getX(); ix <= portal.getPortalArea().getHighPoint()
+					.getX(); ix++) {
+				for (int iy = portal.getPortalArea().getLowPoint().getY(); iy <= portal.getPortalArea().getHighPoint()
+						.getY(); iy++) {
+					for (int iz = portal.getPortalArea().getLowPoint().getZ(); iz <= portal.getPortalArea()
+							.getHighPoint().getZ(); iz++) {
+						BlockPos pos = new BlockPos(ix, iy, iz);
+						Block block = world.getBlockState(pos).getBlock();
+						if ((block == portalBlock) || (block == Blocks.portal)) {
+							world.setBlockState(pos, Blocks.air.getDefaultState());
+						}
+					}
+				}
+			}
+		}
+	}
 
-    public PortalManager()
-    {
-        super();
-        instance = this;
-        /*
-        mixinLoaded = FEMixinConfig.getInjectedPatches().contains("block.MixinBlockPortal_01");
-        if (!mixinLoaded)
-        {
-            LoggingHandler.felog.error("Unable to apply portal block mixin. Will revert to glass panes for portals.");
-            portalBlock = Blocks.glass_pane;
-        }
-        */
-    }
+	public static PortalManager getInstance() {
+		return instance;
+	}
 
-    public static PortalManager getInstance()
-    {
-        return instance;
-    }
+	protected Map<String, Portal> portals = new HashMap<>();
 
-    @Override
-    @SubscribeEvent
-    public void serverStopped(FEModuleServerStoppedEvent e)
-    {
-        super.serverStopped(e);
-        save();
-    }
+	public PortalManager() {
+		super();
+		instance = this;
+		/*
+		 * mixinLoaded = FEMixinConfig.getInjectedPatches().contains(
+		 * "block.MixinBlockPortal_01"); if (!mixinLoaded) {
+		 * LoggingHandler.felog.error(
+		 * "Unable to apply portal block mixin. Will revert to glass panes for portals."
+		 * ); portalBlock = Blocks.glass_pane; }
+		 */
+	}
 
-    public void load()
-    {
-        portals = DataManager.getInstance().loadAll(Portal.class);
-        for (Portal portal : portals.values())
-            buildPortalFrame(portal);
-    }
+	public void add(String name, Portal portal) {
+		portals.put(name, portal);
+		DataManager.getInstance().save(portal, name);
+		buildPortalFrame(portal);
+	}
 
-    public void save()
-    {
-        for (Entry<String, Portal> portal : portals.entrySet())
-            DataManager.getInstance().save(portal.getValue(), portal.getKey());
-    }
+	@SubscribeEvent(priority = EventPriority.NORMAL)
+	public void breakEvent(BreakEvent event) {
+		if (FMLCommonHandler.instance().getEffectiveSide().isClient()) {
+			return;
+		}
+		WorldPoint point = new WorldPoint(event.getPlayer().dimension, event.pos);
+		Portal portal = getPortalAt(point);
+		if ((portal != null) && portal.hasFrame()) {
+			event.setCanceled(true);
+		}
+	}
 
-    @SubscribeEvent
-    public void playerMove(PlayerMoveEvent e)
-    {
-        WorldPoint after = e.after.toWorldPoint();
-        WorldPoint before = e.before.toWorldPoint();
-        for (Portal portal : portals.values())
-        {
-            if (portal.getPortalArea().contains(after) && !portal.getPortalArea().contains(before))
-            {
-                TeleportHelper.doTeleport((EntityPlayerMP) e.entityPlayer, portal.target.toWarpPoint(e.entityPlayer.rotationPitch, e.entityPlayer.rotationYaw));
-            }
-        }
-    }
+	public Portal get(String name) {
+		return portals.get(name);
+	}
 
-    @SubscribeEvent(priority = EventPriority.NORMAL)
-    public void breakEvent(BreakEvent event)
-    {
-        if (FMLCommonHandler.instance().getEffectiveSide().isClient())
-            return;
-        WorldPoint point = new WorldPoint(event.getPlayer().dimension, event.pos);
-        Portal portal = getPortalAt(point);
-        if (portal != null && portal.hasFrame())
-            event.setCanceled(true);
-    }
+	public Portal getPortalAt(WorldPoint point) {
+		for (Portal portal : portals.values()) {
+			if (portal.getPortalArea().contains(point)) {
+				return portal;
+			}
+		}
+		return null;
+	}
 
-    public Portal getPortalAt(WorldPoint point)
-    {
-        for (Portal portal : portals.values())
-            if (portal.getPortalArea().contains(point))
-                return portal;
-        return null;
-    }
+	// @SubscribeEvent
+	// public void serverTick(ServerTickEvent e)
+	// {
+	// if (e.phase == Phase.END)
+	// return;
+	// for (Portal portal : portals.values())
+	// {
+	// if (!portal.getPortalArea().isValid())
+	// continue;
+	//
+	// // WorldClient world = Minecraft.getMinecraft().theWorld;
+	// // if (world.provider.getDimensionId() ==
+	// portal.getPortalArea().getDimension())
+	// // {
+	// // if (new Random().nextInt(100) < 100)
+	// // {
+	// // NamedWorldArea area = portal.getPortalArea();
+	// // Point start = area.getLowPoint();
+	// // Point size = area.getSize();
+	// // size.x++;
+	// // size.y++;
+	// // size.z++;
+	// // Random rnd = new Random();
+	// // world.spawnParticle("flame", start.getX() + rnd.nextFloat() *
+	// size.getX(), start.getY() + rnd.nextFloat() * size.getY(),
+	// // start.getZ() + rnd.nextFloat() * size.getZ(), 0, 0, 0);
+	// // }
+	// // }
+	// }
+	// }
 
-    // @SubscribeEvent
-    // public void serverTick(ServerTickEvent e)
-    // {
-    // if (e.phase == Phase.END)
-    // return;
-    // for (Portal portal : portals.values())
-    // {
-    // if (!portal.getPortalArea().isValid())
-    // continue;
-    //
-    // // WorldClient world = Minecraft.getMinecraft().theWorld;
-    // // if (world.provider.getDimensionId() ==
-    // portal.getPortalArea().getDimension())
-    // // {
-    // // if (new Random().nextInt(100) < 100)
-    // // {
-    // // NamedWorldArea area = portal.getPortalArea();
-    // // Point start = area.getLowPoint();
-    // // Point size = area.getSize();
-    // // size.x++;
-    // // size.y++;
-    // // size.z++;
-    // // Random rnd = new Random();
-    // // world.spawnParticle("flame", start.getX() + rnd.nextFloat() *
-    // size.getX(), start.getY() + rnd.nextFloat() * size.getY(),
-    // // start.getZ() + rnd.nextFloat() * size.getZ(), 0, 0, 0);
-    // // }
-    // // }
-    // }
-    // }
+	public void load() {
+		portals = DataManager.getInstance().loadAll(Portal.class);
+		for (Portal portal : portals.values()) {
+			buildPortalFrame(portal);
+		}
+	}
 
-    public Portal get(String name)
-    {
-        return portals.get(name);
-    }
+	@SubscribeEvent
+	public void playerMove(PlayerMoveEvent e) {
+		WorldPoint after = e.after.toWorldPoint();
+		WorldPoint before = e.before.toWorldPoint();
+		for (Portal portal : portals.values()) {
+			if (portal.getPortalArea().contains(after) && !portal.getPortalArea().contains(before)) {
+				TeleportHelper.doTeleport((EntityPlayerMP) e.entityPlayer,
+						portal.target.toWarpPoint(e.entityPlayer.rotationPitch, e.entityPlayer.rotationYaw));
+			}
+		}
+	}
 
-    public void remove(String name)
-    {
-        destroyPortalFrame(portals.remove(name));
-        DataManager.getInstance().delete(Portal.class, name);
-    }
+	public void remove(String name) {
+		destroyPortalFrame(portals.remove(name));
+		DataManager.getInstance().delete(Portal.class, name);
+	}
 
-    public void add(String name, Portal portal)
-    {
-        portals.put(name, portal);
-        DataManager.getInstance().save(portal, name);
-        buildPortalFrame(portal);
-    }
+	public void save() {
+		for (Entry<String, Portal> portal : portals.entrySet()) {
+			DataManager.getInstance().save(portal.getValue(), portal.getKey());
+		}
+	}
 
-    private static void buildPortalFrame(Portal portal)
-    {
-        if (!portal.hasFrame())
-            return;
-        World world = DimensionManager.getWorld(portal.getPortalArea().getDimension());
-        if (world != null)
-        {
-            for (int ix = portal.getPortalArea().getLowPoint().getX(); ix <= portal.getPortalArea().getHighPoint().getX(); ix++)
-                for (int iy = portal.getPortalArea().getLowPoint().getY(); iy <= portal.getPortalArea().getHighPoint().getY(); iy++)
-                    for (int iz = portal.getPortalArea().getLowPoint().getZ(); iz <= portal.getPortalArea().getHighPoint().getZ(); iz++)
-                    {
-                        BlockPos pos = new BlockPos(ix, iy, iz);
-                        if (world.getBlockState(pos).getBlock() != portalBlock)
-                            world.setBlockState(pos, portalBlock.getDefaultState());
-                    }
-        }
-    }
-
-    private static void destroyPortalFrame(Portal portal)
-    {
-        if (!portal.hasFrame())
-            return;
-        World world = DimensionManager.getWorld(portal.getPortalArea().getDimension());
-        if (world != null)
-        {
-            for (int ix = portal.getPortalArea().getLowPoint().getX(); ix <= portal.getPortalArea().getHighPoint().getX(); ix++)
-                for (int iy = portal.getPortalArea().getLowPoint().getY(); iy <= portal.getPortalArea().getHighPoint().getY(); iy++)
-                    for (int iz = portal.getPortalArea().getLowPoint().getZ(); iz <= portal.getPortalArea().getHighPoint().getZ(); iz++)
-                    {
-                        BlockPos pos = new BlockPos(ix, iy, iz);
-                        Block block = world.getBlockState(pos).getBlock();
-                        if (block == portalBlock || block == Blocks.portal)
-                            world.setBlockState(pos, Blocks.air.getDefaultState());
-                    }
-        }
-    }
+	@Override
+	@SubscribeEvent
+	public void serverStopped(FEModuleServerStoppedEvent e) {
+		super.serverStopped(e);
+		save();
+	}
 
 }

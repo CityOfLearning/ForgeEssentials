@@ -1,8 +1,5 @@
 package com.forgeessentials.commands;
 
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-
 import com.forgeessentials.api.APIRegistry;
 import com.forgeessentials.commands.item.CommandBind;
 import com.forgeessentials.commands.item.CommandCraft;
@@ -57,72 +54,72 @@ import com.forgeessentials.core.moduleLauncher.FEModule;
 import com.forgeessentials.util.events.FEModuleEvent.FEModuleInitEvent;
 import com.forgeessentials.util.events.FEModuleEvent.FEModulePreInitEvent;
 
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+
 @FEModule(name = "Commands", parentMod = ForgeEssentials.class)
-public class ModuleCommands
-{
+public class ModuleCommands {
 
-    public static final String PERM = "fe.commands";
+	public static final String PERM = "fe.commands";
 
-    public static CommandsEventHandler oldEventHandler = new CommandsEventHandler();
+	public static CommandsEventHandler oldEventHandler = new CommandsEventHandler();
 
-    public static ModuleCommandsEventHandler eventHandler = new ModuleCommandsEventHandler();
+	public static ModuleCommandsEventHandler eventHandler = new ModuleCommandsEventHandler();
 
-    @SubscribeEvent
-    public void preLoad(FEModulePreInitEvent e)
-    {
-        MobTypeLoader.preLoad((FMLPreInitializationEvent) e.getFMLEvent());
-    }
+	@SubscribeEvent
+	public void load(FEModuleInitEvent event) {
+		FECommandManager.registerCommand(new CommandTime());
+		FECommandManager.registerCommand(new CommandEnchant());
+		FECommandManager.registerCommand(new CommandDechant());
+		FECommandManager.registerCommand(new CommandLocate());
+		FECommandManager.registerCommand(new CommandRules());
+		FECommandManager.registerCommand(new CommandModlist());
+		FECommandManager.registerCommand(new CommandButcher());
+		FECommandManager.registerCommand(new CommandRemove());
+		FECommandManager.registerCommand(new CommandAFK());
+		FECommandManager.registerCommand(new CommandKit());
+		FECommandManager.registerCommand(new CommandEnderchest());
+		FECommandManager.registerCommand(new CommandVirtualchest());
+		FECommandManager.registerCommand(new CommandCapabilities());
+		FECommandManager.registerCommand(new CommandCraft());
+		FECommandManager.registerCommand(new CommandPing());
+		FECommandManager.registerCommand(new CommandInventorySee());
+		FECommandManager.registerCommand(new CommandSmite());
+		FECommandManager.registerCommand(new CommandBurn());
+		FECommandManager.registerCommand(new CommandPotion());
+		FECommandManager.registerCommand(new CommandRepair());
+		FECommandManager.registerCommand(new CommandHeal());
+		FECommandManager.registerCommand(new CommandKill());
+		FECommandManager.registerCommand(new CommandGameMode());
+		FECommandManager.registerCommand(new CommandDoAs());
+		FECommandManager.registerCommand(new CommandServerSettings());
+		FECommandManager.registerCommand(new CommandGetCommandBook());
+		FECommandManager.registerCommand(new CommandWeather());
+		FECommandManager.registerCommand(new CommandBind());
+		FECommandManager.registerCommand(new CommandRename());
+		// FECommandManager.registerCommand(new CommandVanish());
+		FECommandManager.registerCommand(new CommandPush());
+		FECommandManager.registerCommand(new CommandDrop());
+		FECommandManager.registerCommand(new CommandFindblock());
+		FECommandManager.registerCommand(new CommandNoClip());
+		FECommandManager.registerCommand(new CommandBubble());
+		FECommandManager.registerCommand(new CommandSpeed());
+		FECommandManager.registerCommand(new CommandSeen());
+		FECommandManager.registerCommand(new CommandTempBan());
+		FECommandManager.registerCommand(new CommandFly());
+		FECommandManager.registerCommand(new CommandHelp());
+		FECommandManager.registerCommand(new CommandPregen());
+		FECommandManager.registerCommand(new CommandBiome());
+		FECommandManager.registerCommand(new CommandReach());
+		FECommandManager.registerCommand(new CommandVanish());
+		FECommandManager.registerCommand(new CommandDuplicate());
 
-    @SubscribeEvent
-    public void load(FEModuleInitEvent event)
-    {
-        FECommandManager.registerCommand(new CommandTime());
-        FECommandManager.registerCommand(new CommandEnchant());
-        FECommandManager.registerCommand(new CommandDechant());
-        FECommandManager.registerCommand(new CommandLocate());
-        FECommandManager.registerCommand(new CommandRules());
-        FECommandManager.registerCommand(new CommandModlist());
-        FECommandManager.registerCommand(new CommandButcher());
-        FECommandManager.registerCommand(new CommandRemove());
-        FECommandManager.registerCommand(new CommandAFK());
-        FECommandManager.registerCommand(new CommandKit());
-        FECommandManager.registerCommand(new CommandEnderchest());
-        FECommandManager.registerCommand(new CommandVirtualchest());
-        FECommandManager.registerCommand(new CommandCapabilities());
-        FECommandManager.registerCommand(new CommandCraft());
-        FECommandManager.registerCommand(new CommandPing());
-        FECommandManager.registerCommand(new CommandInventorySee());
-        FECommandManager.registerCommand(new CommandSmite());
-        FECommandManager.registerCommand(new CommandBurn());
-        FECommandManager.registerCommand(new CommandPotion());
-        FECommandManager.registerCommand(new CommandRepair());
-        FECommandManager.registerCommand(new CommandHeal());
-        FECommandManager.registerCommand(new CommandKill());
-        FECommandManager.registerCommand(new CommandGameMode());
-        FECommandManager.registerCommand(new CommandDoAs());
-        FECommandManager.registerCommand(new CommandServerSettings());
-        FECommandManager.registerCommand(new CommandGetCommandBook());
-        FECommandManager.registerCommand(new CommandWeather());
-        FECommandManager.registerCommand(new CommandBind());
-        FECommandManager.registerCommand(new CommandRename());
-        // FECommandManager.registerCommand(new CommandVanish());
-        FECommandManager.registerCommand(new CommandPush());
-        FECommandManager.registerCommand(new CommandDrop());
-        FECommandManager.registerCommand(new CommandFindblock());
-        FECommandManager.registerCommand(new CommandNoClip());
-        FECommandManager.registerCommand(new CommandBubble());
-        FECommandManager.registerCommand(new CommandSpeed());
-        FECommandManager.registerCommand(new CommandSeen());
-        FECommandManager.registerCommand(new CommandTempBan());
-        FECommandManager.registerCommand(new CommandFly());
-        FECommandManager.registerCommand(new CommandHelp());
-        FECommandManager.registerCommand(new CommandPregen());
-        FECommandManager.registerCommand(new CommandBiome());
-        FECommandManager.registerCommand(new CommandReach());
-        FECommandManager.registerCommand(new CommandVanish());
-        FECommandManager.registerCommand(new CommandDuplicate());
+		APIRegistry.perms.registerPermissionDescription("fe.commands", "Permission nodes for FE commands module");
+	}
 
-        APIRegistry.perms.registerPermissionDescription("fe.commands", "Permission nodes for FE commands module");
-    }
+	@SubscribeEvent
+	public void preLoad(FEModulePreInitEvent e) {
+		MobTypeLoader.preLoad((FMLPreInitializationEvent) e.getFMLEvent());
+	}
 
 }

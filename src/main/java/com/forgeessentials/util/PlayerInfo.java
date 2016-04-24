@@ -8,10 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.item.ItemStack;
-
 import com.forgeessentials.api.APIRegistry;
 import com.forgeessentials.api.UserIdent;
 import com.forgeessentials.commons.selections.Point;
@@ -23,464 +19,436 @@ import com.forgeessentials.util.events.FEPlayerEvent.NoPlayerInfoEvent;
 import com.forgeessentials.util.output.LoggingHandler;
 import com.google.gson.annotations.Expose;
 
-public class PlayerInfo implements Loadable
-{
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.ItemStack;
 
-    private static HashMap<UUID, PlayerInfo> playerInfoMap = new HashMap<UUID, PlayerInfo>();
+public class PlayerInfo implements Loadable {
 
-    /* ------------------------------------------------------------ */
-    /* General */
+	private static HashMap<UUID, PlayerInfo> playerInfoMap = new HashMap<UUID, PlayerInfo>();
 
-    public final UserIdent ident;
+	/* ------------------------------------------------------------ */
+	/* General */
 
-    @Expose(serialize = false)
-    private boolean hasFEClient = false;
+	/**
+	 * Unload PlayerInfo and save to disk
+	 */
+	public static void discard(UUID uuid) {
+		PlayerInfo info = playerInfoMap.remove(uuid);
+		if (info != null) {
+			info.save();
+		}
+	}
 
-    /* ------------------------------------------------------------ */
-    /* Teleport */
+	/**
+	 * Discard all PlayerInfo
+	 */
+	public static void discardAll() {
+		for (PlayerInfo info : playerInfoMap.values()) {
+			info.save();
+		}
+		playerInfoMap.clear();
+	}
 
-    private WarpPoint home;
+	/* ------------------------------------------------------------ */
+	/* Teleport */
 
-    private WarpPoint lastTeleportOrigin;
+	public static boolean exists(UUID uuid) {
+		if (playerInfoMap.containsKey(uuid)) {
+			return true;
+		}
+		if (DataManager.getInstance().exists(PlayerInfo.class, uuid.toString())) {
+			return true;
+		}
+		return false;
+	}
 
-    private WarpPoint lastDeathLocation;
+	public static PlayerInfo get(EntityPlayer player) throws Exception {
+		return get(player.getPersistentID());
+	}
 
-    private long lastTeleportTime = 0;
+	public static PlayerInfo get(UserIdent ident) throws Exception {
+		if (!ident.hasUuid()) {
+			throw new NullPointerException();
+		}
+		return get(ident.getUuid());
+	}
 
-    /* ------------------------------------------------------------ */
-    /* Selection */
+	public static PlayerInfo get(UUID uuid) throws Exception {
+		PlayerInfo info = playerInfoMap.get(uuid);
+		if (info != null) {
+			return info;
+		}
 
-    private Point sel1;
+		// Attempt to populate this info with some data from our storage
+		info = DataManager.getInstance().load(PlayerInfo.class, uuid.toString());
+		if (info != null) {
+			playerInfoMap.put(uuid, info);
+			return info;
+		}
 
-    private Point sel2;
+		// Create new player info data
+		EntityPlayerMP player = UserIdent.getPlayerByUuid(uuid);
+		info = new PlayerInfo(uuid);
+		playerInfoMap.put(uuid, info);
+		if (player != null) {
+			APIRegistry.getFEEventBus().post(new NoPlayerInfoEvent(player));
+		}
+		if (info != null) {
+			return info;
+		} else {
+			throw new NullPointerException();
+		}
+	}
 
-    private int selDim;
+	/* ------------------------------------------------------------ */
+	/* Selection */
 
-    /* ------------------------------------------------------------ */
-    /* Selection wand */
+	public static Collection<PlayerInfo> getAll() {
+		return playerInfoMap.values();
+	}
 
-    @Expose(serialize = false)
-    private boolean wandEnabled = false;
-
-    @Expose(serialize = false)
-    private String wandID;
-
-    @Expose(serialize = false)
-    private int wandDmg;
-
-    /* ------------------------------------------------------------ */
-    /* Inventory groups */
-
-    private Map<String, List<ItemStack>> inventoryGroups = new HashMap<>();
-
-    private String activeInventoryGroup = "default";
-
-    /* ------------------------------------------------------------ */
-    /* Stats / time */
-
-    private long timePlayed = 0;
-
-    @Expose(serialize = false)
-    private long timePlayedRef = 0;
-
-    private Date firstLogin = new Date();
-
-    private Date lastLogin = new Date();
-
-    private Date lastLogout;
-
-    @Expose(serialize = false)
-    private long lastActivity = System.currentTimeMillis();
-
-    private HashMap<String, Date> namedTimeout = new HashMap<String, Date>();
-
-    /* ------------------------------------------------------------ */
-
-    private PlayerInfo(UUID uuid)
-    {
-        this.ident = UserIdent.get(uuid);
-    }
-
-    @Override
-    public void afterLoad()
-    {
-        if (namedTimeout == null)
-            namedTimeout = new HashMap<String, Date>();
-        lastActivity = System.currentTimeMillis();
-        if (activeInventoryGroup == null || activeInventoryGroup.isEmpty())
-            activeInventoryGroup = "default";
-    }
-
-    /**
-     * Notifies the PlayerInfo to save itself to the Data store.
-     */
-    public void save()
-    {
-        DataManager.getInstance().save(this, ident.getUuid().toString());
-    }
-
-    public boolean isLoggedIn()
-    {
-        return ident.hasPlayer();
-    }
-
-    /* ------------------------------------------------------------ */
-
-    public static PlayerInfo get(UUID uuid) throws Exception
-    {
-        PlayerInfo info = playerInfoMap.get(uuid);
-        if (info != null)
-            return info;
-
-        // Attempt to populate this info with some data from our storage
-        info = DataManager.getInstance().load(PlayerInfo.class, uuid.toString());
-        if (info != null)
-        {
-            playerInfoMap.put(uuid, info);
-            return info;
-        }
-
-        // Create new player info data
-        EntityPlayerMP player = UserIdent.getPlayerByUuid(uuid);
-        info = new PlayerInfo(uuid);
-        playerInfoMap.put(uuid, info);
-        if (player != null)
-            APIRegistry.getFEEventBus().post(new NoPlayerInfoEvent(player));
-        if(info!=null)
-        	return info;
-        else
-        	throw new NullPointerException();
-    }
-
-    public static PlayerInfo get(EntityPlayer player) throws Exception
-    {
-        return get(player.getPersistentID());
-    }
-
-    public static PlayerInfo get(UserIdent ident) throws Exception
-    {
-        if (!ident.hasUuid())
-        	throw new NullPointerException();
-        return get(ident.getUuid());
-    }
-
-    public static Collection<PlayerInfo> getAll()
-    {
-        return playerInfoMap.values();
-    }
-
-    public static void login(UUID uuid)
-    {
-        PlayerInfo pi;
+	public static void login(UUID uuid) {
+		PlayerInfo pi;
 		try {
 			pi = get(uuid);
-		
-        pi.lastActivity = System.currentTimeMillis();
-        pi.timePlayedRef = System.currentTimeMillis();
-        pi.lastLogin = new Date();
+
+			pi.lastActivity = System.currentTimeMillis();
+			pi.timePlayedRef = System.currentTimeMillis();
+			pi.lastLogin = new Date();
 		} catch (Exception e) {
 			LoggingHandler.felog.error("Error getting player Info");
 		}
-    }
+	}
 
-    public static void logout(UUID uuid)
-    {
-        if (!playerInfoMap.containsKey(uuid))
-            return;
-        PlayerInfo pi = playerInfoMap.remove(uuid);
-        pi.getTimePlayed();
-        pi.lastLogout = new Date();
-        pi.timePlayedRef = 0;
-        pi.save();
-    }
+	public static void logout(UUID uuid) {
+		if (!playerInfoMap.containsKey(uuid)) {
+			return;
+		}
+		PlayerInfo pi = playerInfoMap.remove(uuid);
+		pi.getTimePlayed();
+		pi.lastLogout = new Date();
+		pi.timePlayedRef = 0;
+		pi.save();
+	}
 
-    public static boolean exists(UUID uuid)
-    {
-        if (playerInfoMap.containsKey(uuid))
-            return true;
-        if (DataManager.getInstance().exists(PlayerInfo.class, uuid.toString()))
-            return true;
-        return false;
-    }
+	/* ------------------------------------------------------------ */
+	/* Selection wand */
 
-    /**
-     * Unload PlayerInfo and save to disk
-     */
-    public static void discard(UUID uuid)
-    {
-        PlayerInfo info = playerInfoMap.remove(uuid);
-        if (info != null)
-            info.save();
-    }
+	public final UserIdent ident;
 
-    /**
-     * Discard all PlayerInfo
-     */
-    public static void discardAll()
-    {
-        for (PlayerInfo info : playerInfoMap.values())
-            info.save();
-        playerInfoMap.clear();
-    }
+	@Expose(serialize = false)
+	private boolean hasFEClient = false;
 
-    /* ------------------------------------------------------------ */
+	private WarpPoint home;
 
-    public Date getFirstLogin()
-    {
-        return firstLogin;
-    }
+	/* ------------------------------------------------------------ */
+	/* Inventory groups */
 
-    public Date getLastLogin()
-    {
-        return lastLogin;
-    }
+	private WarpPoint lastTeleportOrigin;
 
-    public Date getLastLogout()
-    {
-        return lastLogout;
-    }
+	private WarpPoint lastDeathLocation;
 
-    public long getTimePlayed()
-    {
-        if (isLoggedIn() && timePlayedRef != 0)
-        {
-            timePlayed += System.currentTimeMillis() - timePlayedRef;
-            timePlayedRef = System.currentTimeMillis();
-        }
-        return timePlayed;
-    }
+	/* ------------------------------------------------------------ */
+	/* Stats / time */
 
-    public void setActive()
-    {
-        lastActivity = System.currentTimeMillis();
-    }
+	private long lastTeleportTime = 0;
 
-    public void setActive(long delta)
-    {
-        lastActivity = System.currentTimeMillis() - delta;
-    }
+	private Point sel1;
 
-    public long getInactiveTime()
-    {
-        return System.currentTimeMillis() - lastActivity;
-    }
+	private Point sel2;
 
-    /* ------------------------------------------------------------ */
-    /* Timeouts */
+	private int selDim;
 
-    /**
-     * Check, if a timeout passed
-     * 
-     * @param name
-     * @return true, if the timeout passed
-     */
-    public boolean checkTimeout(String name)
-    {
-        Date timeout = namedTimeout.get(name);
-        if (timeout == null)
-            return true;
-        if (timeout.after(new Date()))
-            return false;
-        namedTimeout.remove(name);
-        return true;
-    }
+	@Expose(serialize = false)
+	private boolean wandEnabled = false;
 
-    /**
-     * Get the remaining timeout in milliseconds
-     */
-    public long getRemainingTimeout(String name)
-    {
-        Date timeout = namedTimeout.get(name);
-        if (timeout == null)
-            return 0;
-        return timeout.getTime() - new Date().getTime();
-    }
+	@Expose(serialize = false)
+	private String wandID;
 
-    /**
-     * Start a named timeout. Use {@link #checkTimeout(String)} to check if the timeout has passed.
-     * 
-     * @param name
-     *            Unique name of the timeout
-     * @param milliseconds
-     *            Timeout in milliseconds
-     */
-    public void startTimeout(String name, long milliseconds)
-    {
-        Date date = new Date();
-        date.setTime(date.getTime() + milliseconds);
-        namedTimeout.put(name, date);
-    }
+	@Expose(serialize = false)
+	private int wandDmg;
 
-    /* ------------------------------------------------------------ */
-    /* Wand */
+	/* ------------------------------------------------------------ */
 
-    public boolean isWandEnabled()
-    {
-        return wandEnabled;
-    }
+	private Map<String, List<ItemStack>> inventoryGroups = new HashMap<>();
 
-    public void setWandEnabled(boolean wandEnabled)
-    {
-        this.wandEnabled = wandEnabled;
-    }
+	private String activeInventoryGroup = "default";
 
-    public String getWandID()
-    {
-        return wandID;
-    }
+	private long timePlayed = 0;
 
-    public void setWandID(String wandID)
-    {
-        this.wandID = wandID;
-    }
+	@Expose(serialize = false)
+	private long timePlayedRef = 0;
 
-    public int getWandDmg()
-    {
-        return wandDmg;
-    }
+	/* ------------------------------------------------------------ */
 
-    public void setWandDmg(int wandDmg)
-    {
-        this.wandDmg = wandDmg;
-    }
+	private Date firstLogin = new Date();
 
-    /* ------------------------------------------------------------ */
-    /* Selection */
+	private Date lastLogin = new Date();
 
-    public Point getSel1()
-    {
-        return sel1;
-    }
+	private Date lastLogout;
 
-    public Point getSel2()
-    {
-        return sel2;
-    }
+	@Expose(serialize = false)
+	private long lastActivity = System.currentTimeMillis();
 
-    public int getSelDim()
-    {
-        return selDim;
-    }
+	private HashMap<String, Date> namedTimeout = new HashMap<String, Date>();
 
-    public void setSel1(Point point)
-    {
-        sel1 = point;
-    }
+	private PlayerInfo(UUID uuid) {
+		ident = UserIdent.get(uuid);
+	}
 
-    public void setSel2(Point point)
-    {
-        sel2 = point;
-    }
+	@Override
+	public void afterLoad() {
+		if (namedTimeout == null) {
+			namedTimeout = new HashMap<String, Date>();
+		}
+		lastActivity = System.currentTimeMillis();
+		if ((activeInventoryGroup == null) || activeInventoryGroup.isEmpty()) {
+			activeInventoryGroup = "default";
+		}
+	}
 
-    public void setSelDim(int dimension)
-    {
-        selDim = dimension;
-    }
+	/**
+	 * Check, if a timeout passed
+	 * 
+	 * @param name
+	 * @return true, if the timeout passed
+	 */
+	public boolean checkTimeout(String name) {
+		Date timeout = namedTimeout.get(name);
+		if (timeout == null) {
+			return true;
+		}
+		if (timeout.after(new Date())) {
+			return false;
+		}
+		namedTimeout.remove(name);
+		return true;
+	}
 
-    /* ------------------------------------------------------------ */
-    /* Inventory groups */
+	public Date getFirstLogin() {
+		return firstLogin;
+	}
 
-    public Map<String, List<ItemStack>> getInventoryGroups()
-    {
-        return inventoryGroups;
-    }
+	/* ------------------------------------------------------------ */
 
-    public List<ItemStack> getInventoryGroupItems(String name)
-    {
-        return inventoryGroups.get(name);
-    }
+	public boolean getHasFEClient() {
+		return hasFEClient;
+	}
 
-    public String getInventoryGroup()
-    {
-        return activeInventoryGroup;
-    }
+	public WarpPoint getHome() {
+		return home;
+	}
 
-    public void setInventoryGroup(String name)
-    {
-        if (!activeInventoryGroup.equals(name))
-        {
-            // Get the new inventory
-            List<ItemStack> newInventory = inventoryGroups.get(name);
-            // Create empty inventory if it did not exist yet
-            if (newInventory == null)
-                newInventory = new ArrayList<>();
+	public long getInactiveTime() {
+		return System.currentTimeMillis() - lastActivity;
+	}
 
-            // ChatOutputHandler.felog.info(String.format("Changing inventory group for %s from %s to %s",
-            // ident.getUsernameOrUUID(), activeInventoryGroup, name));
-            /*
-             * ChatOutputHandler.felog.info("Items in old inventory:"); for (int i = 0; i <
-             * ident.getPlayer().inventory.getSizeInventory(); i++) { ItemStack itemStack =
-             * ident.getPlayer().inventory.getStackInSlot(i); if (itemStack != null) ChatOutputHandler.felog.info("  " +
-             * itemStack.getDisplayName()); } ChatOutputHandler.felog.info("Items in new inventory:"); for (ItemStack
-             * itemStack : newInventory) if (itemStack != null) ChatOutputHandler.felog.info("  " +
-             * itemStack.getDisplayName());
-             */
+	public String getInventoryGroup() {
+		return activeInventoryGroup;
+	}
 
-            // Swap player inventory and store the old one
-            inventoryGroups.put(activeInventoryGroup, PlayerUtil.swapInventory(this.ident.getPlayerMP(), newInventory));
-            // Clear the inventory-group that was assigned to the player (optional)
-            inventoryGroups.put(name, null);
-            // Save the new active inventory-group
-            activeInventoryGroup = name;
-            this.save();
-        }
-    }
+	public List<ItemStack> getInventoryGroupItems(String name) {
+		return inventoryGroups.get(name);
+	}
 
-    /* ------------------------------------------------------------ */
-    /* Teleportation */
+	public Map<String, List<ItemStack>> getInventoryGroups() {
+		return inventoryGroups;
+	}
 
-    public WarpPoint getLastTeleportOrigin()
-    {
-        return lastTeleportOrigin;
-    }
+	public WarpPoint getLastDeathLocation() {
+		return lastDeathLocation;
+	}
 
-    public void setLastTeleportOrigin(WarpPoint lastTeleportStart)
-    {
-        this.lastTeleportOrigin = lastTeleportStart;
-    }
+	/* ------------------------------------------------------------ */
+	/* Timeouts */
 
-    public WarpPoint getLastDeathLocation()
-    {
-        return lastDeathLocation;
-    }
+	public Date getLastLogin() {
+		return lastLogin;
+	}
 
-    public void setLastDeathLocation(WarpPoint lastDeathLocation)
-    {
-        this.lastDeathLocation = lastDeathLocation;
-    }
+	public Date getLastLogout() {
+		return lastLogout;
+	}
 
-    public long getLastTeleportTime()
-    {
-        return lastTeleportTime;
-    }
+	public WarpPoint getLastTeleportOrigin() {
+		return lastTeleportOrigin;
+	}
 
-    public void setLastTeleportTime(long currentTimeMillis)
-    {
-        this.lastTeleportTime = currentTimeMillis;
-    }
+	/* ------------------------------------------------------------ */
+	/* Wand */
 
-    public WarpPoint getHome()
-    {
-        return home;
-    }
+	public long getLastTeleportTime() {
+		return lastTeleportTime;
+	}
 
-    public void setHome(WarpPoint home)
-    {
-        this.home = home;
-    }
+	/**
+	 * Get the remaining timeout in milliseconds
+	 */
+	public long getRemainingTimeout(String name) {
+		Date timeout = namedTimeout.get(name);
+		if (timeout == null) {
+			return 0;
+		}
+		return timeout.getTime() - new Date().getTime();
+	}
 
-    /* ------------------------------------------------------------ */
-    /* Other */
+	public Point getSel1() {
+		return sel1;
+	}
 
-    public boolean getHasFEClient()
-    {
-        return hasFEClient;
-    }
+	public Point getSel2() {
+		return sel2;
+	}
 
-    public void setHasFEClient(boolean status)
-    {
-        this.hasFEClient = status;
-        APIRegistry.getFEEventBus().post(new ClientHandshakeEstablished(this.ident.getPlayer()));
-    }
+	public int getSelDim() {
+		return selDim;
+	}
+
+	public long getTimePlayed() {
+		if (isLoggedIn() && (timePlayedRef != 0)) {
+			timePlayed += System.currentTimeMillis() - timePlayedRef;
+			timePlayedRef = System.currentTimeMillis();
+		}
+		return timePlayed;
+	}
+
+	/* ------------------------------------------------------------ */
+	/* Selection */
+
+	public int getWandDmg() {
+		return wandDmg;
+	}
+
+	public String getWandID() {
+		return wandID;
+	}
+
+	public boolean isLoggedIn() {
+		return ident.hasPlayer();
+	}
+
+	public boolean isWandEnabled() {
+		return wandEnabled;
+	}
+
+	/**
+	 * Notifies the PlayerInfo to save itself to the Data store.
+	 */
+	public void save() {
+		DataManager.getInstance().save(this, ident.getUuid().toString());
+	}
+
+	public void setActive() {
+		lastActivity = System.currentTimeMillis();
+	}
+
+	/* ------------------------------------------------------------ */
+	/* Inventory groups */
+
+	public void setActive(long delta) {
+		lastActivity = System.currentTimeMillis() - delta;
+	}
+
+	public void setHasFEClient(boolean status) {
+		hasFEClient = status;
+		APIRegistry.getFEEventBus().post(new ClientHandshakeEstablished(ident.getPlayer()));
+	}
+
+	public void setHome(WarpPoint home) {
+		this.home = home;
+	}
+
+	public void setInventoryGroup(String name) {
+		if (!activeInventoryGroup.equals(name)) {
+			// Get the new inventory
+			List<ItemStack> newInventory = inventoryGroups.get(name);
+			// Create empty inventory if it did not exist yet
+			if (newInventory == null) {
+				newInventory = new ArrayList<>();
+			}
+
+			// ChatOutputHandler.felog.info(String.format("Changing inventory
+			// group for %s from %s to %s",
+			// ident.getUsernameOrUUID(), activeInventoryGroup, name));
+			/*
+			 * ChatOutputHandler.felog.info("Items in old inventory:"); for (int
+			 * i = 0; i < ident.getPlayer().inventory.getSizeInventory(); i++) {
+			 * ItemStack itemStack =
+			 * ident.getPlayer().inventory.getStackInSlot(i); if (itemStack !=
+			 * null) ChatOutputHandler.felog.info("  " +
+			 * itemStack.getDisplayName()); } ChatOutputHandler.felog.info(
+			 * "Items in new inventory:"); for (ItemStack itemStack :
+			 * newInventory) if (itemStack != null)
+			 * ChatOutputHandler.felog.info("  " + itemStack.getDisplayName());
+			 */
+
+			// Swap player inventory and store the old one
+			inventoryGroups.put(activeInventoryGroup, PlayerUtil.swapInventory(ident.getPlayerMP(), newInventory));
+			// Clear the inventory-group that was assigned to the player
+			// (optional)
+			inventoryGroups.put(name, null);
+			// Save the new active inventory-group
+			activeInventoryGroup = name;
+			save();
+		}
+	}
+
+	/* ------------------------------------------------------------ */
+	/* Teleportation */
+
+	public void setLastDeathLocation(WarpPoint lastDeathLocation) {
+		this.lastDeathLocation = lastDeathLocation;
+	}
+
+	public void setLastTeleportOrigin(WarpPoint lastTeleportStart) {
+		lastTeleportOrigin = lastTeleportStart;
+	}
+
+	public void setLastTeleportTime(long currentTimeMillis) {
+		lastTeleportTime = currentTimeMillis;
+	}
+
+	public void setSel1(Point point) {
+		sel1 = point;
+	}
+
+	public void setSel2(Point point) {
+		sel2 = point;
+	}
+
+	public void setSelDim(int dimension) {
+		selDim = dimension;
+	}
+
+	public void setWandDmg(int wandDmg) {
+		this.wandDmg = wandDmg;
+	}
+
+	public void setWandEnabled(boolean wandEnabled) {
+		this.wandEnabled = wandEnabled;
+	}
+
+	/* ------------------------------------------------------------ */
+	/* Other */
+
+	public void setWandID(String wandID) {
+		this.wandID = wandID;
+	}
+
+	/**
+	 * Start a named timeout. Use {@link #checkTimeout(String)} to check if the
+	 * timeout has passed.
+	 * 
+	 * @param name
+	 *            Unique name of the timeout
+	 * @param milliseconds
+	 *            Timeout in milliseconds
+	 */
+	public void startTimeout(String name, long milliseconds) {
+		Date date = new Date();
+		date.setTime(date.getTime() + milliseconds);
+		namedTimeout.put(name, date);
+	}
 
 }

@@ -1,10 +1,9 @@
 package net.minecraftforge.permission;
 
-public interface PermissionObject
-{
+public interface PermissionObject {
 
-    public String getPermissionNode();
+	public PermissionLevel getPermissionLevel();
 
-    public PermissionLevel getPermissionLevel();
-    
+	public String getPermissionNode();
+
 }

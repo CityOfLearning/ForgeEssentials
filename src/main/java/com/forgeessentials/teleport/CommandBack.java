@@ -1,11 +1,5 @@
 package com.forgeessentials.teleport;
 
-import net.minecraft.command.CommandException;
-import net.minecraft.command.ICommandSender;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraftforge.permission.PermissionLevel;
-import net.minecraftforge.permission.PermissionManager;
-
 import com.forgeessentials.commons.selections.WarpPoint;
 import com.forgeessentials.core.commands.ForgeEssentialsCommandBase;
 import com.forgeessentials.core.misc.TeleportHelper;
@@ -13,57 +7,60 @@ import com.forgeessentials.core.misc.TranslatedCommandException;
 import com.forgeessentials.util.PlayerInfo;
 import com.forgeessentials.util.output.LoggingHandler;
 
-public class CommandBack extends ForgeEssentialsCommandBase
-{
+import net.minecraft.command.CommandException;
+import net.minecraft.command.ICommandSender;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraftforge.permission.PermissionLevel;
+import net.minecraftforge.permission.PermissionManager;
 
-    @Override
-    public String getCommandName()
-    {
-        return "back";
-    }
+public class CommandBack extends ForgeEssentialsCommandBase {
 
-    @Override
-    public String getCommandUsage(ICommandSender sender)
-    {
-        return "/back: Teleport you to your last death or teleport location.";
-    }
+	@Override
+	public boolean canConsoleUseCommand() {
+		return false;
+	}
 
-    @Override
-    public boolean canConsoleUseCommand()
-    {
-        return false;
-    }
+	@Override
+	public String getCommandName() {
+		return "back";
+	}
 
-    @Override
-    public String getPermissionNode()
-    {
-        return TeleportModule.PERM_BACK;
-    }
+	@Override
+	public String getCommandUsage(ICommandSender sender) {
+		return "/back: Teleport you to your last death or teleport location.";
+	}
 
-    @Override
-    public PermissionLevel getPermissionLevel()
-    {
-        return PermissionLevel.TRUE;
-    }
+	@Override
+	public PermissionLevel getPermissionLevel() {
+		return PermissionLevel.TRUE;
+	}
 
-    @Override
-    public void processCommandPlayer(EntityPlayerMP sender, String[] args) throws CommandException
-    {
-        PlayerInfo pi;
+	@Override
+	public String getPermissionNode() {
+		return TeleportModule.PERM_BACK;
+	}
+
+	@Override
+	public void processCommandPlayer(EntityPlayerMP sender, String[] args) throws CommandException {
+		PlayerInfo pi;
 		try {
 			pi = PlayerInfo.get(sender.getPersistentID());
-		
-        WarpPoint point = null;
-        if (PermissionManager.checkPermission(sender, TeleportModule.PERM_BACK_ONDEATH))
-            point = pi.getLastDeathLocation();
-        if (point == null)
-            point = pi.getLastTeleportOrigin();
-        if (point == null)
-            throw new TranslatedCommandException("You have nowhere to get back to");
 
-        TeleportHelper.teleport(sender, point);} catch (Exception e) {
-        	LoggingHandler.felog.error("Error getting player Info");
+			WarpPoint point = null;
+			if (PermissionManager.checkPermission(sender, TeleportModule.PERM_BACK_ONDEATH)) {
+				point = pi.getLastDeathLocation();
+			}
+			if (point == null) {
+				point = pi.getLastTeleportOrigin();
+			}
+			if (point == null) {
+				throw new TranslatedCommandException("You have nowhere to get back to");
+			}
+
+			TeleportHelper.teleport(sender, point);
+		} catch (Exception e) {
+			LoggingHandler.felog.error("Error getting player Info");
 		}
-    }
+	}
 
 }

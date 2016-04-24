@@ -5,6 +5,10 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
+import com.forgeessentials.core.commands.ForgeEssentialsCommandBase;
+import com.forgeessentials.util.output.ChatOutputHandler;
+import com.google.common.collect.HashMultimap;
+
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -20,197 +24,155 @@ import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.permission.PermissionLevel;
 
-import com.forgeessentials.core.commands.ForgeEssentialsCommandBase;
-import com.forgeessentials.util.output.ChatOutputHandler;
-import com.google.common.collect.HashMultimap;
+public class CommandChunkLoaderList extends ForgeEssentialsCommandBase {
+	@Override
+	public List<String> addTabCompletionOptions(ICommandSender sender, String[] args, BlockPos pos) {
+		if (args.length == 1) {
+			ArrayList<String> options = new ArrayList<String>();
+			for (String s : MinecraftServer.getServer().getConfigurationManager().getAvailablePlayerDat()) {
+				options.add(s);
+			}
+			for (ModContainer mod : Loader.instance().getActiveModList()) {
+				options.add(mod.getName());
+			}
 
-public class CommandChunkLoaderList extends ForgeEssentialsCommandBase
-{
-    @Override
-    public String getPermissionNode()
-    {
-        return "fe.perftools.chunkloaderlist";
-    }
+			return getListOfStringsMatchingLastWord(args, options);
+		}
+		return null;
+	}
 
-    @Override
-    public String getCommandName()
-    {
-        return "chunkloaderlist";
-    }
+	@Override
+	public boolean canConsoleUseCommand() {
+		return false;
+	}
 
-    @Override
-    public void processCommandPlayer(EntityPlayerMP sender, String[] args) throws CommandException
-    {
-        String key = "*";
-        if (args.length != 0)
-        {
-            String target = "";
-            for (String s : args)
-            {
-                target = target + " " + s;
-            }
-            target = target.substring(1).trim();
+	@Override
+	public String getCommandName() {
+		return "chunkloaderlist";
+	}
 
-            List<String> allUsernames = Arrays.asList(MinecraftServer.getServer().getConfigurationManager().getAvailablePlayerDat());
-            for (String username : allUsernames)
-            {
-                if (username.equalsIgnoreCase(target))
-                {
-                    key = "p:" + username;
-                    break;
-                }
-            }
+	@Override
+	public String getCommandUsage(ICommandSender sender) {
+		return "/chunkloaderlist Lists all active chunk loaders.";
+	}
 
-            for (ModContainer mod : Loader.instance().getActiveModList())
-            {
-                if (mod.getName().equalsIgnoreCase(target))
-                {
-                    key = "m:" + mod.getModId();
-                }
-                else if (mod.getModId().equalsIgnoreCase(target))
-                {
-                    key = "m:" + mod.getModId();
-                }
-            }
-        }
-        list(sender, key);
-    }
+	@Override
+	public PermissionLevel getPermissionLevel() {
+		return PermissionLevel.OP;
+	}
 
-    @Override
-    public void processCommandConsole(ICommandSender sender, String[] args) throws CommandException
-    {
-        list(sender, "*");
-    }
+	@Override
+	public String getPermissionNode() {
+		return "fe.perftools.chunkloaderlist";
+	}
 
-    private void list(ICommandSender sender, String key)
-    {
-        for (int i : DimensionManager.getIDs())
-        {
-            list(sender, i, key);
-        }
-    }
+	private void list(ICommandSender sender, int dim, String key) {
+		WorldServer world = DimensionManager.getWorld(dim);
 
-    private void list(ICommandSender sender, int dim, String key)
-    {
-        WorldServer world = DimensionManager.getWorld(dim);
+		HashMultimap<String, Ticket> modTickets = HashMultimap.create();
+		HashMultimap<String, Ticket> playerTickets = HashMultimap.create();
 
-        HashMultimap<String, Ticket> modTickets = HashMultimap.create();
-        HashMultimap<String, Ticket> playerTickets = HashMultimap.create();
+		for (Ticket ticket : ForgeChunkManager.getPersistentChunksFor(world).values()) {
+			if (ticket.isPlayerTicket()) {
+				playerTickets.put(ticket.getPlayerName(), ticket);
+			} else {
+				modTickets.put(ticket.getModId(), ticket);
+			}
+		}
 
-        for (Ticket ticket : ForgeChunkManager.getPersistentChunksFor(world).values())
-        {
-            if (ticket.isPlayerTicket())
-            {
-                playerTickets.put(ticket.getPlayerName(), ticket);
-            }
-            else
-            {
-                modTickets.put(ticket.getModId(), ticket);
-            }
-        }
+		if (modTickets.isEmpty() && playerTickets.isEmpty()) {
+			return;
+		}
 
-        if (modTickets.isEmpty() && playerTickets.isEmpty())
-        {
-            return;
-        }
+		if (!key.equals("*")) {
+			ChatOutputHandler.chatNotification(sender,
+					EnumChatFormatting.UNDERLINE + "ChunkLoaders for " + key.split(":", 2)[1] + ":");
+		}
 
-        if (!key.equals("*"))
-        {
-            ChatOutputHandler.chatNotification(sender, EnumChatFormatting.UNDERLINE + "ChunkLoaders for " + key.split(":", 2)[1] + ":");
-        }
+		ChatOutputHandler.chatNotification(sender, "Dim " + world.provider.getDimensionName() + ":");
 
-        ChatOutputHandler.chatNotification(sender, "Dim " + world.provider.getDimensionName() + ":");
+		if (key.startsWith("p:") || key.equals("*")) {
+			for (String username : playerTickets.keySet()) {
+				if (key.replace("p:", "").equalsIgnoreCase(username) || key.equals("*")) {
+					if (key.equals("*")) {
+						ChatOutputHandler.chatNotification(sender, username);
+					}
 
-        if (key.startsWith("p:") || key.equals("*"))
-        {
-            for (String username : playerTickets.keySet())
-            {
-                if (key.replace("p:", "").equalsIgnoreCase(username) || key.equals("*"))
-                {
-                    if (key.equals("*"))
-                    {
-                        ChatOutputHandler.chatNotification(sender, username);
-                    }
+					HashSet<ChunkCoordIntPair> chunks = new HashSet<ChunkCoordIntPair>();
 
-                    HashSet<ChunkCoordIntPair> chunks = new HashSet<ChunkCoordIntPair>();
+					for (Ticket ticket : playerTickets.get(username)) {
+						for (Object obj : ticket.getChunkList()) {
+							chunks.add((ChunkCoordIntPair) obj);
+						}
+					}
 
-                    for (Ticket ticket : playerTickets.get(username))
-                    {
-                        for (Object obj : ticket.getChunkList())
-                        {
-                            chunks.add((ChunkCoordIntPair) obj);
-                        }
-                    }
+					for (ChunkCoordIntPair coords : chunks) {
+						ChatOutputHandler.chatNotification(sender,
+								coords.getCenterXPos() + " : " + coords.getCenterZPosition());
+					}
+				}
+			}
+		}
 
-                    for (ChunkCoordIntPair coords : chunks)
-                    {
-                        ChatOutputHandler.chatNotification(sender, coords.getCenterXPos() + " : " + coords.getCenterZPosition());
-                    }
-                }
-            }
-        }
+		if (key.startsWith("m:") || key.equals("*")) {
+			for (String modID : modTickets.keySet()) {
+				if (key.equals("*")) {
+					ChatOutputHandler.chatNotification(sender, modID);
+				}
+				HashSet<ChunkCoordIntPair> chunks = new HashSet<ChunkCoordIntPair>();
 
-        if (key.startsWith("m:") || key.equals("*"))
-        {
-            for (String modID : modTickets.keySet())
-            {
-                if (key.equals("*"))
-                {
-                    ChatOutputHandler.chatNotification(sender, modID);
-                }
-                HashSet<ChunkCoordIntPair> chunks = new HashSet<ChunkCoordIntPair>();
+				for (Ticket ticket : playerTickets.get(modID)) {
+					for (Object obj : ticket.getChunkList()) {
+						chunks.add((ChunkCoordIntPair) obj);
+					}
+				}
 
-                for (Ticket ticket : playerTickets.get(modID))
-                {
-                    for (Object obj : ticket.getChunkList())
-                    {
-                        chunks.add((ChunkCoordIntPair) obj);
-                    }
-                }
+				for (ChunkCoordIntPair coords : chunks) {
+					ChatOutputHandler.chatNotification(sender,
+							coords.getCenterXPos() + " : " + coords.getCenterZPosition());
+				}
+			}
+		}
+	}
 
-                for (ChunkCoordIntPair coords : chunks)
-                {
-                    ChatOutputHandler.chatNotification(sender, coords.getCenterXPos() + " : " + coords.getCenterZPosition());
-                }
-            }
-        }
-    }
+	private void list(ICommandSender sender, String key) {
+		for (int i : DimensionManager.getIDs()) {
+			list(sender, i, key);
+		}
+	}
 
-    @Override
-    public boolean canConsoleUseCommand()
-    {
-        return false;
-    }
+	@Override
+	public void processCommandConsole(ICommandSender sender, String[] args) throws CommandException {
+		list(sender, "*");
+	}
 
-    @Override
-    public List<String> addTabCompletionOptions(ICommandSender sender, String[] args, BlockPos pos)
-    {
-        if (args.length == 1)
-        {
-            ArrayList<String> options = new ArrayList<String>();
-            for (String s : MinecraftServer.getServer().getConfigurationManager().getAvailablePlayerDat())
-            {
-                options.add(s);
-            }
-            for (ModContainer mod : Loader.instance().getActiveModList())
-            {
-                options.add(mod.getName());
-            }
+	@Override
+	public void processCommandPlayer(EntityPlayerMP sender, String[] args) throws CommandException {
+		String key = "*";
+		if (args.length != 0) {
+			String target = "";
+			for (String s : args) {
+				target = target + " " + s;
+			}
+			target = target.substring(1).trim();
 
-            return getListOfStringsMatchingLastWord(args, options);
-        }
-        return null;
-    }
+			List<String> allUsernames = Arrays
+					.asList(MinecraftServer.getServer().getConfigurationManager().getAvailablePlayerDat());
+			for (String username : allUsernames) {
+				if (username.equalsIgnoreCase(target)) {
+					key = "p:" + username;
+					break;
+				}
+			}
 
-    @Override
-    public PermissionLevel getPermissionLevel()
-    {
-        return PermissionLevel.OP;
-    }
-
-    @Override
-    public String getCommandUsage(ICommandSender sender)
-    {
-        return "/chunkloaderlist Lists all active chunk loaders.";
-    }
+			for (ModContainer mod : Loader.instance().getActiveModList()) {
+				if (mod.getName().equalsIgnoreCase(target)) {
+					key = "m:" + mod.getModId();
+				} else if (mod.getModId().equalsIgnoreCase(target)) {
+					key = "m:" + mod.getModId();
+				}
+			}
+		}
+		list(sender, key);
+	}
 }

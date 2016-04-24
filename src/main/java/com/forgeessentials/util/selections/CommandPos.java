@@ -1,13 +1,5 @@
 package com.forgeessentials.util.selections;
 
-//Depreciated
-
-import net.minecraft.command.CommandException;
-import net.minecraft.command.ICommandSender;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.util.MovingObjectPosition;
-import net.minecraftforge.permission.PermissionLevel;
-
 import com.forgeessentials.api.APIRegistry;
 import com.forgeessentials.api.UserIdent;
 import com.forgeessentials.commons.selections.Point;
@@ -17,133 +9,117 @@ import com.forgeessentials.core.misc.TranslatedCommandException;
 import com.forgeessentials.util.PlayerUtil;
 import com.forgeessentials.util.output.ChatOutputHandler;
 
-public class CommandPos extends ForgeEssentialsCommandBase
-{
-    private int type;
+//Depreciated
 
-    public CommandPos(int type)
-    {
-        this.type = type;
-    }
+import net.minecraft.command.CommandException;
+import net.minecraft.command.ICommandSender;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.util.MovingObjectPosition;
+import net.minecraftforge.permission.PermissionLevel;
 
-    @Override
-    public String getCommandName()
-    {
-        return "/fepos" + type;
-    }
+public class CommandPos extends ForgeEssentialsCommandBase {
+	private int type;
 
-    @Override
-    public void processCommandPlayer(EntityPlayerMP player, String[] args) throws CommandException
-    {
-        int x, y, z;
+	public CommandPos(int type) {
+		this.type = type;
+	}
 
-        if (args.length == 1)
-        {
-            if (args[0].toLowerCase().equals("here"))
-            {
-                x = (int) player.posX;
-                y = (int) player.posY;
-                z = (int) player.posZ;
+	@Override
+	public boolean canConsoleUseCommand() {
+		return false;
+	}
 
-                if (type == 1)
-                {
-                    SelectionHandler.setStart(player, new Point(x, y, z));
-                }
-                else
-                {
-                    SelectionHandler.setEnd(player, new Point(x, y, z));
-                }
+	@Override
+	public String getCommandName() {
+		return "/fepos" + type;
+	}
 
-                ChatOutputHandler.chatConfirmation(player, "Pos" + type + " set to " + x + ", " + y + ", " + z);
-                return;
+	@Override
+	public String getCommandUsage(ICommandSender sender) {
 
-            }
-            else
-            {
-                throw new TranslatedCommandException(getCommandUsage(player));
-            }
-        }
+		return "/" + getCommandName() + " [<x> <y> <z] or [here] Sets selection positions";
+	}
 
-        if (args.length > 0)
-        {
-            if (args.length < 3)
-            {
-                throw new TranslatedCommandException(getCommandUsage(player));
-            }
+	@Override
+	public PermissionLevel getPermissionLevel() {
+		return PermissionLevel.TRUE;
+	}
 
-            try
-            {
-                x = Integer.parseInt(args[0]);
-                y = Integer.parseInt(args[1]);
-                z = Integer.parseInt(args[2]);
-            }
-            catch (NumberFormatException e)
-            {
-                throw new TranslatedCommandException(getCommandUsage(player));
-            }
+	@Override
+	public String getPermissionNode() {
+		return "fe.core.pos.pos";
+	}
 
-            if (type == 1)
-            {
-                SelectionHandler.setStart(player, new Point(x, y, z));
-            }
-            else
-            {
-                SelectionHandler.setEnd(player, new Point(x, y, z));
-            }
+	@Override
+	public void processCommandPlayer(EntityPlayerMP player, String[] args) throws CommandException {
+		int x, y, z;
 
-            ChatOutputHandler.chatConfirmation(player, "Pos" + type + " set to " + x + ", " + y + ", " + z);
-            return;
-        }
+		if (args.length == 1) {
+			if (args[0].toLowerCase().equals("here")) {
+				x = (int) player.posX;
+				y = (int) player.posY;
+				z = (int) player.posZ;
 
-        MovingObjectPosition mop = PlayerUtil.getPlayerLookingSpot(player);
+				if (type == 1) {
+					SelectionHandler.setStart(player, new Point(x, y, z));
+				} else {
+					SelectionHandler.setEnd(player, new Point(x, y, z));
+				}
 
-        if (mop == null)
-            throw new TranslatedCommandException("You must first look at the ground!");
+				ChatOutputHandler.chatConfirmation(player, "Pos" + type + " set to " + x + ", " + y + ", " + z);
+				return;
 
-        x = mop.getBlockPos().getX();
-        y = mop.getBlockPos().getY();
-        z = mop.getBlockPos().getZ();
+			} else {
+				throw new TranslatedCommandException(getCommandUsage(player));
+			}
+		}
 
-        WorldPoint point = new WorldPoint(player.dimension, x, y, z);
-        if (!APIRegistry.perms.checkUserPermission(UserIdent.get(player), point, getPermissionNode()))
-            throw new TranslatedCommandException("Insufficient permissions.");
+		if (args.length > 0) {
+			if (args.length < 3) {
+				throw new TranslatedCommandException(getCommandUsage(player));
+			}
 
-        if (type == 1)
-        {
-            SelectionHandler.setStart(player, point);
-        }
-        else
-        {
-            SelectionHandler.setEnd(player, point);
-        }
+			try {
+				x = Integer.parseInt(args[0]);
+				y = Integer.parseInt(args[1]);
+				z = Integer.parseInt(args[2]);
+			} catch (NumberFormatException e) {
+				throw new TranslatedCommandException(getCommandUsage(player));
+			}
 
-        ChatOutputHandler.chatConfirmation(player, "Pos" + type + " set to " + x + ", " + y + ", " + z);
-        return;
-    }
+			if (type == 1) {
+				SelectionHandler.setStart(player, new Point(x, y, z));
+			} else {
+				SelectionHandler.setEnd(player, new Point(x, y, z));
+			}
 
-    @Override
-    public String getPermissionNode()
-    {
-        return "fe.core.pos.pos";
-    }
+			ChatOutputHandler.chatConfirmation(player, "Pos" + type + " set to " + x + ", " + y + ", " + z);
+			return;
+		}
 
-    @Override
-    public boolean canConsoleUseCommand()
-    {
-        return false;
-    }
+		MovingObjectPosition mop = PlayerUtil.getPlayerLookingSpot(player);
 
-    @Override
-    public String getCommandUsage(ICommandSender sender)
-    {
+		if (mop == null) {
+			throw new TranslatedCommandException("You must first look at the ground!");
+		}
 
-        return "/" + getCommandName() + " [<x> <y> <z] or [here] Sets selection positions";
-    }
+		x = mop.getBlockPos().getX();
+		y = mop.getBlockPos().getY();
+		z = mop.getBlockPos().getZ();
 
-    @Override
-    public PermissionLevel getPermissionLevel()
-    {
-        return PermissionLevel.TRUE;
-    }
+		WorldPoint point = new WorldPoint(player.dimension, x, y, z);
+		if (!APIRegistry.perms.checkUserPermission(UserIdent.get(player), point, getPermissionNode())) {
+			throw new TranslatedCommandException("Insufficient permissions.");
+		}
+
+		if (type == 1) {
+			SelectionHandler.setStart(player, point);
+		} else {
+			SelectionHandler.setEnd(player, point);
+		}
+
+		ChatOutputHandler.chatConfirmation(player, "Pos" + type + " set to " + x + ", " + y + ", " + z);
+		return;
+	}
 
 }

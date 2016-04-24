@@ -11,93 +11,74 @@ import net.minecraftforge.fml.common.event.FMLServerStoppingEvent;
 import net.minecraftforge.fml.common.event.FMLStateEvent;
 import net.minecraftforge.fml.common.eventhandler.Event;
 
-public class FEModuleEvent extends Event
-{
+public class FEModuleEvent extends Event {
 
-    protected FMLStateEvent event;
+	public static class FEModuleInitEvent extends FEModuleEvent {
+		public FEModuleInitEvent(FMLInitializationEvent event) {
+			this.event = event;
+		}
+	}
 
-    public FMLStateEvent getFMLEvent()
-    {
-        return event;
-    }
+	public static class FEModulePostInitEvent extends FEModuleEvent {
+		private FMLPostInitializationEvent parentEvent;
 
-    public static class FEModulePreInitEvent extends FEModuleEvent
-    {
-        public FEModulePreInitEvent(FMLPreInitializationEvent event)
-        {
-            this.event = event;
-        }
-    }
+		public FEModulePostInitEvent(FMLPostInitializationEvent event) {
+			parentEvent = event;
+		}
 
-    public static class FEModuleInitEvent extends FEModuleEvent
-    {
-        public FEModuleInitEvent(FMLInitializationEvent event)
-        {
-            this.event = event;
-        }
-    }
+		/**
+		 * bouncer for FML event method
+		 *
+		 * @param modId
+		 * @param className
+		 * @return
+		 */
+		public Object buildSoftDependProxy(String modId, String className) {
+			return parentEvent.buildSoftDependProxy(modId, className);
+		}
 
-    public static class FEModulePostInitEvent extends FEModuleEvent
-    {
-        private FMLPostInitializationEvent parentEvent;
+	}
 
-        public FEModulePostInitEvent(FMLPostInitializationEvent event)
-        {
-            this.parentEvent = event;
-        }
+	public static class FEModulePreInitEvent extends FEModuleEvent {
+		public FEModulePreInitEvent(FMLPreInitializationEvent event) {
+			this.event = event;
+		}
+	}
 
-        /**
-         * bouncer for FML event method
-         *
-         * @param modId
-         * @param className
-         * @return
-         */
-        public Object buildSoftDependProxy(String modId, String className)
-        {
-            return parentEvent.buildSoftDependProxy(modId, className);
-        }
+	public static class FEModuleServerInitEvent extends FEModuleEvent {
+		public FEModuleServerInitEvent(FMLServerStartingEvent event) {
+			this.event = event;
+		}
+	}
 
-    }
+	public static class FEModuleServerPostInitEvent extends FEModuleEvent {
+		public FEModuleServerPostInitEvent(FMLServerStartedEvent event) {
+			this.event = event;
+		}
+	}
 
-    public static class FEModuleServerPreInitEvent extends FEModuleEvent
-    {
-        public FEModuleServerPreInitEvent(FMLServerAboutToStartEvent event)
-        {
-            this.event = event;
-        }
-    }
+	public static class FEModuleServerPreInitEvent extends FEModuleEvent {
+		public FEModuleServerPreInitEvent(FMLServerAboutToStartEvent event) {
+			this.event = event;
+		}
+	}
 
-    public static class FEModuleServerInitEvent extends FEModuleEvent
-    {
-        public FEModuleServerInitEvent(FMLServerStartingEvent event)
-        {
-            this.event = event;
-        }
-    }
+	public static class FEModuleServerStopEvent extends FEModuleEvent {
+		public FEModuleServerStopEvent(FMLServerStoppingEvent event) {
+			this.event = event;
+		}
+	}
 
-    public static class FEModuleServerPostInitEvent extends FEModuleEvent
-    {
-        public FEModuleServerPostInitEvent(FMLServerStartedEvent event)
-        {
-            this.event = event;
-        }
-    }
+	public static class FEModuleServerStoppedEvent extends FEModuleEvent {
+		public FEModuleServerStoppedEvent(FMLServerStoppedEvent event) {
+			this.event = event;
+		}
+	}
 
-    public static class FEModuleServerStopEvent extends FEModuleEvent
-    {
-        public FEModuleServerStopEvent(FMLServerStoppingEvent event)
-        {
-            this.event = event;
-        }
-    }
+	protected FMLStateEvent event;
 
-    public static class FEModuleServerStoppedEvent extends FEModuleEvent
-    {
-        public FEModuleServerStoppedEvent(FMLServerStoppedEvent event)
-        {
-            this.event = event;
-        }
-    }
+	public FMLStateEvent getFMLEvent() {
+		return event;
+	}
 
 }

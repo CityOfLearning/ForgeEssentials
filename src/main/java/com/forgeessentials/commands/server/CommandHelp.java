@@ -1,12 +1,20 @@
 package com.forgeessentials.commands.server;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+
+import com.forgeessentials.compat.HelpFixer;
+import com.forgeessentials.core.FEConfig;
+import com.forgeessentials.core.ForgeEssentials;
+import com.forgeessentials.core.commands.ParserCommandBase;
+import com.forgeessentials.core.moduleLauncher.config.ConfigLoader;
+import com.forgeessentials.scripting.ScriptArguments;
+import com.forgeessentials.util.CommandParserArgs;
+import com.forgeessentials.util.output.ChatOutputHandler;
 
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommand;
@@ -21,172 +29,141 @@ import net.minecraft.util.IChatComponent;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.permission.PermissionLevel;
 
-import com.forgeessentials.compat.HelpFixer;
-import com.forgeessentials.core.FEConfig;
-import com.forgeessentials.core.ForgeEssentials;
-import com.forgeessentials.core.commands.ParserCommandBase;
-import com.forgeessentials.core.moduleLauncher.config.ConfigLoader;
-import com.forgeessentials.scripting.ScriptArguments;
-import com.forgeessentials.util.CommandParserArgs;
-import com.forgeessentials.util.output.ChatOutputHandler;
+public class CommandHelp extends ParserCommandBase implements ConfigLoader {
 
-public class CommandHelp extends ParserCommandBase implements ConfigLoader
-{
+	private static final String CONFIG_HELP = "Add custom messages here that will appear when /help is run";
 
-    private static final String CONFIG_HELP = "Add custom messages here that will appear when /help is run";
+	private String[] messages;
 
-    private String[] messages;
+	private HelpFixer fixer;
 
-    private HelpFixer fixer;
+	public CommandHelp() {
+		fixer = new HelpFixer();
+		ForgeEssentials.getConfigManager().registerLoader(ForgeEssentials.getConfigManager().getMainConfigName(), this);
+	}
 
-    public CommandHelp()
-    {
-        fixer = new HelpFixer();
-        ForgeEssentials.getConfigManager().registerLoader(ForgeEssentials.getConfigManager().getMainConfigName(), this);
-    }
+	@Override
+	public boolean canConsoleUseCommand() {
+		return true;
+	}
 
-    @Override
-    public String getCommandName()
-    {
-        return "help";
-    }
+	@Override
+	public String getCommandName() {
+		return "help";
+	}
 
-    @Override
-    public String[] getDefaultAliases()
-    {
-        return new String[] { "?" };
-    }
+	@Override
+	public String getCommandUsage(ICommandSender sender) {
+		return "/help <page|text>: List or search for commands";
+	}
 
-    @Override
-    public String getCommandUsage(ICommandSender sender)
-    {
-        return "/help <page|text>: List or search for commands";
-    }
+	@Override
+	public String[] getDefaultAliases() {
+		return new String[] { "?" };
+	}
 
-    @Override
-    public String getPermissionNode()
-    {
-        return "fe.commands.help";
-    }
+	@Override
+	public PermissionLevel getPermissionLevel() {
+		return PermissionLevel.TRUE;
+	}
 
-    @Override
-    public PermissionLevel getPermissionLevel()
-    {
-        return PermissionLevel.TRUE;
-    }
+	@Override
+	public String getPermissionNode() {
+		return "fe.commands.help";
+	}
 
-    @Override
-    public boolean canConsoleUseCommand()
-    {
-        return true;
-    }
+	protected List<ICommand> getSortedPossibleCommands(ICommandSender sender) {
+		return fixer.getSortedPossibleCommands(sender);
+	}
 
-    @Override
-    @SuppressWarnings("unchecked")
-    public void parse(CommandParserArgs arguments) throws CommandException
-    {
-        if (arguments.isEmpty())
-        {
-            if (arguments.isTabCompletion)
-                return;
-            showHelpPage(arguments.sender);
-        }
-        else
-        {
-            String name = arguments.remove().toLowerCase();
-            try
-            {
-                int page = Integer.parseInt(name);
-                if (arguments.isTabCompletion)
-                    return;
-                showHelpPage(arguments.sender, page);
-            }
-            catch (NumberFormatException e)
-            {
-                if (arguments.isTabCompletion)
-                {
-                    arguments.tabCompletion = MinecraftServer.getServer().getCommandManager().getTabCompletionOptions(arguments.sender, name, BlockPos.ORIGIN);
-                    return;
-                }
+	@Override
+	public void load(Configuration config, boolean isReload) {
+		messages = config.get(FEConfig.CONFIG_CAT, "custom_help", new String[] {}, CONFIG_HELP).getStringList();
+	}
 
-                ICommand command = (ICommand) MinecraftServer.getServer().getCommandManager().getCommands().get(name);
+	@Override
+	@SuppressWarnings("unchecked")
+	public void parse(CommandParserArgs arguments) throws CommandException {
+		if (arguments.isEmpty()) {
+			if (arguments.isTabCompletion) {
+				return;
+			}
+			showHelpPage(arguments.sender);
+		} else {
+			String name = arguments.remove().toLowerCase();
+			try {
+				int page = Integer.parseInt(name);
+				if (arguments.isTabCompletion) {
+					return;
+				}
+				showHelpPage(arguments.sender, page);
+			} catch (NumberFormatException e) {
+				if (arguments.isTabCompletion) {
+					arguments.tabCompletion = MinecraftServer.getServer().getCommandManager()
+							.getTabCompletionOptions(arguments.sender, name, BlockPos.ORIGIN);
+					return;
+				}
 
-                SortedSet<ICommand> results = new TreeSet<ICommand>(new Comparator<ICommand>() {
-                    @Override
-                    public int compare(ICommand a, ICommand b)
-                    {
-                        return a.getCommandName().compareTo(b.getCommandName());
-                    }
-                });
-                Set<Map.Entry<String, ICommand>> commands = MinecraftServer.getServer().getCommandManager().getCommands().entrySet();
-                for (Entry<String, ICommand> cmd : commands)
-                {
-                    String usage = cmd.getValue().getCommandUsage(arguments.sender);
-                    if (cmd.getKey().toLowerCase().contains(name) || (usage != null && usage.contains(name)))
-                        results.add(cmd.getValue());
-                }
+				ICommand command = MinecraftServer.getServer().getCommandManager().getCommands().get(name);
 
-                EnumChatFormatting color = ChatOutputHandler.chatConfirmationColor;
-                if (results.size() > 1 || command == null)
-                    arguments.confirm("Searching commands by \"%s\"", name);
+				SortedSet<ICommand> results = new TreeSet<ICommand>(
+						(a, b) -> a.getCommandName().compareTo(b.getCommandName()));
+				Set<Map.Entry<String, ICommand>> commands = MinecraftServer.getServer().getCommandManager()
+						.getCommands().entrySet();
+				for (Entry<String, ICommand> cmd : commands) {
+					String usage = cmd.getValue().getCommandUsage(arguments.sender);
+					if (cmd.getKey().toLowerCase().contains(name) || ((usage != null) && usage.contains(name))) {
+						results.add(cmd.getValue());
+					}
+				}
 
-                if (command != null)
-                {
-                    sendCommandUsageMessage(arguments.sender, command, color);
-                    results.remove(command);
-                    color = EnumChatFormatting.GRAY;
-                }
+				EnumChatFormatting color = ChatOutputHandler.chatConfirmationColor;
+				if ((results.size() > 1) || (command == null)) {
+					arguments.confirm("Searching commands by \"%s\"", name);
+				}
 
-                int count = command == null ? 0 : 1;
-                for (ICommand cmd : results)
-                {
-                    if (++count > 7)
-                    {
-                        arguments.notify("...too many search results");
-                        break;
-                    }
-                    sendCommandUsageMessage(arguments.sender, cmd, color);
-                }
-            }
-        }
-    }
+				if (command != null) {
+					sendCommandUsageMessage(arguments.sender, command, color);
+					results.remove(command);
+					color = EnumChatFormatting.GRAY;
+				}
 
-    public void sendCommandUsageMessage(ICommandSender sender, ICommand command, EnumChatFormatting color)
-    {
-        IChatComponent chatMsg = new ChatComponentTranslation(command.getCommandUsage(sender));
-        chatMsg.getChatStyle().setColor(color);
-        chatMsg.getChatStyle().setChatClickEvent(new ClickEvent(Action.SUGGEST_COMMAND, "/" + command.getCommandName() + " "));
-        ChatOutputHandler.sendMessage(sender, chatMsg);
-    }
+				int count = command == null ? 0 : 1;
+				for (ICommand cmd : results) {
+					if (++count > 7) {
+						arguments.notify("...too many search results");
+						break;
+					}
+					sendCommandUsageMessage(arguments.sender, cmd, color);
+				}
+			}
+		}
+	}
 
-    public void showHelpPage(ICommandSender sender) throws CommandException
-    {
-        if (messages.length == 0)
-            showHelpPage(sender, 1);
-        for (int i = 0; i < messages.length; i++)
-            ChatOutputHandler.chatConfirmation(sender, ScriptArguments.processSafe(messages[i], sender));
-    }
+	public void sendCommandUsageMessage(ICommandSender sender, ICommand command, EnumChatFormatting color) {
+		IChatComponent chatMsg = new ChatComponentTranslation(command.getCommandUsage(sender));
+		chatMsg.getChatStyle().setColor(color);
+		chatMsg.getChatStyle()
+				.setChatClickEvent(new ClickEvent(Action.SUGGEST_COMMAND, "/" + command.getCommandName() + " "));
+		ChatOutputHandler.sendMessage(sender, chatMsg);
+	}
 
-    public void showHelpPage(ICommandSender sender, int page) throws CommandException
-    {
-        fixer.processCommand(sender, new String[] { Integer.toString(page) });
-    }
+	public void showHelpPage(ICommandSender sender) throws CommandException {
+		if (messages.length == 0) {
+			showHelpPage(sender, 1);
+		}
+		for (int i = 0; i < messages.length; i++) {
+			ChatOutputHandler.chatConfirmation(sender, ScriptArguments.processSafe(messages[i], sender));
+		}
+	}
 
-    protected List<ICommand> getSortedPossibleCommands(ICommandSender sender)
-    {
-        return fixer.getSortedPossibleCommands(sender);
-    }
+	public void showHelpPage(ICommandSender sender, int page) throws CommandException {
+		fixer.processCommand(sender, new String[] { Integer.toString(page) });
+	}
 
-    @Override
-    public void load(Configuration config, boolean isReload)
-    {
-        messages = config.get(FEConfig.CONFIG_CAT, "custom_help", new String[] {}, CONFIG_HELP).getStringList();
-    }
-
-    @Override
-    public boolean supportsCanonicalConfig()
-    {
-        return true;
-    }
+	@Override
+	public boolean supportsCanonicalConfig() {
+		return true;
+	}
 
 }

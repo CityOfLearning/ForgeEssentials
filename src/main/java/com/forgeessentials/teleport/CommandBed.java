@@ -2,6 +2,14 @@ package com.forgeessentials.teleport;
 
 import java.util.List;
 
+import com.forgeessentials.api.UserIdent;
+import com.forgeessentials.commons.selections.WarpPoint;
+import com.forgeessentials.core.commands.ForgeEssentialsCommandBase;
+import com.forgeessentials.core.misc.TeleportHelper;
+import com.forgeessentials.core.misc.TranslatedCommandException;
+import com.forgeessentials.util.PlayerInfo;
+import com.forgeessentials.util.output.LoggingHandler;
+
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
@@ -14,125 +22,101 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.permission.PermissionLevel;
 import net.minecraftforge.permission.PermissionManager;
 
-import com.forgeessentials.api.UserIdent;
-import com.forgeessentials.commons.selections.WarpPoint;
-import com.forgeessentials.core.commands.ForgeEssentialsCommandBase;
-import com.forgeessentials.core.misc.TeleportHelper;
-import com.forgeessentials.core.misc.TranslatedCommandException;
-import com.forgeessentials.util.PlayerInfo;
-import com.forgeessentials.util.output.LoggingHandler;
+public class CommandBed extends ForgeEssentialsCommandBase {
 
-public class CommandBed extends ForgeEssentialsCommandBase
-{
+	public CommandBed() {
+		MinecraftForge.EVENT_BUS.register(this);
+	}
 
-    public CommandBed()
-    {
-        MinecraftForge.EVENT_BUS.register(this);
-    }
+	@Override
+	public List<String> addTabCompletionOptions(ICommandSender sender, String[] args, BlockPos pos) {
+		if (args.length == 1) {
+			return getListOfStringsMatchingLastWord(args,
+					FMLCommonHandler.instance().getMinecraftServerInstance().getAllUsernames());
+		} else {
+			return null;
+		}
+	}
 
-    @Override
-    public String getCommandName()
-    {
-        return "bed";
-    }
+	@Override
+	public boolean canConsoleUseCommand() {
+		return true;
+	}
 
-    @Override
-    public void processCommandPlayer(EntityPlayerMP sender, String[] args) throws CommandException
-    {
-        if (args.length >= 1 && PermissionManager.checkPermission(sender, TeleportModule.PERM_BED_OTHERS))
-        {
-            EntityPlayerMP player = UserIdent.getPlayerByMatchOrUsername(sender, args[0]);
-            if (player != null)
-            {
-                tp(player);
-            }
-            else
-                throw new TranslatedCommandException("Player %s does not exist, or is not online.", args[0]);
-        }
-        else
-        {
-            tp(sender);
-        }
-    }
+	@Override
+	public String getCommandName() {
+		return "bed";
+	}
 
-    private void tp(EntityPlayerMP player) throws CommandException
-    {
-        World world = player.worldObj;
-        if (!world.provider.canRespawnHere())
-            world = DimensionManager.getWorld(0);
+	@Override
+	public String getCommandUsage(ICommandSender sender) {
 
-        BlockPos spawn = player.getBedLocation(world.provider.getDimensionId());
-        if (spawn == null && world.provider.getDimensionId() != 0)
-        {
-            world = DimensionManager.getWorld(0);
-            spawn = player.getBedLocation(world.provider.getDimensionId());
-        }
-        if (spawn == null)
-            throw new TranslatedCommandException("No bed found.");
+		return "/bed [player] Teleport you or another player to the bed last used.";
+	}
 
-        spawn = EntityPlayer.getBedSpawnLocation(player.worldObj, spawn, true);
-        if (spawn == null)
-            throw new TranslatedCommandException("Your bed has been obstructed.");
+	@Override
+	public PermissionLevel getPermissionLevel() {
+		return PermissionLevel.TRUE;
+	}
 
-        try {
+	@Override
+	public String getPermissionNode() {
+		return TeleportModule.PERM_BED;
+	}
+
+	@Override
+	public void processCommandConsole(ICommandSender sender, String[] args) throws CommandException {
+		if (args.length >= 1) {
+			EntityPlayerMP player = UserIdent.getPlayerByMatchOrUsername(sender, args[0]);
+			if (player != null) {
+				tp(player);
+			} else {
+				throw new TranslatedCommandException("Player %s does not exist, or is not online.", args[0]);
+			}
+		}
+	}
+
+	@Override
+	public void processCommandPlayer(EntityPlayerMP sender, String[] args) throws CommandException {
+		if ((args.length >= 1) && PermissionManager.checkPermission(sender, TeleportModule.PERM_BED_OTHERS)) {
+			EntityPlayerMP player = UserIdent.getPlayerByMatchOrUsername(sender, args[0]);
+			if (player != null) {
+				tp(player);
+			} else {
+				throw new TranslatedCommandException("Player %s does not exist, or is not online.", args[0]);
+			}
+		} else {
+			tp(sender);
+		}
+	}
+
+	private void tp(EntityPlayerMP player) throws CommandException {
+		World world = player.worldObj;
+		if (!world.provider.canRespawnHere()) {
+			world = DimensionManager.getWorld(0);
+		}
+
+		BlockPos spawn = player.getBedLocation(world.provider.getDimensionId());
+		if ((spawn == null) && (world.provider.getDimensionId() != 0)) {
+			world = DimensionManager.getWorld(0);
+			spawn = player.getBedLocation(world.provider.getDimensionId());
+		}
+		if (spawn == null) {
+			throw new TranslatedCommandException("No bed found.");
+		}
+
+		spawn = EntityPlayer.getBedSpawnLocation(player.worldObj, spawn, true);
+		if (spawn == null) {
+			throw new TranslatedCommandException("Your bed has been obstructed.");
+		}
+
+		try {
 			PlayerInfo.get(player.getPersistentID()).setLastTeleportOrigin(new WarpPoint(player));
 		} catch (Exception e) {
 			LoggingHandler.felog.error("Error getting player Info");
 		}
-        WarpPoint spawnPoint = new WarpPoint(world.provider.getDimensionId(), spawn, player.rotationPitch, player.rotationYaw);
-        TeleportHelper.teleport(player, spawnPoint);
-    }
-
-    @Override
-    public void processCommandConsole(ICommandSender sender, String[] args) throws CommandException
-    {
-        if (args.length >= 1)
-        {
-            EntityPlayerMP player = UserIdent.getPlayerByMatchOrUsername(sender, args[0]);
-            if (player != null)
-            {
-                tp(player);
-            }
-            else
-                throw new TranslatedCommandException("Player %s does not exist, or is not online.", args[0]);
-        }
-    }
-
-    @Override
-    public boolean canConsoleUseCommand()
-    {
-        return true;
-    }
-
-    @Override
-    public String getPermissionNode()
-    {
-        return TeleportModule.PERM_BED;
-    }
-
-    @Override
-    public List<String> addTabCompletionOptions(ICommandSender sender, String[] args, BlockPos pos)
-    {
-        if (args.length == 1)
-        {
-            return getListOfStringsMatchingLastWord(args, FMLCommonHandler.instance().getMinecraftServerInstance().getAllUsernames());
-        }
-        else
-        {
-            return null;
-        }
-    }
-
-    @Override
-    public PermissionLevel getPermissionLevel()
-    {
-        return PermissionLevel.TRUE;
-    }
-
-    @Override
-    public String getCommandUsage(ICommandSender sender)
-    {
-
-        return "/bed [player] Teleport you or another player to the bed last used.";
-    }
+		WarpPoint spawnPoint = new WarpPoint(world.provider.getDimensionId(), spawn, player.rotationPitch,
+				player.rotationYaw);
+		TeleportHelper.teleport(player, spawnPoint);
+	}
 }

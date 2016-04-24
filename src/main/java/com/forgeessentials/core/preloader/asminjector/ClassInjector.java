@@ -23,186 +23,180 @@ import com.forgeessentials.core.preloader.asminjector.annotation.Inject;
 import com.forgeessentials.core.preloader.asminjector.annotation.Mixin;
 import com.google.common.base.Throwables;
 
-public class ClassInjector
-{
+public class ClassInjector {
 
-    public static final Logger log = LogManager.getLogger("ASM_ClassInjector");
+	public static final Logger log = LogManager.getLogger("ASM_ClassInjector");
 
-    protected ClassNode injectorClass;
+	public static ClassInjector create(String className, boolean useAliases) {
+		try {
+			ClassNode classNode = ASMUtil.loadClassNode(ASMUtil.getClassResourceStream(className));
+			return new ClassInjector(classNode, useAliases);
+		} catch (IOException e) {
+			throw Throwables.propagate(e);
+		}
+	}
 
-    protected List<String> classes;
+	protected ClassNode injectorClass;
 
-    protected Map<String, Set<MethodInjector>> injectors = new HashMap<>();
+	protected List<String> classes;
 
-    /* ------------------------------------------------------------ */
+	/* ------------------------------------------------------------ */
 
-    public ClassInjector(ClassNode classNode, boolean useAliases)
-    {
-        this.injectorClass = classNode;
+	protected Map<String, Set<MethodInjector>> injectors = new HashMap<>();
 
-        AnnotationNode aMain = ASMUtil.getAnnotation(classNode.visibleAnnotations, Type.getDescriptor(Mixin.class));
-        if (aMain == null)
-            throw new IllegalInjectorException("Missing @" + Mixin.class.getSimpleName() + " annotation");
+	public ClassInjector(ClassNode classNode, boolean useAliases) {
+		injectorClass = classNode;
 
-        // Initialize class filter
-        classes = ASMUtil.getAnnotationValue(aMain, "targets");
-        if (classes == null)
-            classes = new ArrayList<>();
+		AnnotationNode aMain = ASMUtil.getAnnotation(classNode.visibleAnnotations, Type.getDescriptor(Mixin.class));
+		if (aMain == null) {
+			throw new IllegalInjectorException("Missing @" + Mixin.class.getSimpleName() + " annotation");
+		}
 
-        // Append typed classes
-        List<Type> classTypes = ASMUtil.getAnnotationValue(aMain, "value");
-        if (classTypes != null)
-            for (Type type : classTypes)
-                classes.add(type.getClassName());
+		// Initialize class filter
+		classes = ASMUtil.getAnnotationValue(aMain, "targets");
+		if (classes == null) {
+			classes = new ArrayList<>();
+		}
 
-        log.info(String.format("Scanning injector class %s", classNode.name));
+		// Append typed classes
+		List<Type> classTypes = ASMUtil.getAnnotationValue(aMain, "value");
+		if (classTypes != null) {
+			for (Type type : classTypes) {
+				classes.add(type.getClassName());
+			}
+		}
 
-        for (MethodNode methodNode : classNode.methods)
-        {
-            AnnotationNode aInject = ASMUtil.getAnnotation(methodNode.visibleAnnotations, Type.getDescriptor(Inject.class));
-            if (aInject == null)
-                continue;
+		log.info(String.format("Scanning injector class %s", classNode.name));
 
-            String injectTarget = ASMUtil.getAnnotationValue(aInject, "target");
-            if (injectTarget == null)
-                throw new RuntimeException("Missing method name");
+		for (MethodNode methodNode : classNode.methods) {
+			AnnotationNode aInject = ASMUtil.getAnnotation(methodNode.visibleAnnotations,
+					Type.getDescriptor(Inject.class));
+			if (aInject == null) {
+				continue;
+			}
 
-            Integer priority = ASMUtil.getAnnotationValue(aInject, "priority");
-            if (priority == null)
-                priority = 0;
+			String injectTarget = ASMUtil.getAnnotationValue(aInject, "target");
+			if (injectTarget == null) {
+				throw new RuntimeException("Missing method name");
+			}
 
-            Map<String, String> aliases;
-            if (useAliases)
-                aliases = ASMUtil.keyValueListToMap(ASMUtil.<List<String>> getAnnotationValue(aInject, "aliases"));
-            else
-                aliases = new HashMap<String, String>();
-            if (useAliases)
-                injectTarget = replaceAliases(injectTarget, aliases);
+			Integer priority = ASMUtil.getAnnotationValue(aInject, "priority");
+			if (priority == null) {
+				priority = 0;
+			}
 
-            log.info(String.format("Found injector method %s => %s", methodNode.name, injectTarget));
+			Map<String, String> aliases;
+			if (useAliases) {
+				aliases = ASMUtil.keyValueListToMap(ASMUtil.<List<String>> getAnnotationValue(aInject, "aliases"));
+			} else {
+				aliases = new HashMap<String, String>();
+			}
+			if (useAliases) {
+				injectTarget = replaceAliases(injectTarget, aliases);
+			}
 
-            List<AnnotationNode> ats = ASMUtil.getAnnotationValue(aInject, "at");
-            List<InjectionPoint> injectionPoints = parseInjectionPoints(ats, aliases);
-            MethodInjector injector = new MethodInjector(injectorClass, methodNode, injectionPoints, priority);
-            registerInjector(injectTarget, injector);
-        }
-    }
+			log.info(String.format("Found injector method %s => %s", methodNode.name, injectTarget));
 
-    private List<InjectionPoint> parseInjectionPoints(List<AnnotationNode> annotations, Map<String, String> aliases)
-    {
-        List<InjectionPoint> injectionPoints = new ArrayList<>();
-        for (AnnotationNode annotation : annotations)
-        {
-            String type = ASMUtil.getAnnotationValue(annotation, "value");
-            String target = replaceAliases(ASMUtil.<String> getAnnotationValue(annotation, "target"), aliases);
-            Shift shift = Shift.fromAnnotation(ASMUtil.<String[]> getAnnotationValue(annotation, "shift"));
-            Integer by = ASMUtil.getAnnotationValue(annotation, "by");
-            Integer ordinal = ASMUtil.getAnnotationValue(annotation, "ordinal");
-            InjectionPoint ip = InjectionPoint.parse(type, target, shift, by, ordinal);
-            injectionPoints.add(ip);
-        }
-        return injectionPoints;
-    }
+			List<AnnotationNode> ats = ASMUtil.getAnnotationValue(aInject, "at");
+			List<InjectionPoint> injectionPoints = parseInjectionPoints(ats, aliases);
+			MethodInjector injector = new MethodInjector(injectorClass, methodNode, injectionPoints, priority);
+			registerInjector(injectTarget, injector);
+		}
+	}
 
-    private String replaceAliases(String value, Map<String, String> aliases)
-    {
-        if (value == null)
-            return null;
-        for (Entry<String, String> alias : aliases.entrySet())
-            value = value.replace(alias.getKey(), alias.getValue());
-        return value;
-    }
+	public Set<MethodInjector> getInjectors(String method, String desc) {
+		return injectors.get(method + desc);
+	}
 
-    public static ClassInjector create(String className, boolean useAliases)
-    {
-        try
-        {
-            ClassNode classNode = ASMUtil.loadClassNode(ASMUtil.getClassResourceStream(className));
-            return new ClassInjector(classNode, useAliases);
-        }
-        catch (IOException e)
-        {
-            throw Throwables.propagate(e);
-        }
-    }
+	public boolean handles(String className) {
+		String normalizedName = ASMUtil.javaName(className);
+		for (String cls : classes) {
+			if (cls.equals("*")) {
+				return true;
+			}
+			if (normalizedName.equals(cls)) {
+				return true;
+			}
+		}
+		return false;
+	}
 
-    /* ------------------------------------------------------------ */
+	/* ------------------------------------------------------------ */
 
-    protected void registerInjector(String target, MethodInjector injector)
-    {
-        Set<MethodInjector> lst = injectors.get(target);
-        if (lst == null)
-        {
-            lst = new TreeSet<>();
-            injectors.put(target, lst);
-        }
-        lst.add(injector);
-    }
+	public boolean inject(ClassNode target) {
+		if (!handles(target.name)) {
+			return false;
+		}
 
-    public Set<MethodInjector> getInjectors(String method, String desc)
-    {
-        return injectors.get(method + desc);
-    }
+		boolean genericInject = classes.contains("*");
+		if (!genericInject) {
+			log.info(String.format("Starting injection into %s", ASMUtil.javaName(target.name)));
+		}
 
-    /* ------------------------------------------------------------ */
+		Set<String> processedInjectors = new HashSet<>();
 
-    public boolean inject(ClassNode target)
-    {
-        if (!handles(target.name))
-            return false;
+		boolean modified = false;
+		for (MethodNode method : target.methods) {
+			Set<MethodInjector> injectors = getInjectors(method.name, method.desc);
+			if ((injectors != null) && !injectors.isEmpty()) {
+				processedInjectors.add(method.name + method.desc);
+				for (MethodInjector injector : injectors) {
+					modified |= injector.inject(target, method);
+				}
+			}
+		}
 
-        boolean genericInject = classes.contains("*");
-        if (!genericInject)
-            log.info(String.format("Starting injection into %s", ASMUtil.javaName(target.name)));
+		if (!genericInject || modified) {
+			boolean error = false;
+			for (Entry<String, Set<MethodInjector>> injector : injectors.entrySet()) {
+				if (!processedInjectors.contains(injector.getKey())) {
+					error = true;
+					log.warn(String.format("Did not find target method %s", injector.getKey()));
+				}
+			}
+			if (error) {
+				log.warn(String.format("Methods in %s", ASMUtil.javaName(target.name)));
+				for (MethodNode method : target.methods) {
+					log.warn(String.format("> %s%s", method.name, method.desc));
+				}
+			}
+		}
+		return modified;
+	}
 
-        Set<String> processedInjectors = new HashSet<>();
+	private List<InjectionPoint> parseInjectionPoints(List<AnnotationNode> annotations, Map<String, String> aliases) {
+		List<InjectionPoint> injectionPoints = new ArrayList<>();
+		for (AnnotationNode annotation : annotations) {
+			String type = ASMUtil.getAnnotationValue(annotation, "value");
+			String target = replaceAliases(ASMUtil.<String> getAnnotationValue(annotation, "target"), aliases);
+			Shift shift = Shift.fromAnnotation(ASMUtil.<String[]> getAnnotationValue(annotation, "shift"));
+			Integer by = ASMUtil.getAnnotationValue(annotation, "by");
+			Integer ordinal = ASMUtil.getAnnotationValue(annotation, "ordinal");
+			InjectionPoint ip = InjectionPoint.parse(type, target, shift, by, ordinal);
+			injectionPoints.add(ip);
+		}
+		return injectionPoints;
+	}
 
-        boolean modified = false;
-        for (MethodNode method : target.methods)
-        {
-            Set<MethodInjector> injectors = getInjectors(method.name, method.desc);
-            if (injectors != null && !injectors.isEmpty())
-            {
-                processedInjectors.add(method.name + method.desc);
-                for (MethodInjector injector : injectors)
-                {
-                    modified |= injector.inject(target, method);
-                }
-            }
-        }
+	/* ------------------------------------------------------------ */
 
-        if (!genericInject || modified)
-        {
-            boolean error = false;
-            for (Entry<String, Set<MethodInjector>> injector : injectors.entrySet())
-            {
-                if (!processedInjectors.contains(injector.getKey()))
-                {
-                    error = true;
-                    log.warn(String.format("Did not find target method %s", injector.getKey()));
-                }
-            }
-            if (error)
-            {
-                log.warn(String.format("Methods in %s", ASMUtil.javaName(target.name)));
-                for (MethodNode method : target.methods)
-                    log.warn(String.format("> %s%s", method.name, method.desc));
-            }
-        }
-        return modified;
-    }
+	protected void registerInjector(String target, MethodInjector injector) {
+		Set<MethodInjector> lst = injectors.get(target);
+		if (lst == null) {
+			lst = new TreeSet<>();
+			injectors.put(target, lst);
+		}
+		lst.add(injector);
+	}
 
-    public boolean handles(String className)
-    {
-        String normalizedName = ASMUtil.javaName(className);
-        for (String cls : classes)
-        {
-            if (cls.equals("*"))
-                return true;
-            if (normalizedName.equals(cls))
-                return true;
-        }
-        return false;
-    }
+	private String replaceAliases(String value, Map<String, String> aliases) {
+		if (value == null) {
+			return null;
+		}
+		for (Entry<String, String> alias : aliases.entrySet()) {
+			value = value.replace(alias.getKey(), alias.getValue());
+		}
+		return value;
+	}
 
 }

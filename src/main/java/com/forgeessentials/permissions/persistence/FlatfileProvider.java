@@ -32,399 +32,346 @@ import com.forgeessentials.permissions.core.ZonePersistenceProvider;
 import com.forgeessentials.util.ServerUtil;
 import com.forgeessentials.util.output.LoggingHandler;
 
-public class FlatfileProvider extends ZonePersistenceProvider
-{
+public class FlatfileProvider extends ZonePersistenceProvider {
 
-    public static final String PERMISSION_FILE_EXT = ".txt";
+	public static class SortedPermisssionProperties extends Properties {
+		private static final long serialVersionUID = 1L;
 
-    private File basePath;
+		@Override
+		public synchronized Enumeration<Object> keys() {
+			TreeSet<Object> keys = new TreeSet<Object>(Zone.permissionComparator);
+			keys.addAll(super.keySet());
+			return Collections.enumeration(keys);
+		}
+	}
 
-    public static final FileFilter permissionFilter = new FileFilters.Extension(PERMISSION_FILE_EXT);
+	public static final String PERMISSION_FILE_EXT = ".txt";
 
-    public static final FileFilter directoryFilter = new FileFilters.Directory();
+	public static final FileFilter permissionFilter = new FileFilters.Extension(PERMISSION_FILE_EXT);
 
-    public static class SortedPermisssionProperties extends Properties
-    {
-        private static final long serialVersionUID = 1L;
+	public static final FileFilter directoryFilter = new FileFilters.Directory();
 
-        @Override
-        public synchronized Enumeration<Object> keys()
-        {
-            TreeSet<Object> keys = new TreeSet<Object>(Zone.permissionComparator);
-            keys.addAll(super.keySet());
-            return Collections.enumeration(keys);
-        }
-    }
+	public static final String COMMENT_INFO = "\nDO NOT MODIFY OR REMOVE fe.internal PERMISSIONS UNLESS YOU KNOW WHAT YOU DO!"
+			+ "\nAfter you modified permissions in this file, remember to directly run \"/feperm reload\", or the changes get overwritten next time permissions are saved by the server.";
 
-    public static final String COMMENT_INFO = "\nDO NOT MODIFY OR REMOVE fe.internal PERMISSIONS UNLESS YOU KNOW WHAT YOU DO!"
-            + "\nAfter you modified permissions in this file, remember to directly run \"/feperm reload\", or the changes get overwritten next time permissions are saved by the server.";
+	public static void deleteDirectory(File dir) {
+		try {
+			if (dir.exists()) {
+				FileUtils.deleteDirectory(dir);
+			}
+		} catch (IOException e) {
+			/* do nothing */
+		}
+	}
 
-    // ------------------------------------------------------------
+	// ------------------------------------------------------------
 
-    public FlatfileProvider()
-    {
-        this.basePath = new File(ServerUtil.getWorldPath(), "FEData/permissions");
-    }
+	public static void loadZonePermissions(File path, Zone zone) {
+		File playersPath = new File(path, "players");
+		File groupsPath = new File(path, "groups");
 
-    public FlatfileProvider(File path)
-    {
-        this.basePath = path;
-    }
+		if (playersPath.exists()) {
+			for (File file : playersPath.listFiles(permissionFilter)) {
+				Properties p = new Properties();
+				try (InputStream is = new BufferedInputStream(new FileInputStream(file))) {
+					p.load(is);
+				} catch (IOException e) {
+					LoggingHandler.felog.error("Error reading permissions from " + path.getAbsolutePath());
+					continue;
+				}
 
-    // ------------------------------------------------------------
-    // -- Saving
-    // ------------------------------------------------------------
+				// Get player
+				String username = p.getProperty(FEPermissions.PLAYER_NAME);
+				String uuid = p.getProperty(FEPermissions.PLAYER_UUID);
+				p.remove(FEPermissions.PLAYER_NAME);
+				p.remove(FEPermissions.PLAYER_UUID);
+				if ((username == null) && (uuid == null)) {
+					LoggingHandler.felog.error("User identification missing in " + path.getAbsolutePath());
+					continue;
+				}
+				UserIdent ident = UserIdent.get(uuid, username);
 
-    public static void deleteDirectory(File dir)
-    {
-        try
-        {
-            if (dir.exists())
-                FileUtils.deleteDirectory(dir);
-        }
-        catch (IOException e)
-        {
-            /* do nothing */
-        }
-    }
+				// Load permissions
+				PermissionList permissions = zone.getOrCreatePlayerPermissions(ident);
+				for (Entry<?, ?> permission : p.entrySet()) {
+					permissions.put((String) permission.getKey(), (String) permission.getValue());
+				}
+			}
 
-    @Override
-    public void save(ServerZone serverZone)
-    {
-        File path = basePath;
-        deleteDirectory(path);
+		}
 
-        writeUserGroupPermissions(serverZone);
+		if (groupsPath.exists()) {
+			for (File file : groupsPath.listFiles(permissionFilter)) {
+				Properties p = new Properties();
+				try (InputStream is = new BufferedInputStream(new FileInputStream(file))) {
+					p.load(is);
+				} catch (IOException e) {
+					LoggingHandler.felog.error("Error reading permissions from " + path.getAbsolutePath());
+					continue;
+				}
 
-        saveServerZone(path, serverZone);
-        saveZonePermissions(path, serverZone);
-        for (WorldZone worldZone : serverZone.getWorldZones().values())
-        {
-            File worldPath = new File(path, worldZone.getName());
-            saveWorldZone(worldPath, worldZone);
-            saveZonePermissions(worldPath, worldZone);
-            for (AreaZone areaZone : worldZone.getAreaZones())
-            {
-                File areaPath = new File(worldPath, areaZone.getName());
-                saveAreaZone(areaPath, areaZone);
-                saveZonePermissions(areaPath, areaZone);
-            }
-        }
-    }
+				// Get group
+				String groupName = file.getName().substring(0, file.getName().length() - PERMISSION_FILE_EXT.length());
 
-    public static void saveServerZone(File path, ServerZone serverZone)
-    {
-        // Store zone information
-        path.mkdirs();
+				// Load permissions
+				PermissionList permissions = zone.getOrCreateGroupPermissions(groupName);
+				for (Entry<?, ?> permission : p.entrySet()) {
+					permissions.put((String) permission.getKey(), (String) permission.getValue());
+				}
+			}
 
-        Properties p = new Properties();
+		}
+	}
 
-        p.setProperty("id", Integer.toString(serverZone.getId()));
-        p.setProperty("maxZoneId", Integer.toString(serverZone.getMaxZoneID()));
+	public static Properties permissionListToProperties(PermissionList list) {
+		Properties p = new SortedPermisssionProperties();
+		for (Entry<String, String> permission : list.entrySet()) {
+			p.setProperty(permission.getKey(), permission.getValue() != null ? permission.getValue() : "");
+		}
+		return p;
+	}
 
-        try (OutputStream os = new BufferedOutputStream(new FileOutputStream(new File(path, "server.xml"))))
-        {
-            p.storeToXML(os, "Data of server");
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
-    }
+	// ------------------------------------------------------------
+	// -- Saving
+	// ------------------------------------------------------------
 
-    public static void saveWorldZone(File path, WorldZone worldZone)
-    {
-        path.mkdirs();
+	public static void saveAreaZone(File path, AreaZone areaZone) {
+		path.mkdirs();
 
-        Properties p = new Properties();
+		Properties p = new Properties();
 
-        p.setProperty("id", Integer.toString(worldZone.getId()));
-        p.setProperty("dimId", Integer.toString(worldZone.getDimensionID()));
+		p.setProperty("id", Integer.toString(areaZone.getId()));
+		p.setProperty("name", areaZone.getName());
+		p.setProperty("x1", Integer.toString(areaZone.getArea().getLowPoint().getX()));
+		p.setProperty("y1", Integer.toString(areaZone.getArea().getLowPoint().getY()));
+		p.setProperty("z1", Integer.toString(areaZone.getArea().getLowPoint().getZ()));
+		p.setProperty("x2", Integer.toString(areaZone.getArea().getHighPoint().getX()));
+		p.setProperty("y2", Integer.toString(areaZone.getArea().getHighPoint().getY()));
+		p.setProperty("z2", Integer.toString(areaZone.getArea().getHighPoint().getZ()));
+		p.setProperty("shape", areaZone.getShape().toString());
 
-        try (OutputStream os = new BufferedOutputStream(new FileOutputStream(new File(path, "world.xml"))))
-        {
-            p.storeToXML(os, "Data of world " + worldZone.getName());
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
-    }
+		try (OutputStream os = new BufferedOutputStream(new FileOutputStream(new File(path, "area.xml")))) {
+			p.storeToXML(os, "Data of area " + areaZone.getName());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 
-    public static void saveAreaZone(File path, AreaZone areaZone)
-    {
-        path.mkdirs();
+	public static void saveProperties(Properties properties, File path, String filename, String comment) {
+		path.mkdirs();
+		try (OutputStream os = new BufferedOutputStream(new FileOutputStream(new File(path, filename)))) {
+			properties.store(os, comment);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 
-        Properties p = new Properties();
+	public static void saveServerZone(File path, ServerZone serverZone) {
+		// Store zone information
+		path.mkdirs();
 
-        p.setProperty("id", Integer.toString(areaZone.getId()));
-        p.setProperty("name", areaZone.getName());
-        p.setProperty("x1", Integer.toString(areaZone.getArea().getLowPoint().getX()));
-        p.setProperty("y1", Integer.toString(areaZone.getArea().getLowPoint().getY()));
-        p.setProperty("z1", Integer.toString(areaZone.getArea().getLowPoint().getZ()));
-        p.setProperty("x2", Integer.toString(areaZone.getArea().getHighPoint().getX()));
-        p.setProperty("y2", Integer.toString(areaZone.getArea().getHighPoint().getY()));
-        p.setProperty("z2", Integer.toString(areaZone.getArea().getHighPoint().getZ()));
-        p.setProperty("shape", areaZone.getShape().toString());
+		Properties p = new Properties();
 
-        try (OutputStream os = new BufferedOutputStream(new FileOutputStream(new File(path, "area.xml"))))
-        {
-            p.storeToXML(os, "Data of area " + areaZone.getName());
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
-    }
+		p.setProperty("id", Integer.toString(serverZone.getId()));
+		p.setProperty("maxZoneId", Integer.toString(serverZone.getMaxZoneID()));
 
-    public static void saveZonePermissions(File path, Zone zone)
-    {
-        File playersPath = new File(path, "players");
-        File groupsPath = new File(path, "groups");
-        for (Entry<UserIdent, PermissionList> entry : zone.getPlayerPermissions().entrySet())
-        {
-            // Get filename and info
-            String username = entry.getKey().getUsername() == null ? entry.getKey().getUuid().toString() : entry.getKey().getUsername();
-            UUID uuid = entry.getKey().getUuid();
-            String filename = username == null ? uuid.toString() : username;
-            String comment = "Permissions for user " + (username != null ? username : "<unknown-username>") + " with UUID "
-                    + (uuid != null ? uuid.toString() : "<unknown-uuid>") + COMMENT_INFO;
-            filename = filename.replaceAll("[^a-zA-Z0-9\\.\\-]", "_");
+		try (OutputStream os = new BufferedOutputStream(new FileOutputStream(new File(path, "server.xml")))) {
+			p.storeToXML(os, "Data of server");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 
-            // prevent overwriting files with same playername
-            while (new File(playersPath, filename + PERMISSION_FILE_EXT).exists())
-                filename = filename + "_";
+	public static void saveWorldZone(File path, WorldZone worldZone) {
+		path.mkdirs();
 
-            // Save permissions
-            Properties p = permissionListToProperties(entry.getValue());
-            if (entry.getKey().getUsername() != null)
-                p.setProperty(FEPermissions.PLAYER_NAME, entry.getKey().getUsername());
-            if (entry.getKey().getUuid() != null)
-                p.setProperty(FEPermissions.PLAYER_UUID, entry.getKey().getUuid().toString());
-            saveProperties(p, playersPath, filename + PERMISSION_FILE_EXT, comment);
-        }
-        for (Entry<String, PermissionList> entry : zone.getGroupPermissions().entrySet())
-        {
-            // Get filename and info
-            String comment = "Permissions for group " + entry.getKey() + COMMENT_INFO;
+		Properties p = new Properties();
 
-            // Save permissions
-            Properties p = permissionListToProperties(entry.getValue());
-            saveProperties(p, groupsPath, entry.getKey() + PERMISSION_FILE_EXT, comment);
-        }
-    }
+		p.setProperty("id", Integer.toString(worldZone.getId()));
+		p.setProperty("dimId", Integer.toString(worldZone.getDimensionID()));
 
-    public static Properties permissionListToProperties(PermissionList list)
-    {
-        Properties p = new SortedPermisssionProperties();
-        for (Entry<String, String> permission : list.entrySet())
-            p.setProperty(permission.getKey(), permission.getValue() != null ? permission.getValue() : "");
-        return p;
-    }
+		try (OutputStream os = new BufferedOutputStream(new FileOutputStream(new File(path, "world.xml")))) {
+			p.storeToXML(os, "Data of world " + worldZone.getName());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 
-    public static void saveProperties(Properties properties, File path, String filename, String comment)
-    {
-        path.mkdirs();
-        try (OutputStream os = new BufferedOutputStream(new FileOutputStream(new File(path, filename))))
-        {
-            properties.store(os, comment);
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
-    }
+	public static void saveZonePermissions(File path, Zone zone) {
+		File playersPath = new File(path, "players");
+		File groupsPath = new File(path, "groups");
+		for (Entry<UserIdent, PermissionList> entry : zone.getPlayerPermissions().entrySet()) {
+			// Get filename and info
+			String username = entry.getKey().getUsername() == null ? entry.getKey().getUuid().toString()
+					: entry.getKey().getUsername();
+			UUID uuid = entry.getKey().getUuid();
+			String filename = username == null ? uuid.toString() : username;
+			String comment = "Permissions for user " + (username != null ? username : "<unknown-username>")
+					+ " with UUID " + (uuid != null ? uuid.toString() : "<unknown-uuid>") + COMMENT_INFO;
+			filename = filename.replaceAll("[^a-zA-Z0-9\\.\\-]", "_");
 
-    // ------------------------------------------------------------
+			// prevent overwriting files with same playername
+			while (new File(playersPath, filename + PERMISSION_FILE_EXT).exists()) {
+				filename = filename + "_";
+			}
 
-    // ------------------------------------------------------------
-    // -- Loading
-    // ------------------------------------------------------------
+			// Save permissions
+			Properties p = permissionListToProperties(entry.getValue());
+			if (entry.getKey().getUsername() != null) {
+				p.setProperty(FEPermissions.PLAYER_NAME, entry.getKey().getUsername());
+			}
+			if (entry.getKey().getUuid() != null) {
+				p.setProperty(FEPermissions.PLAYER_UUID, entry.getKey().getUuid().toString());
+			}
+			saveProperties(p, playersPath, filename + PERMISSION_FILE_EXT, comment);
+		}
+		for (Entry<String, PermissionList> entry : zone.getGroupPermissions().entrySet()) {
+			// Get filename and info
+			String comment = "Permissions for group " + entry.getKey() + COMMENT_INFO;
 
-    @Override
-    public ServerZone load()
-    {
-        File path = basePath;
-        try
-        {
-            // Create ServerZone and load permissions
-            ServerZone serverZone = new ServerZone();
-            loadZonePermissions(path, serverZone);
+			// Save permissions
+			Properties p = permissionListToProperties(entry.getValue());
+			saveProperties(p, groupsPath, entry.getKey() + PERMISSION_FILE_EXT, comment);
+		}
+	}
 
-            readUserGroupPermissions(serverZone);
+	private File basePath;
 
-            int maxId = 2;
+	public FlatfileProvider() {
+		basePath = new File(ServerUtil.getWorldPath(), "FEData/permissions");
+	}
 
-            File[] worldDirs = path.listFiles(directoryFilter);
-            if (worldDirs == null)
-            {
-                LoggingHandler.felog.error("Error loading permissions: invalid path");
-                return null;
-            }
-            for (File worldPath : worldDirs)
-            {
-                File worldFile = new File(worldPath, "world.xml");
-                if (!worldFile.exists())
-                    continue;
-                Properties worldProperties = new Properties();
-                try (InputStream is = new BufferedInputStream(new FileInputStream(worldFile)))
-                {
-                    worldProperties.loadFromXML(is);
-                }
-                catch (NumberFormatException | IOException e)
-                {
-                    LoggingHandler.felog.error("Error reading world " + worldPath.getName());
-                    continue;
-                }
+	public FlatfileProvider(File path) {
+		basePath = path;
+	}
 
-                // Read world data
-                int worldId = Integer.parseInt(worldProperties.getProperty("id"));
-                maxId = Math.max(maxId, worldId);
+	// ------------------------------------------------------------
 
-                int dimensionID = Integer.parseInt(worldProperties.getProperty("dimId"));
+	// ------------------------------------------------------------
+	// -- Loading
+	// ------------------------------------------------------------
 
-                // Create WorldZone and load permissions
-                WorldZone worldZone = new WorldZone(serverZone, dimensionID, worldId);
-                loadZonePermissions(worldPath, worldZone);
+	@Override
+	public ServerZone load() {
+		File path = basePath;
+		try {
+			// Create ServerZone and load permissions
+			ServerZone serverZone = new ServerZone();
+			loadZonePermissions(path, serverZone);
 
-                for (File areaPath : worldPath.listFiles(directoryFilter))
-                {
-                    File areaFile = new File(areaPath, "area.xml");
-                    if (!areaFile.exists())
-                        continue;
-                    Properties areaProperties = new Properties();
-                    try (InputStream is = new BufferedInputStream(new FileInputStream(areaFile)))
-                    {
-                        areaProperties.loadFromXML(is);
-                    }
-                    catch (NumberFormatException | IOException e)
-                    {
-                        LoggingHandler.felog.error("Error reading area " + worldPath.getName() + "/" + areaPath.getName());
-                        continue;
-                    }
+			readUserGroupPermissions(serverZone);
 
-                    // Read area data
-                    int areaId = Integer.parseInt(areaProperties.getProperty("id"));
-                    maxId = Math.max(maxId, areaId);
+			int maxId = 2;
 
-                    String name = areaProperties.getProperty("name");
-                    int x1 = Integer.parseInt(areaProperties.getProperty("x1"));
-                    int y1 = Integer.parseInt(areaProperties.getProperty("y1"));
-                    int z1 = Integer.parseInt(areaProperties.getProperty("z1"));
-                    int x2 = Integer.parseInt(areaProperties.getProperty("x2"));
-                    int y2 = Integer.parseInt(areaProperties.getProperty("y2"));
-                    int z2 = Integer.parseInt(areaProperties.getProperty("z2"));
-                    AreaShape shape = AreaShape.getByName(areaProperties.getProperty("shape"));
-                    if (name == null)
-                        throw new IllegalArgumentException();
+			File[] worldDirs = path.listFiles(directoryFilter);
+			if (worldDirs == null) {
+				LoggingHandler.felog.error("Error loading permissions: invalid path");
+				return null;
+			}
+			for (File worldPath : worldDirs) {
+				File worldFile = new File(worldPath, "world.xml");
+				if (!worldFile.exists()) {
+					continue;
+				}
+				Properties worldProperties = new Properties();
+				try (InputStream is = new BufferedInputStream(new FileInputStream(worldFile))) {
+					worldProperties.loadFromXML(is);
+				} catch (NumberFormatException | IOException e) {
+					LoggingHandler.felog.error("Error reading world " + worldPath.getName());
+					continue;
+				}
 
-                    // Create AreaZone and load permissions
-                    AreaZone areaZone = new AreaZone(worldZone, name, new AreaBase(new Point(x1, y1, z1), new Point(x2, y2, z2)), areaId);
-                    if (shape != null)
-                        areaZone.setShape(shape);
-                    loadZonePermissions(areaPath, areaZone);
-                }
-            }
+				// Read world data
+				int worldId = Integer.parseInt(worldProperties.getProperty("id"));
+				maxId = Math.max(maxId, worldId);
 
-            File serverFile = new File(path, "server.xml");
-            if (serverFile.exists())
-            {
-                try
-                {
-                    Properties serverProperties = new Properties();
-                    serverProperties.loadFromXML(new BufferedInputStream(new FileInputStream(serverFile)));
-                    serverZone.setMaxZoneId(Integer.parseInt(serverProperties.getProperty("maxZoneId")));
-                }
-                catch (IllegalArgumentException | IOException e)
-                {
-                    LoggingHandler.felog.error("Error reading server data " + serverFile.getName());
-                    serverZone.setMaxZoneId(maxId);
-                }
-            }
-            else
-            {
-                serverZone.setMaxZoneId(maxId);
-            }
+				int dimensionID = Integer.parseInt(worldProperties.getProperty("dimId"));
 
-            return serverZone;
-        }
-        catch (Exception e)
-        {
-            LoggingHandler.felog.error("Error loading permissions");
-            e.printStackTrace();
-            return null;
-        }
-    }
+				// Create WorldZone and load permissions
+				WorldZone worldZone = new WorldZone(serverZone, dimensionID, worldId);
+				loadZonePermissions(worldPath, worldZone);
 
-    public static void loadZonePermissions(File path, Zone zone)
-    {
-        File playersPath = new File(path, "players");
-        File groupsPath = new File(path, "groups");
+				for (File areaPath : worldPath.listFiles(directoryFilter)) {
+					File areaFile = new File(areaPath, "area.xml");
+					if (!areaFile.exists()) {
+						continue;
+					}
+					Properties areaProperties = new Properties();
+					try (InputStream is = new BufferedInputStream(new FileInputStream(areaFile))) {
+						areaProperties.loadFromXML(is);
+					} catch (NumberFormatException | IOException e) {
+						LoggingHandler.felog
+								.error("Error reading area " + worldPath.getName() + "/" + areaPath.getName());
+						continue;
+					}
 
-        if (playersPath.exists())
-        {
-            for (File file : playersPath.listFiles(permissionFilter))
-            {
-                Properties p = new Properties();
-                try (InputStream is = new BufferedInputStream(new FileInputStream(file)))
-                {
-                    p.load(is);
-                }
-                catch (IOException e)
-                {
-                    LoggingHandler.felog.error("Error reading permissions from " + path.getAbsolutePath());
-                    continue;
-                }
+					// Read area data
+					int areaId = Integer.parseInt(areaProperties.getProperty("id"));
+					maxId = Math.max(maxId, areaId);
 
-                // Get player
-                String username = p.getProperty(FEPermissions.PLAYER_NAME);
-                String uuid = p.getProperty(FEPermissions.PLAYER_UUID);
-                p.remove(FEPermissions.PLAYER_NAME);
-                p.remove(FEPermissions.PLAYER_UUID);
-                if (username == null && uuid == null)
-                {
-                    LoggingHandler.felog.error("User identification missing in " + path.getAbsolutePath());
-                    continue;
-                }
-                UserIdent ident = UserIdent.get(uuid, username);
+					String name = areaProperties.getProperty("name");
+					int x1 = Integer.parseInt(areaProperties.getProperty("x1"));
+					int y1 = Integer.parseInt(areaProperties.getProperty("y1"));
+					int z1 = Integer.parseInt(areaProperties.getProperty("z1"));
+					int x2 = Integer.parseInt(areaProperties.getProperty("x2"));
+					int y2 = Integer.parseInt(areaProperties.getProperty("y2"));
+					int z2 = Integer.parseInt(areaProperties.getProperty("z2"));
+					AreaShape shape = AreaShape.getByName(areaProperties.getProperty("shape"));
+					if (name == null) {
+						throw new IllegalArgumentException();
+					}
 
-                // Load permissions
-                PermissionList permissions = zone.getOrCreatePlayerPermissions(ident);
-                for (Entry<?, ?> permission : p.entrySet())
-                {
-                    permissions.put((String) permission.getKey(), (String) permission.getValue());
-                }
-            }
+					// Create AreaZone and load permissions
+					AreaZone areaZone = new AreaZone(worldZone, name,
+							new AreaBase(new Point(x1, y1, z1), new Point(x2, y2, z2)), areaId);
+					if (shape != null) {
+						areaZone.setShape(shape);
+					}
+					loadZonePermissions(areaPath, areaZone);
+				}
+			}
 
-        }
+			File serverFile = new File(path, "server.xml");
+			if (serverFile.exists()) {
+				try {
+					Properties serverProperties = new Properties();
+					serverProperties.loadFromXML(new BufferedInputStream(new FileInputStream(serverFile)));
+					serverZone.setMaxZoneId(Integer.parseInt(serverProperties.getProperty("maxZoneId")));
+				} catch (IllegalArgumentException | IOException e) {
+					LoggingHandler.felog.error("Error reading server data " + serverFile.getName());
+					serverZone.setMaxZoneId(maxId);
+				}
+			} else {
+				serverZone.setMaxZoneId(maxId);
+			}
 
-        if (groupsPath.exists())
-        {
-            for (File file : groupsPath.listFiles(permissionFilter))
-            {
-                Properties p = new Properties();
-                try (InputStream is = new BufferedInputStream(new FileInputStream(file)))
-                {
-                    p.load(is);
-                }
-                catch (IOException e)
-                {
-                    LoggingHandler.felog.error("Error reading permissions from " + path.getAbsolutePath());
-                    continue;
-                }
+			return serverZone;
+		} catch (Exception e) {
+			LoggingHandler.felog.error("Error loading permissions");
+			e.printStackTrace();
+			return null;
+		}
+	}
 
-                // Get group
-                String groupName = file.getName().substring(0, file.getName().length() - PERMISSION_FILE_EXT.length());
+	@Override
+	public void save(ServerZone serverZone) {
+		File path = basePath;
+		deleteDirectory(path);
 
-                // Load permissions
-                PermissionList permissions = zone.getOrCreateGroupPermissions(groupName);
-                for (Entry<?, ?> permission : p.entrySet())
-                {
-                    permissions.put((String) permission.getKey(), (String) permission.getValue());
-                }
-            }
+		writeUserGroupPermissions(serverZone);
 
-        }
-    }
+		saveServerZone(path, serverZone);
+		saveZonePermissions(path, serverZone);
+		for (WorldZone worldZone : serverZone.getWorldZones().values()) {
+			File worldPath = new File(path, worldZone.getName());
+			saveWorldZone(worldPath, worldZone);
+			saveZonePermissions(worldPath, worldZone);
+			for (AreaZone areaZone : worldZone.getAreaZones()) {
+				File areaPath = new File(worldPath, areaZone.getName());
+				saveAreaZone(areaPath, areaZone);
+				saveZonePermissions(areaPath, areaZone);
+			}
+		}
+	}
 
 }

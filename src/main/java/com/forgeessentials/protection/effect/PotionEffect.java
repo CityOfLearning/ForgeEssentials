@@ -1,24 +1,21 @@
 package com.forgeessentials.protection.effect;
 
-import net.minecraft.entity.player.EntityPlayerMP;
-
 import com.forgeessentials.util.PlayerUtil;
 
-public class PotionEffect extends ZoneEffect
-{
+import net.minecraft.entity.player.EntityPlayerMP;
 
-    protected String potionEffects;
+public class PotionEffect extends ZoneEffect {
 
-    public PotionEffect(EntityPlayerMP player, int interval, String potionEffects)
-    {
-        super(player, interval, false);
-        this.potionEffects = potionEffects;
-    }
+	protected String potionEffects;
 
-    @Override
-    public void execute()
-    {
-        PlayerUtil.applyPotionEffects(player, potionEffects);
-    }
+	public PotionEffect(EntityPlayerMP player, int interval, String potionEffects) {
+		super(player, interval, false);
+		this.potionEffects = potionEffects;
+	}
+
+	@Override
+	public void execute() {
+		PlayerUtil.applyPotionEffects(player, potionEffects);
+	}
 
 }

@@ -5,10 +5,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import net.minecraft.command.CommandException;
-import net.minecraft.command.ICommandSender;
-import net.minecraftforge.permission.PermissionLevel;
-
 import org.apache.commons.lang3.StringUtils;
 
 import com.forgeessentials.api.APIRegistry;
@@ -29,181 +25,155 @@ import com.forgeessentials.scripting.pattern.PatternParser;
 import com.forgeessentials.scripting.pattern.PatternParser.ParseResult;
 import com.google.gson.annotations.Expose;
 
-public class PatternCommand extends ForgeEssentialsCommandBase implements Loadable
-{
+import net.minecraft.command.CommandException;
+import net.minecraft.command.ICommandSender;
+import net.minecraftforge.permission.PermissionLevel;
 
-    protected static Map<String, PatternCommand> patternCommands = new HashMap<>();
+public class PatternCommand extends ForgeEssentialsCommandBase implements Loadable {
 
-    public static class CommandPattern extends Pattern
-    {
+	public static class CommandPattern extends Pattern {
 
-        private List<String> script;
+		private List<String> script;
 
-        public CommandPattern(String pattern, List<String> script)
-        {
-            super(pattern);
-            this.script = script;
-        }
+		public CommandPattern(String pattern, List<String> script) {
+			super(pattern);
+			this.script = script;
+		}
 
-    }
+	}
 
-    protected String name;
+	protected static Map<String, PatternCommand> patternCommands = new HashMap<>();
 
-    protected String usage;
+	public static void deregisterAll() {
+		for (PatternCommand pattern : patternCommands.values()) {
+			pattern.deregister();
+		}
+	}
 
-    protected String permission;
+	public static Map<String, PatternCommand> getPatternCommands() {
+		return patternCommands;
+	}
 
-    protected Map<String, PermissionLevel> extraPermissions = new HashMap<>();
+	public static void loadAll() {
+		patternCommands = DataManager.loadAll(PatternCommand.class, ModuleScripting.getPatternCommandsDir());
+	}
 
-    protected PermissionLevel permissionLevel = PermissionLevel.TRUE;
+	public static void saveAll() {
+		DataManager.saveAll(patternCommands, ModuleScripting.getPatternCommandsDir());
+	}
 
-    protected Map<String, List<String>> patterns = new HashMap<>();
+	protected String name;
 
-    @Expose(serialize = false)
-    protected PatternParser<CommandPattern> parser;
+	protected String usage;
 
-    /* ------------------------------------------------------------ */
+	protected String permission;
 
-    @Override
-    public void afterLoad()
-    {
-        if (extraPermissions == null)
-            extraPermissions = new HashMap<>();
-        patternCommands.put(name, this);
-        register();
-    }
+	/* ------------------------------------------------------------ */
 
-    public static Map<String, PatternCommand> getPatternCommands()
-    {
-        return patternCommands;
-    }
+	protected Map<String, PermissionLevel> extraPermissions = new HashMap<>();
 
-    public static void loadAll()
-    {
-        patternCommands = DataManager.loadAll(PatternCommand.class, ModuleScripting.getPatternCommandsDir());
-    }
+	protected PermissionLevel permissionLevel = PermissionLevel.TRUE;
 
-    public static void saveAll()
-    {
-        DataManager.saveAll(patternCommands, ModuleScripting.getPatternCommandsDir());
-    }
+	protected Map<String, List<String>> patterns = new HashMap<>();
 
-    public static void deregisterAll()
-    {
-        for (PatternCommand pattern : patternCommands.values())
-        {
-            pattern.deregister();
-        }
-    }
+	@Expose(serialize = false)
+	protected PatternParser<CommandPattern> parser;
 
-    /* ------------------------------------------------------------ */
+	public PatternCommand(String name, String usage, String permission) {
+		this.name = name;
+		this.usage = usage;
+		this.permission = permission;
+		patternCommands.put(name, this);
+		register();
+	}
 
-    public PatternCommand(String name, String usage, String permission)
-    {
-        this.name = name;
-        this.usage = usage;
-        this.permission = permission;
-        patternCommands.put(name, this);
-        register();
-    }
+	/* ------------------------------------------------------------ */
 
-    @Override
-    public void registerExtraPermissions()
-    {
-        for (Entry<String, PermissionLevel> perm : extraPermissions.entrySet())
-            APIRegistry.perms.registerPermission(perm.getKey(), perm.getValue(), String.format("Permission for Pattern command /%s", name));
-    }
+	@Override
+	public void afterLoad() {
+		if (extraPermissions == null) {
+			extraPermissions = new HashMap<>();
+		}
+		patternCommands.put(name, this);
+		register();
+	}
 
-    public Map<String, List<String>> getPatterns()
-    {
-        parser = null;
-        return patterns;
-    }
+	@Override
+	public boolean canConsoleUseCommand() {
+		return true;
+	}
 
-    @Override
-    public void processCommand(ICommandSender sender, String[] args) throws CommandException
-    {
-        processCommand(sender, StringUtils.join(args, " "));
-    }
+	@Override
+	public String getCommandName() {
+		return name;
+	}
 
-    public void processCommand(ICommandSender sender, String cmd) throws CommandException
-    {
-        if (parser == null)
-        {
-            try
-            {
-                parser = new PatternParser<>();
-                for (Entry<String, List<String>> pattern : patterns.entrySet())
-                    parser.add(new CommandPattern(pattern.getKey(), pattern.getValue()));
-            }
-            catch (IllegalArgumentException e)
-            {
-                throw new TranslatedCommandException("Error in shortcut command config: %s", e.getMessage());
-            }
-        }
-        try
-        {
-            ParseResult<CommandPattern> result = parser.parse(cmd, sender);
-            ScriptParser.run(result.pattern.script, sender, result.arguments);
-        }
-        catch (MissingPlayerException e)
-        {
-            throw new TranslatedCommandException(FEPermissions.MSG_NO_CONSOLE_COMMAND, name);
-        }
-        catch (MissingPermissionException e)
-        {
-            if (e.getMessage() != null)
-                throw new TranslatedCommandException(e.getMessage());
-            else
-                throw new TranslatedCommandException(FEPermissions.MSG_NO_COMMAND_PERM);
-        }
-        catch (SyntaxException e)
-        {
-            throw new TranslatedCommandException("Error in script \"%s\": %s", name, e.getMessage());
-        }
-        catch (ScriptException e)
-        {
-            throw new CommandException(e.getMessage());
-        }
-        catch (PatternMatchException e)
-        {
-            throw new CommandException(e.getMessage());
-        }
-    }
+	@Override
+	public String getCommandUsage(ICommandSender p_71518_1_) {
+		return usage;
+	}
 
-    @Override
-    public String getCommandName()
-    {
-        return name;
-    }
+	public Map<String, PermissionLevel> getExtraPermissions() {
+		return extraPermissions;
+	}
 
-    @Override
-    public String getCommandUsage(ICommandSender p_71518_1_)
-    {
-        return usage;
-    }
+	public Map<String, List<String>> getPatterns() {
+		parser = null;
+		return patterns;
+	}
 
-    @Override
-    public String getPermissionNode()
-    {
-        return permission;
-    }
+	@Override
+	public PermissionLevel getPermissionLevel() {
+		return permissionLevel;
+	}
 
-    @Override
-    public boolean canConsoleUseCommand()
-    {
-        return true;
-    }
+	@Override
+	public String getPermissionNode() {
+		return permission;
+	}
 
-    @Override
-    public PermissionLevel getPermissionLevel()
-    {
-        return permissionLevel;
-    }
+	public void processCommand(ICommandSender sender, String cmd) throws CommandException {
+		if (parser == null) {
+			try {
+				parser = new PatternParser<>();
+				for (Entry<String, List<String>> pattern : patterns.entrySet()) {
+					parser.add(new CommandPattern(pattern.getKey(), pattern.getValue()));
+				}
+			} catch (IllegalArgumentException e) {
+				throw new TranslatedCommandException("Error in shortcut command config: %s", e.getMessage());
+			}
+		}
+		try {
+			ParseResult<CommandPattern> result = parser.parse(cmd, sender);
+			ScriptParser.run(result.pattern.script, sender, result.arguments);
+		} catch (MissingPlayerException e) {
+			throw new TranslatedCommandException(FEPermissions.MSG_NO_CONSOLE_COMMAND, name);
+		} catch (MissingPermissionException e) {
+			if (e.getMessage() != null) {
+				throw new TranslatedCommandException(e.getMessage());
+			} else {
+				throw new TranslatedCommandException(FEPermissions.MSG_NO_COMMAND_PERM);
+			}
+		} catch (SyntaxException e) {
+			throw new TranslatedCommandException("Error in script \"%s\": %s", name, e.getMessage());
+		} catch (ScriptException e) {
+			throw new CommandException(e.getMessage());
+		} catch (PatternMatchException e) {
+			throw new CommandException(e.getMessage());
+		}
+	}
 
-    public Map<String, PermissionLevel> getExtraPermissions()
-    {
-        return extraPermissions;
-    }
+	@Override
+	public void processCommand(ICommandSender sender, String[] args) throws CommandException {
+		processCommand(sender, StringUtils.join(args, " "));
+	}
+
+	@Override
+	public void registerExtraPermissions() {
+		for (Entry<String, PermissionLevel> perm : extraPermissions.entrySet()) {
+			APIRegistry.perms.registerPermission(perm.getKey(), perm.getValue(),
+					String.format("Permission for Pattern command /%s", name));
+		}
+	}
 
 }

@@ -10,14 +10,13 @@ import javax.persistence.Table;
  */
 @Entity
 @Table
-public class WorldData
-{
+public class WorldData {
 
-    @Id
-    @Column(name = "id")
-    public Integer id;
+	@Id
+	@Column(name = "id")
+	public Integer id;
 
-    @Column(name = "name")
-    public String name;
+	@Column(name = "name")
+	public String name;
 
 }

@@ -1,24 +1,22 @@
 package com.forgeessentials.worldborder.effect;
 
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.util.DamageSource;
-
 import com.forgeessentials.util.PlayerInfo;
 import com.forgeessentials.util.output.LoggingHandler;
 import com.forgeessentials.worldborder.WorldBorder;
 import com.forgeessentials.worldborder.WorldBorderEffect;
 
-public class EffectDamage extends WorldBorderEffect
-{
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.util.DamageSource;
 
-    private static final long INTERVAL = 1000L;
+public class EffectDamage extends WorldBorderEffect {
 
-    private int damage = 1;
+	private static final long INTERVAL = 1000L;
 
-    @Override
-    public void tick(WorldBorder border, EntityPlayerMP player)
-    {
-        PlayerInfo pi;
+	private int damage = 1;
+
+	@Override
+	public void tick(WorldBorder border, EntityPlayerMP player) {
+		PlayerInfo pi;
 		try {
 			pi = PlayerInfo.get(player);
 
@@ -29,6 +27,6 @@ public class EffectDamage extends WorldBorderEffect
 		} catch (Exception e) {
 			LoggingHandler.felog.error("Error getting player Info");
 		}
-    }
+	}
 
 }

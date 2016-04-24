@@ -21,77 +21,64 @@ import net.minecraftforge.fml.common.eventhandler.Event;
  */
 
 @Cancelable
-public class VoteEvent extends Event
-{
-    public String player;
-    public String serviceName;
-    public String ip;
-    public String timeStamp;
-    List<String> feedback = new ArrayList<String>();
-    private boolean sane = false;
+public class VoteEvent extends Event {
+	public String player;
+	public String serviceName;
+	public String ip;
+	public String timeStamp;
+	List<String> feedback = new ArrayList<String>();
+	private boolean sane = false;
 
-    public VoteEvent(String player, String serviceName, String ip, String timeStamp)
-    {
-        this.player = player;
-        this.serviceName = serviceName;
-        this.ip = ip;
-        this.timeStamp = timeStamp;
-        sane = true;
-    }
+	public VoteEvent(String decoded) {
+		try {
+			Gson gson = new Gson();
+			JsonElement element = gson.fromJson(decoded, JsonElement.class);
+			JsonObject json = element.getAsJsonObject();
+			player = json.get("player").getAsString();
+			serviceName = json.get("serviceName").getAsString();
+			ip = json.get("ip").getAsString();
+			timeStamp = json.get("timeStamp").getAsJsonObject().get("date").getAsString();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
-    public VoteEvent(String decoded)
-    {
-        try
-        {
-            Gson gson = new Gson();
-            JsonElement element = gson.fromJson(decoded, JsonElement.class);
-            JsonObject json = element.getAsJsonObject();
-            player = json.get("player").getAsString();
-            serviceName = json.get("serviceName").getAsString();
-            ip = json.get("ip").getAsString();
-            timeStamp = json.get("timeStamp").getAsJsonObject().get("date").getAsString();
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-    }
+	public VoteEvent(String player, String serviceName, String ip, String timeStamp) {
+		this.player = player;
+		this.serviceName = serviceName;
+		this.ip = ip;
+		this.timeStamp = timeStamp;
+		sane = true;
+	}
 
-    @Override
-    public String toString()
-    {
-        try
-        {
-            JsonObject json = new JsonObject();
-            json.add("player", new JsonPrimitive(player));
-            json.add("serviceName", new JsonPrimitive(serviceName));
-            json.add("ip", new JsonPrimitive(ip));
+	public List<String> getFeedback() {
+		return feedback;
+	}
 
-            JsonObject time = new JsonObject();
-            time.add("date", new JsonPrimitive(timeStamp));
+	public boolean isSane() {
+		return sane;
+	}
 
-            json.add("timeStamp", time);
-            return json.toString();
-        }
-        catch (JsonParseException e)
-        {
-            e.printStackTrace();
-        }
-        return "";
-    }
+	public void setFeedback(String text) {
+		feedback.add(text);
+	}
 
-    public boolean isSane()
-    {
-        return sane;
-    }
+	@Override
+	public String toString() {
+		try {
+			JsonObject json = new JsonObject();
+			json.add("player", new JsonPrimitive(player));
+			json.add("serviceName", new JsonPrimitive(serviceName));
+			json.add("ip", new JsonPrimitive(ip));
 
-    public List<String> getFeedback()
-    {
-        return feedback;
-    }
+			JsonObject time = new JsonObject();
+			time.add("date", new JsonPrimitive(timeStamp));
 
-    public void setFeedback(String text)
-    {
-        feedback.add(text);
-    }
+			json.add("timeStamp", time);
+			return json.toString();
+		} catch (JsonParseException e) {
+			e.printStackTrace();
+		}
+		return "";
+	}
 }

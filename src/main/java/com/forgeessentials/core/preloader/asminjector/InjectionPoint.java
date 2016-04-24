@@ -17,213 +17,199 @@ import org.objectweb.asm.tree.MethodNode;
 import com.forgeessentials.core.preloader.asminjector.ASMUtil.IllegalInjectorException;
 import com.forgeessentials.core.preloader.asminjector.annotation.At.Shift;
 
-public abstract class InjectionPoint
-{
+public abstract class InjectionPoint {
 
-    public static Map<String, Class<? extends InjectionPoint>> injectionPointTypes = new HashMap<>();
+	public static class Head extends InjectionPoint {
 
-    static
-    {
-        registerInjectionPointType(Head.class);
-        registerInjectionPointType(Tail.class);
-        registerInjectionPointType(Invoke.class);
-    }
+		public Head(String target, int ordinal) {
+		}
 
-    private static void registerInjectionPointType(Class<? extends InjectionPoint> clazz)
-    {
-        injectionPointTypes.put(clazz.getSimpleName().toUpperCase(), clazz);
-    }
+		@Override
+		public List<AbstractInsnNode> find(MethodNode method) {
+			return Arrays.asList(method.instructions.getFirst());
+		}
 
-    public static InjectionPoint parse(String type, String target, Shift shift, Integer by, Integer ordinal)
-    {
-        if (by == null)
-            by = 0;
-        if (ordinal == null)
-            ordinal = -1;
-        if (shift == null)
-            shift = Shift.BY;
-        type = type.toUpperCase();
-        Class<? extends InjectionPoint> t = injectionPointTypes.get(type);
-        if (t == null)
-            throw new IllegalInjectorException(String.format("Unknown InjectionPoint type %s", type));
-        try
-        {
-            Constructor<? extends InjectionPoint> constructor = t.getConstructor(String.class, int.class);
-            InjectionPoint ip = constructor.newInstance(target, ordinal);
-            if (shift != Shift.BY || by != 0)
-            {
-                ip = new ShiftPoint(ip, shift, by);
-            }
-            return ip;
-        }
-        catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException
-                | InvocationTargetException e)
-        {
-            throw new IllegalInjectorException(String.format("Error creating InjectionPoint of type type %s", type), e);
-        }
-    }
+	}
 
-    /* ------------------------------------------------------------ */
+	public static class Invoke extends InjectionPoint {
 
-    public abstract List<AbstractInsnNode> find(MethodNode method);
+		private String targetClass;
 
-    @Override
-    public String toString()
-    {
-        return getClass().getSimpleName().toUpperCase();
-    }
+		private String targetName;
 
-    /* ------------------------------------------------------------ */
+		private String targetDesc;
 
-    public static class ShiftPoint extends InjectionPoint
-    {
+		private int ordinal;
 
-        private InjectionPoint source;
+		public Invoke(String target, int ordinal) {
+			String[] parts = target.split("\\(");
+			if (parts.length != 2) {
+				throw new IllegalInjectorException(String.format("Invalid target descriptor %s", target));
+			}
 
-        private Shift shift;
+			int semIdx = parts[0].indexOf(';');
+			if (semIdx < 0) {
+				throw new IllegalInjectorException(String.format("Invalid target descriptor %s", target));
+			}
 
-        private int by;
+			targetClass = Type.getType(parts[0].substring(0, semIdx + 1)).getInternalName();
+			targetName = parts[0].substring(semIdx + 1);
+			targetDesc = '(' + parts[1];
+			this.ordinal = ordinal;
+		}
 
-        public ShiftPoint(InjectionPoint source, Shift shift, int by)
-        {
-            this.source = source;
-            this.shift = shift;
-            this.by = by;
-        }
+		@Override
+		public List<AbstractInsnNode> find(MethodNode method) {
+			List<AbstractInsnNode> result = new ArrayList<>();
+			for (AbstractInsnNode i = method.instructions.getFirst(); i != null; i = i.getNext()) {
+				if (i instanceof MethodInsnNode) {
+					if (matches((MethodInsnNode) i)) {
+						result.add(i);
+					}
+				}
+			}
+			if (ordinal >= 0) {
+				if (ordinal >= result.size()) {
+					return null;
+				}
+				AbstractInsnNode element = result.get(ordinal);
+				result.clear();
+				result.add(element);
+			}
+			return result.isEmpty() ? null : result;
+		}
 
-        @Override
-        public List<AbstractInsnNode> find(MethodNode method)
-        {
-            List<AbstractInsnNode> points = source.find(method);
-            if (points == null)
-                return null;
-            List<AbstractInsnNode> result = new ArrayList<>();
-            for (AbstractInsnNode node : points)
-            {
-                node = shift.doShift(node, by);
-                if (node != null)
-                    result.add(node);
-            }
-            return result;
-        }
+		private boolean matches(MethodInsnNode node) {
+			if (!targetClass.equals("*") && !targetClass.equals(node.owner)) {
+				return false;
+			}
+			if (!targetName.equals("*") && !targetName.equals(node.name)) {
+				return false;
+			}
+			if (!targetDesc.equals("*") && !targetDesc.equals(node.desc)) {
+				return false;
+			}
+			return true;
+		}
 
-        @Override
-        public String toString()
-        {
-            return String.format("SHIFT[src = %s, shift = %s, by = %d]", source.toString(), shift.toString(), by);
-        }
+		@Override
+		public String toString() {
+			return String.format("INVOKE[c = %s, n = %s, d = %s, idx = %d]", targetClass, targetName, targetDesc,
+					ordinal);
+		}
 
-    }
+	}
 
-    /* ------------------------------------------------------------ */
+	public static class ShiftPoint extends InjectionPoint {
 
-    public static class Head extends InjectionPoint
-    {
+		private InjectionPoint source;
 
-        public Head(String target, int ordinal)
-        {
-        }
+		private Shift shift;
 
-        @Override
-        public List<AbstractInsnNode> find(MethodNode method)
-        {
-            return Arrays.asList(method.instructions.getFirst());
-        }
+		private int by;
 
-    }
+		public ShiftPoint(InjectionPoint source, Shift shift, int by) {
+			this.source = source;
+			this.shift = shift;
+			this.by = by;
+		}
 
-    public static class Tail extends InjectionPoint
-    {
+		@Override
+		public List<AbstractInsnNode> find(MethodNode method) {
+			List<AbstractInsnNode> points = source.find(method);
+			if (points == null) {
+				return null;
+			}
+			List<AbstractInsnNode> result = new ArrayList<>();
+			for (AbstractInsnNode node : points) {
+				node = shift.doShift(node, by);
+				if (node != null) {
+					result.add(node);
+				}
+			}
+			return result;
+		}
 
-        public Tail(String target, int ordinal)
-        {
-        }
+		@Override
+		public String toString() {
+			return String.format("SHIFT[src = %s, shift = %s, by = %d]", source.toString(), shift.toString(), by);
+		}
 
-        @Override
-        @SuppressWarnings("unused")
-        public List<AbstractInsnNode> find(MethodNode method)
-        {
-            AbstractInsnNode last = method.instructions.getLast();
-            while (last != null && last.getOpcode() < Opcodes.IRETURN || last.getOpcode() > Opcodes.RETURN)
-                last = last.getPrevious();
-            if (last == null)
-                return null;
-            return Arrays.asList(last);
-        }
+	}
 
-    }
+	public static class Tail extends InjectionPoint {
 
-    /* ------------------------------------------------------------ */
+		public Tail(String target, int ordinal) {
+		}
 
-    public static class Invoke extends InjectionPoint
-    {
+		@Override
+		@SuppressWarnings("unused")
+		public List<AbstractInsnNode> find(MethodNode method) {
+			AbstractInsnNode last = method.instructions.getLast();
+			while (((last != null) && (last.getOpcode() < Opcodes.IRETURN)) || (last.getOpcode() > Opcodes.RETURN)) {
+				last = last.getPrevious();
+			}
+			if (last == null) {
+				return null;
+			}
+			return Arrays.asList(last);
+		}
 
-        private String targetClass;
+	}
 
-        private String targetName;
+	/* ------------------------------------------------------------ */
 
-        private String targetDesc;
+	public static Map<String, Class<? extends InjectionPoint>> injectionPointTypes = new HashMap<>();
 
-        private int ordinal;
+	static {
+		registerInjectionPointType(Head.class);
+		registerInjectionPointType(Tail.class);
+		registerInjectionPointType(Invoke.class);
+	}
 
-        public Invoke(String target, int ordinal)
-        {
-            String[] parts = target.split("\\(");
-            if (parts.length != 2)
-                throw new IllegalInjectorException(String.format("Invalid target descriptor %s", target));
+	/* ------------------------------------------------------------ */
 
-            int semIdx = parts[0].indexOf(';');
-            if (semIdx < 0)
-                throw new IllegalInjectorException(String.format("Invalid target descriptor %s", target));
+	public static InjectionPoint parse(String type, String target, Shift shift, Integer by, Integer ordinal) {
+		if (by == null) {
+			by = 0;
+		}
+		if (ordinal == null) {
+			ordinal = -1;
+		}
+		if (shift == null) {
+			shift = Shift.BY;
+		}
+		type = type.toUpperCase();
+		Class<? extends InjectionPoint> t = injectionPointTypes.get(type);
+		if (t == null) {
+			throw new IllegalInjectorException(String.format("Unknown InjectionPoint type %s", type));
+		}
+		try {
+			Constructor<? extends InjectionPoint> constructor = t.getConstructor(String.class, int.class);
+			InjectionPoint ip = constructor.newInstance(target, ordinal);
+			if ((shift != Shift.BY) || (by != 0)) {
+				ip = new ShiftPoint(ip, shift, by);
+			}
+			return ip;
+		} catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException
+				| IllegalArgumentException | InvocationTargetException e) {
+			throw new IllegalInjectorException(String.format("Error creating InjectionPoint of type type %s", type), e);
+		}
+	}
 
-            this.targetClass = Type.getType(parts[0].substring(0, semIdx + 1)).getInternalName();
-            this.targetName = parts[0].substring(semIdx + 1);
-            this.targetDesc = '(' + parts[1];
-            this.ordinal = ordinal;
-        }
+	/* ------------------------------------------------------------ */
 
-        @Override
-        public List<AbstractInsnNode> find(MethodNode method)
-        {
-            List<AbstractInsnNode> result = new ArrayList<>();
-            for (AbstractInsnNode i = method.instructions.getFirst(); i != null; i = i.getNext())
-            {
-                if (i instanceof MethodInsnNode)
-                {
-                    if (matches((MethodInsnNode) i))
-                    {
-                        result.add(i);
-                    }
-                }
-            }
-            if (ordinal >= 0)
-            {
-                if (ordinal >= result.size())
-                    return null;
-                AbstractInsnNode element = result.get(ordinal);
-                result.clear();
-                result.add(element);
-            }
-            return result.isEmpty() ? null : result;
-        }
+	private static void registerInjectionPointType(Class<? extends InjectionPoint> clazz) {
+		injectionPointTypes.put(clazz.getSimpleName().toUpperCase(), clazz);
+	}
 
-        private boolean matches(MethodInsnNode node)
-        {
-            if (!targetClass.equals("*") && !targetClass.equals(node.owner))
-                return false;
-            if (!targetName.equals("*") && !targetName.equals(node.name))
-                return false;
-            if (!targetDesc.equals("*") && !targetDesc.equals(node.desc))
-                return false;
-            return true;
-        }
+	public abstract List<AbstractInsnNode> find(MethodNode method);
 
-        @Override
-        public String toString()
-        {
-            return String.format("INVOKE[c = %s, n = %s, d = %s, idx = %d]", targetClass, targetName, targetDesc, ordinal);
-        }
+	/* ------------------------------------------------------------ */
 
-    }
+	@Override
+	public String toString() {
+		return getClass().getSimpleName().toUpperCase();
+	}
 
 }

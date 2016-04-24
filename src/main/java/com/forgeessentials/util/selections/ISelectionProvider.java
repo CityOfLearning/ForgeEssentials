@@ -1,22 +1,21 @@
 package com.forgeessentials.util.selections;
 
-import net.minecraft.entity.player.EntityPlayerMP;
-
 import com.forgeessentials.commons.selections.AreaBase;
 import com.forgeessentials.commons.selections.Point;
 import com.forgeessentials.commons.selections.Selection;
 
-public interface ISelectionProvider
-{
+import net.minecraft.entity.player.EntityPlayerMP;
 
-    public Selection getSelection(EntityPlayerMP player);
+public interface ISelectionProvider {
 
-    public void setDimension(EntityPlayerMP player, int dim);
+	public Selection getSelection(EntityPlayerMP player);
 
-    public void setStart(EntityPlayerMP player, Point start);
+	public void select(EntityPlayerMP player, int dimension, AreaBase area);
 
-    public void setEnd(EntityPlayerMP player, Point end);
+	public void setDimension(EntityPlayerMP player, int dim);
 
-    public void select(EntityPlayerMP player, int dimension, AreaBase area);
+	public void setEnd(EntityPlayerMP player, Point end);
+
+	public void setStart(EntityPlayerMP player, Point start);
 
 }

@@ -13,50 +13,54 @@ import net.minecraft.entity.passive.EntitySquid;
 import net.minecraft.entity.passive.EntityTameable;
 import net.minecraft.entity.passive.EntityVillager;
 
-public enum MobType
-{
-    BOSS, GOLEM, HOSTILE, PASSIVE, TAMED, TAMABLE, VILLAGER, UNKNOWN;
+public enum MobType {
+	BOSS, GOLEM, HOSTILE, PASSIVE, TAMED, TAMABLE, VILLAGER, UNKNOWN;
 
-    public String getDamageToPermission()
-    {
-        return ModuleProtection.PERM_DAMAGE_TO + "." + toString().toLowerCase();
-    }
+	public static MobType getMobType(Entity entity) {
+		if ((entity instanceof EntityDragon) || (entity instanceof EntityWither)) {
+			return MobType.BOSS;
+		}
 
-    public String getDamageByPermission()
-    {
-        return ModuleProtection.PERM_DAMAGE_BY + "." + toString().toLowerCase();
-    }
+		if (entity instanceof EntityGolem) {
+			return MobType.GOLEM;
+		}
 
-    public String getSpawnPermission(boolean forced)
-    {
-        return (forced ? ModuleProtection.PERM_MOBSPAWN_FORCED : ModuleProtection.PERM_MOBSPAWN_NATURAL) + ".type." + toString().toLowerCase();
-    }
+		if (entity instanceof EntitySlime) {
+			return ((EntitySlime) entity).getSlimeSize() >= 2 ? MobType.HOSTILE : MobType.PASSIVE;
+		}
 
-    public static MobType getMobType(Entity entity)
-    {
-        if (entity instanceof EntityDragon || entity instanceof EntityWither)
-            return MobType.BOSS;
+		if (entity instanceof EntityTameable) {
+			return ((EntityTameable) entity).isTamed() ? MobType.TAMED : MobType.TAMABLE;
+		}
 
-        if (entity instanceof EntityGolem)
-            return MobType.GOLEM;
+		// Check for other creatures
+		if ((entity instanceof EntityAnimal) || (entity instanceof EntityAmbientCreature)
+				|| (entity instanceof EntitySquid)) {
+			return MobType.PASSIVE;
+		}
 
-        if (entity instanceof EntitySlime)
-            return ((EntitySlime) entity).getSlimeSize() >= 2 ? MobType.HOSTILE : MobType.PASSIVE;
+		if (entity instanceof EntityVillager) {
+			return MobType.VILLAGER;
+		}
 
-        if (entity instanceof EntityTameable)
-            return ((EntityTameable) entity).isTamed() ? MobType.TAMED : MobType.TAMABLE;
+		if ((entity instanceof EntityMob) || (entity instanceof EntityGhast)) {
+			return MobType.HOSTILE;
+		}
 
-        // Check for other creatures
-        if (entity instanceof EntityAnimal || entity instanceof EntityAmbientCreature || entity instanceof EntitySquid)
-            return MobType.PASSIVE;
+		return MobType.UNKNOWN;
+	}
 
-        if (entity instanceof EntityVillager)
-            return MobType.VILLAGER;
+	public String getDamageByPermission() {
+		return ModuleProtection.PERM_DAMAGE_BY + "." + toString().toLowerCase();
+	}
 
-        if (entity instanceof EntityMob || entity instanceof EntityGhast)
-            return MobType.HOSTILE;
+	public String getDamageToPermission() {
+		return ModuleProtection.PERM_DAMAGE_TO + "." + toString().toLowerCase();
+	}
 
-        return MobType.UNKNOWN;
-    }
+	public String getSpawnPermission(boolean forced) {
+		return (forced ? ModuleProtection.PERM_MOBSPAWN_FORCED : ModuleProtection.PERM_MOBSPAWN_NATURAL) + ".type."
+				+ toString().toLowerCase();
+	}
 
 }
