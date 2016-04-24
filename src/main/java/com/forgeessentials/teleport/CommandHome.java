@@ -18,6 +18,7 @@ import com.forgeessentials.core.misc.TranslatedCommandException;
 import com.forgeessentials.core.misc.Translator;
 import com.forgeessentials.util.PlayerInfo;
 import com.forgeessentials.util.output.ChatOutputHandler;
+import com.forgeessentials.util.output.LoggingHandler;
 
 public class CommandHome extends ForgeEssentialsCommandBase
 {
@@ -33,10 +34,15 @@ public class CommandHome extends ForgeEssentialsCommandBase
     {
         if (args.length == 0)
         {
-            WarpPoint home = PlayerInfo.get(sender.getPersistentID()).getHome();
+            WarpPoint home;
+			try {
+				home = PlayerInfo.get(sender.getPersistentID()).getHome();
+			
             if (home == null)
                 throw new TranslatedCommandException("No home set. Use \"/home set\" first.");
-            TeleportHelper.teleport(sender, home);
+            TeleportHelper.teleport(sender, home);} catch (Exception e) {
+            	LoggingHandler.felog.error("Error getting player Info");
+			}
         }
         else
         {
@@ -55,9 +61,15 @@ public class CommandHome extends ForgeEssentialsCommandBase
                     throw new TranslatedCommandException("You don't have the permission to set your home location.");
 
                 WarpPoint p = new WarpPoint(sender);
-                PlayerInfo info = PlayerInfo.get(player.getPersistentID());
-                info.setHome(p);
-                info.save();
+                PlayerInfo info;
+				try {
+					info = PlayerInfo.get(player.getPersistentID());
+
+					info.setHome(p);
+					info.save();
+				} catch (Exception e) {
+					LoggingHandler.felog.error("Error getting player Info");
+				}
                 ChatOutputHandler.chatConfirmation(sender, Translator.format("Home set to: %1.0f, %1.0f, %1.0f", p.getX(), p.getY(), p.getZ()));
             }
             else

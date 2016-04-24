@@ -15,6 +15,7 @@ import com.forgeessentials.core.misc.TranslatedCommandException;
 import com.forgeessentials.core.moduleLauncher.ModuleLauncher;
 import com.forgeessentials.util.PlayerInfo;
 import com.forgeessentials.util.output.ChatOutputHandler;
+import com.forgeessentials.util.output.LoggingHandler;
 
 public class CommandWand extends ForgeEssentialsCommandBase
 {
@@ -56,28 +57,34 @@ public class CommandWand extends ForgeEssentialsCommandBase
             wandId = "hands";
         }
 
-        PlayerInfo info = PlayerInfo.get(sender.getPersistentID());
+        PlayerInfo info;
+		try {
+			info = PlayerInfo.get(sender.getPersistentID());
 
-        // Check for rebind
-        boolean rebind = args.length > 0 && args[0].equalsIgnoreCase("rebind");
+			// Check for rebind
+			boolean rebind = args.length > 0 && args[0].equalsIgnoreCase("rebind");
 
-        // Check for unbind
-        if (!rebind && ((info.isWandEnabled() && info.getWandID().equals(wandId)) | (args.length > 0 && args[0].equalsIgnoreCase("unbind"))))
-        {
-            ChatOutputHandler.sendMessage(sender, EnumChatFormatting.LIGHT_PURPLE + "Wand unbound from " + wandName);
-            info.setWandEnabled(false);
-            return;
-        }
+			// Check for unbind
+			if (!rebind && ((info.isWandEnabled() && info.getWandID().equals(wandId))
+					| (args.length > 0 && args[0].equalsIgnoreCase("unbind")))) {
+				ChatOutputHandler.sendMessage(sender,
+						EnumChatFormatting.LIGHT_PURPLE + "Wand unbound from " + wandName);
+				info.setWandEnabled(false);
+				return;
+			}
 
-        // Check for permissions
-        if (!checkCommandPermission(sender))
-            throw new TranslatedCommandException(FEPermissions.MSG_NO_COMMAND_PERM);
+			// Check for permissions
+			if (!checkCommandPermission(sender))
+				throw new TranslatedCommandException(FEPermissions.MSG_NO_COMMAND_PERM);
 
-        // Bind wand
-        info.setWandEnabled(true);
-        info.setWandID(wandId);
-        info.setWandDmg(wandDmg);
-        ChatOutputHandler.chatConfirmation(sender, "Wand bound to " + wandName);
+			// Bind wand
+			info.setWandEnabled(true);
+			info.setWandID(wandId);
+			info.setWandDmg(wandDmg);
+			ChatOutputHandler.chatConfirmation(sender, "Wand bound to " + wandName);
+		} catch (Exception e) {
+			LoggingHandler.felog.error("Error getting player Info");
+		}
     }
 
     @Override

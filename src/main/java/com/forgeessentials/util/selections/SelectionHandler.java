@@ -49,25 +49,26 @@ public class SelectionHandler extends ServerEventHandler
 
         // get info now rather than later
         EntityPlayer player = event.entityPlayer;
-        PlayerInfo info = PlayerInfo.get(player);
+		PlayerInfo info;
+		try {
+			info = PlayerInfo.get(player);
 
-        if (!info.isWandEnabled())
-            return;
+			if (!info.isWandEnabled())
+				return;
 
-        // Check if wand should activate
-        if (player.getCurrentEquippedItem() == null)
-        {
-            if (info.getWandID() != "hands")
-                return;
-        }
-        else
-        {
-            if (!(player.getCurrentEquippedItem().getItem().getUnlocalizedName().equals(info.getWandID())))
-                return;
-            if (player.getCurrentEquippedItem().getItemDamage() != info.getWandDmg())
-                return;
-        }
-
+			// Check if wand should activate
+			if (player.getCurrentEquippedItem() == null) {
+				if (info.getWandID() != "hands")
+					return;
+			} else {
+				if (!(player.getCurrentEquippedItem().getItem().getUnlocalizedName().equals(info.getWandID())))
+					return;
+				if (player.getCurrentEquippedItem().getItemDamage() != info.getWandDmg())
+					return;
+			}
+		} catch (Exception e) {
+			LoggingHandler.felog.error("Error getting player Info");
+		}
         WorldPoint point = new WorldPoint(player.dimension, event.pos);
 
         // left Click
@@ -90,17 +91,21 @@ public class SelectionHandler extends ServerEventHandler
 
     public static void sendUpdate(EntityPlayerMP player)
     {
-        if (PlayerInfo.get(player).getHasFEClient())
-        {
-            try
-            {
-                NetworkUtils.netHandler.sendTo(new Packet1SelectionUpdate(selectionProvider.getSelection(player)), player);
-            }
-            catch (NullPointerException e)
-            {
-                LoggingHandler.felog.error("Error sending selection update to player");
-            }
-        }
+        try {
+			if (PlayerInfo.get(player).getHasFEClient())
+			{
+			    try
+			    {
+			        NetworkUtils.netHandler.sendTo(new Packet1SelectionUpdate(selectionProvider.getSelection(player)), player);
+			    }
+			    catch (NullPointerException e)
+			    {
+			        LoggingHandler.felog.error("Error sending selection update to player");
+			    }
+			}
+		} catch (Exception e) {
+			LoggingHandler.felog.error("Error getting player Info");
+		}
     }
 
     public static Selection getSelection(EntityPlayerMP player)

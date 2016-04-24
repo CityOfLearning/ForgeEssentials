@@ -20,6 +20,7 @@ import com.forgeessentials.data.v2.DataManager;
 import com.forgeessentials.data.v2.Loadable;
 import com.forgeessentials.util.events.FEPlayerEvent.ClientHandshakeEstablished;
 import com.forgeessentials.util.events.FEPlayerEvent.NoPlayerInfoEvent;
+import com.forgeessentials.util.output.LoggingHandler;
 import com.google.gson.annotations.Expose;
 
 public class PlayerInfo implements Loadable
@@ -125,7 +126,7 @@ public class PlayerInfo implements Loadable
 
     /* ------------------------------------------------------------ */
 
-    public static PlayerInfo get(UUID uuid)
+    public static PlayerInfo get(UUID uuid) throws Exception
     {
         PlayerInfo info = playerInfoMap.get(uuid);
         if (info != null)
@@ -145,18 +146,21 @@ public class PlayerInfo implements Loadable
         playerInfoMap.put(uuid, info);
         if (player != null)
             APIRegistry.getFEEventBus().post(new NoPlayerInfoEvent(player));
-        return info;
+        if(info!=null)
+        	return info;
+        else
+        	throw new NullPointerException();
     }
 
-    public static PlayerInfo get(EntityPlayer player)
+    public static PlayerInfo get(EntityPlayer player) throws Exception
     {
         return get(player.getPersistentID());
     }
 
-    public static PlayerInfo get(UserIdent ident)
+    public static PlayerInfo get(UserIdent ident) throws Exception
     {
         if (!ident.hasUuid())
-            return null;
+        	throw new NullPointerException();
         return get(ident.getUuid());
     }
 
@@ -167,10 +171,16 @@ public class PlayerInfo implements Loadable
 
     public static void login(UUID uuid)
     {
-        PlayerInfo pi = get(uuid);
+        PlayerInfo pi;
+		try {
+			pi = get(uuid);
+		
         pi.lastActivity = System.currentTimeMillis();
         pi.timePlayedRef = System.currentTimeMillis();
         pi.lastLogin = new Date();
+		} catch (Exception e) {
+			LoggingHandler.felog.error("Error getting player Info");
+		}
     }
 
     public static void logout(UUID uuid)

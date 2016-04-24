@@ -25,6 +25,7 @@ import com.forgeessentials.util.events.FEPlayerEvent.PlayerAFKEvent;
 import com.forgeessentials.util.events.PlayerMoveEvent;
 import com.forgeessentials.util.events.ServerEventHandler;
 import com.forgeessentials.util.output.ChatOutputHandler;
+import com.forgeessentials.util.output.LoggingHandler;
 
 public class ModuleCommandsEventHandler extends ServerEventHandler implements Runnable
 {
@@ -108,9 +109,15 @@ public class ModuleCommandsEventHandler extends ServerEventHandler implements Ru
 
     public void playerActive(EntityPlayerMP player)
     {
-        PlayerInfo pi = PlayerInfo.get(player);
-        pi.setActive();
-        clearAfk(pi.ident);
+        PlayerInfo pi;
+		try {
+			pi = PlayerInfo.get(player);
+
+			pi.setActive();
+			clearAfk(pi.ident);
+		} catch (Exception e) {
+			LoggingHandler.felog.error("Error getting player Info");
+		}
     }
 
     public static void checkAfkMessage(ICommandSender target, IChatComponent message)
@@ -171,12 +178,18 @@ public class ModuleCommandsEventHandler extends ServerEventHandler implements Ru
     {
         afkPlayers.remove(UserIdent.get(event.player));
 
-        PlayerInfo pi = PlayerInfo.get(event.player);
-        if (!pi.checkTimeout("tempban"))
-        {
-            pi.ident.getPlayerMP().playerNetServerHandler.kickPlayerFromServer(Translator.format("You are still banned for %s",
-                    ChatOutputHandler.formatTimeDurationReadable(pi.getRemainingTimeout("tempban") / 1000, true)));
-        }
+        PlayerInfo pi;
+		try {
+			pi = PlayerInfo.get(event.player);
+
+			if (!pi.checkTimeout("tempban")) {
+				pi.ident.getPlayerMP().playerNetServerHandler.kickPlayerFromServer(Translator.format(
+						"You are still banned for %s",
+						ChatOutputHandler.formatTimeDurationReadable(pi.getRemainingTimeout("tempban") / 1000, true)));
+			}
+		} catch (Exception e) {
+			LoggingHandler.felog.error("Error getting player Info");
+		}
     }
 
 }

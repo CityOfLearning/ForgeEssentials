@@ -253,13 +253,17 @@ public class ProtectionEventHandler extends ServerEventHandler
             TileEntity te = event.world.getTileEntity(event.pos);
             if (te != null)
                 updateBrokenTileEntity((EntityPlayerMP) event.getPlayer(), te);
-            if (PlayerInfo.get(ident).getHasFEClient())
-            {
-                int blockId = GameData.getBlockRegistry().getId(blockState.getBlock());
-                Set<Integer> ids = new HashSet<Integer>();
-                ids.add(blockId);
-                NetworkUtils.netHandler.sendTo(new Packet3PlayerPermissions(false, null, ids), ident.getPlayerMP());
-            }
+            try {
+				if (PlayerInfo.get(ident).getHasFEClient())
+				{
+				    int blockId = GameData.getBlockRegistry().getId(blockState.getBlock());
+				    Set<Integer> ids = new HashSet<Integer>();
+				    ids.add(blockId);
+				    NetworkUtils.netHandler.sendTo(new Packet3PlayerPermissions(false, null, ids), ident.getPlayerMP());
+				}
+			} catch (Exception e) {
+				LoggingHandler.felog.error("Error getting player Info");
+			}
             return;
         }
     }
@@ -435,13 +439,17 @@ public class ProtectionEventHandler extends ServerEventHandler
             ModuleProtection.debugPermission(event.entityPlayer, permission);
             boolean allow = APIRegistry.perms.checkUserPermission(ident, point, permission);
             event.useItem = allow ? ALLOW : DENY;
-            if (!allow && PlayerInfo.get(ident).getHasFEClient())
-            {
-                int itemId = GameData.getItemRegistry().getId(stack.getItem());
-                Set<Integer> ids = new HashSet<Integer>();
-                ids.add(itemId);
-                NetworkUtils.netHandler.sendTo(new Packet3PlayerPermissions(false, ids, null), ident.getPlayerMP());
-            }
+            try {
+				if (!allow && PlayerInfo.get(ident).getHasFEClient())
+				{
+				    int itemId = GameData.getItemRegistry().getId(stack.getItem());
+				    Set<Integer> ids = new HashSet<Integer>();
+				    ids.add(itemId);
+				    NetworkUtils.netHandler.sendTo(new Packet3PlayerPermissions(false, ids, null), ident.getPlayerMP());
+				}
+			} catch (Exception e) {
+				LoggingHandler.felog.error("Error getting player Info");
+			}
         }
 
         if (anyCreativeModeAtPoint(event.entityPlayer, point)
@@ -719,9 +727,15 @@ public class ProtectionEventHandler extends ServerEventHandler
         }
 
         // Apply inventory-group
-        PlayerInfo pi = PlayerInfo.get(player);
+        PlayerInfo pi;
+		try {
+			pi = PlayerInfo.get(player);
+		
         pi.setInventoryGroup(inventoryGroup);
-
+} catch (Exception e) {
+			// TODO Auto-generated catch block
+	LoggingHandler.felog.error("Error getting player Info");
+		}
         checkPlayerInventory(player);
     }
 
@@ -729,8 +743,13 @@ public class ProtectionEventHandler extends ServerEventHandler
     {
         if (!ident.hasPlayer()) // we can only send perm updates to players
             return;
-        if (!PlayerInfo.get(ident).getHasFEClient())
-            return;
+        try {
+			if (!PlayerInfo.get(ident).getHasFEClient())
+			    return;
+		} catch (Exception e) {
+			LoggingHandler.felog.error("Error getting player Info");
+			return;
+		}
 
         Set<Integer> placeIds = new HashSet<Integer>();
 
@@ -987,12 +1006,16 @@ public class ProtectionEventHandler extends ServerEventHandler
 
     private static void sendZoneDeniedMessage(EntityPlayer player)
     {
-        PlayerInfo pi = PlayerInfo.get(player);
-        if (pi.checkTimeout("zone_denied_message"))
-        {
-            ChatOutputHandler.chatError(player, ModuleProtection.MSG_ZONE_DENIED);
-            pi.startTimeout("zone_denied_message", 4000);
-        }
+        PlayerInfo pi;
+		try {
+			pi = PlayerInfo.get(player);
+			if (pi.checkTimeout("zone_denied_message")) {
+				ChatOutputHandler.chatError(player, ModuleProtection.MSG_ZONE_DENIED);
+				pi.startTimeout("zone_denied_message", 4000);
+			}
+		} catch (Exception e) {
+			LoggingHandler.felog.error("Error getting player Info");
+		}
     }
 
     private List<ZoneEffect> getZoneEffects(UserIdent ident)

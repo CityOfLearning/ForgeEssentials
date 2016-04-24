@@ -11,6 +11,7 @@ import com.forgeessentials.core.commands.ForgeEssentialsCommandBase;
 import com.forgeessentials.core.misc.TeleportHelper;
 import com.forgeessentials.core.misc.TranslatedCommandException;
 import com.forgeessentials.util.PlayerInfo;
+import com.forgeessentials.util.output.LoggingHandler;
 
 public class CommandBack extends ForgeEssentialsCommandBase
 {
@@ -48,7 +49,10 @@ public class CommandBack extends ForgeEssentialsCommandBase
     @Override
     public void processCommandPlayer(EntityPlayerMP sender, String[] args) throws CommandException
     {
-        PlayerInfo pi = PlayerInfo.get(sender.getPersistentID());
+        PlayerInfo pi;
+		try {
+			pi = PlayerInfo.get(sender.getPersistentID());
+		
         WarpPoint point = null;
         if (PermissionManager.checkPermission(sender, TeleportModule.PERM_BACK_ONDEATH))
             point = pi.getLastDeathLocation();
@@ -57,7 +61,9 @@ public class CommandBack extends ForgeEssentialsCommandBase
         if (point == null)
             throw new TranslatedCommandException("You have nowhere to get back to");
 
-        TeleportHelper.teleport(sender, point);
+        TeleportHelper.teleport(sender, point);} catch (Exception e) {
+        	LoggingHandler.felog.error("Error getting player Info");
+		}
     }
 
 }

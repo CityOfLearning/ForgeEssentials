@@ -246,7 +246,11 @@ public class ForgeEssentials extends ConfigLoaderBase
             @Override
             public IMessage onMessage(Packet0Handshake message, MessageContext ctx)
             {
-                PlayerInfo.get(ctx.getServerHandler().playerEntity).setHasFEClient(true);
+                try {
+					PlayerInfo.get(ctx.getServerHandler().playerEntity).setHasFEClient(true);
+				} catch (Exception e) {
+					LoggingHandler.felog.error("Error getting player Info");
+				}
                 return null;
             }
         }, Packet0Handshake.class, 0, Side.SERVER);

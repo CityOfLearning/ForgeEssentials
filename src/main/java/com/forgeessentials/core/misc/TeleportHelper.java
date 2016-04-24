@@ -140,13 +140,19 @@ public class TeleportHelper extends ServerEventHandler
         int teleportCooldown = ServerUtil.parseIntDefault(APIRegistry.perms.getUserPermissionProperty(ident, TELEPORT_COOLDOWN), 0) * 1000;
         if (teleportCooldown > 0)
         {
-            PlayerInfo pi = PlayerInfo.get(player);
-            long cooldownDuration = (pi.getLastTeleportTime() + teleportCooldown) - System.currentTimeMillis();
-            if (cooldownDuration >= 0)
-            {
-                ChatOutputHandler.chatNotification(player, Translator.format("Cooldown still active. %d seconds to go.", cooldownDuration / 1000));
-                return;
-            }
+            PlayerInfo pi;
+			try {
+				pi = PlayerInfo.get(player);
+
+				long cooldownDuration = (pi.getLastTeleportTime() + teleportCooldown) - System.currentTimeMillis();
+				if (cooldownDuration >= 0) {
+					ChatOutputHandler.chatNotification(player,
+							Translator.format("Cooldown still active. %d seconds to go.", cooldownDuration / 1000));
+					return;
+				}
+			} catch (Exception e) {
+				LoggingHandler.felog.error("Error getting player Info");
+			}
         }
 
         // Get and check teleport warmup
@@ -188,11 +194,16 @@ public class TeleportHelper extends ServerEventHandler
             return;
         }
 
-        PlayerInfo pi = PlayerInfo.get(player);
+        PlayerInfo pi;
+		try {
+			pi = PlayerInfo.get(player);
+		
         pi.setLastTeleportOrigin(new WarpPoint(player));
         pi.setLastTeleportTime(System.currentTimeMillis());
         pi.setLastDeathLocation(null);
-
+} catch (Exception e) {
+	LoggingHandler.felog.error("Error getting player Info");
+		}
         doTeleport(player, point);
     }
 

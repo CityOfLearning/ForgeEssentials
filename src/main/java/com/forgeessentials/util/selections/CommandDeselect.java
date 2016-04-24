@@ -8,6 +8,7 @@ import net.minecraftforge.permission.PermissionLevel;
 import com.forgeessentials.core.commands.ForgeEssentialsCommandBase;
 import com.forgeessentials.util.PlayerInfo;
 import com.forgeessentials.util.output.ChatOutputHandler;
+import com.forgeessentials.util.output.LoggingHandler;
 
 public class CommandDeselect extends ForgeEssentialsCommandBase
 {
@@ -27,11 +28,17 @@ public class CommandDeselect extends ForgeEssentialsCommandBase
     @Override
     public void processCommandPlayer(EntityPlayerMP sender, String[] args) throws CommandException
     {
-        PlayerInfo info = PlayerInfo.get(sender.getPersistentID());
-        info.setSel1(null);
-        info.setSel2(null);
-        SelectionHandler.sendUpdate(sender);
-        ChatOutputHandler.chatConfirmation(sender, "Selection cleared.");
+        PlayerInfo info;
+		try {
+			info = PlayerInfo.get(sender.getPersistentID());
+
+			info.setSel1(null);
+			info.setSel2(null);
+			SelectionHandler.sendUpdate(sender);
+			ChatOutputHandler.chatConfirmation(sender, "Selection cleared.");
+		} catch (Exception e) {
+			LoggingHandler.felog.error("Error getting player Info");
+		}
     }
 
     @Override

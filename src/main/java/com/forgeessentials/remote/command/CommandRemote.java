@@ -22,6 +22,7 @@ import com.forgeessentials.remote.ModuleRemote;
 import com.forgeessentials.util.CommandParserArgs;
 import com.forgeessentials.util.PlayerInfo;
 import com.forgeessentials.util.output.ChatOutputHandler;
+import com.forgeessentials.util.output.LoggingHandler;
 
 public class CommandRemote extends ParserCommandBase
 {
@@ -152,16 +153,20 @@ public class CommandRemote extends ParserCommandBase
             case "qr":
             {
                 UserIdent ident = args.parsePlayer(true, true);
-                if (!PlayerInfo.get(ident.getPlayerMP()).getHasFEClient())
-                {
-                    showPasskey(args, args.ident, false);
-                }
-                else
-                {
-                    String connectString = ModuleRemote.getInstance().getConnectString(ident);
-                    String url = ("https://chart.googleapis.com/chart?cht=qr&chld=M|4&chs=547x547&chl=" + connectString).replaceAll("\\|", "%7C");
-                    NetworkUtils.netHandler.sendTo(new Packet7Remote(url), ident.getPlayerMP());
-                }
+                try {
+					if (!PlayerInfo.get(ident.getPlayerMP()).getHasFEClient())
+					{
+					    showPasskey(args, args.ident, false);
+					}
+					else
+					{
+					    String connectString = ModuleRemote.getInstance().getConnectString(ident);
+					    String url = ("https://chart.googleapis.com/chart?cht=qr&chld=M|4&chs=547x547&chl=" + connectString).replaceAll("\\|", "%7C");
+					    NetworkUtils.netHandler.sendTo(new Packet7Remote(url), ident.getPlayerMP());
+					}
+				} catch (Exception e) {
+					LoggingHandler.felog.error("Error getting player Info");
+				}
                 return;
             }
             default:
@@ -185,10 +190,14 @@ public class CommandRemote extends ParserCommandBase
         ChatComponentTranslation msg = new ChatComponentTranslation("Remote passkey = " + passkey + " ");
 
         IChatComponent qrLink = new ChatComponentText("[QR code]");
-        if (ident.hasUuid() && PlayerInfo.get(ident.getUuid()).getHasFEClient())
-            qrLink.getChatStyle().setChatClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/remote qr"));
-        else
-            qrLink.getChatStyle().setChatClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, url));
+        try {
+			if (ident.hasUuid() && PlayerInfo.get(ident.getUuid()).getHasFEClient())
+			    qrLink.getChatStyle().setChatClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/remote qr"));
+			else
+			    qrLink.getChatStyle().setChatClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, url));
+		} catch (Exception e) {
+			LoggingHandler.felog.error("Error getting player Info");
+		}
         qrLink.getChatStyle().setColor(EnumChatFormatting.RED);
         qrLink.getChatStyle().setUnderlined(true);
         msg.appendSibling(qrLink);

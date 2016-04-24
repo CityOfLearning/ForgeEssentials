@@ -11,6 +11,7 @@ import com.forgeessentials.commands.item.CommandKit;
 import com.forgeessentials.core.misc.Translator;
 import com.forgeessentials.util.PlayerInfo;
 import com.forgeessentials.util.output.ChatOutputHandler;
+import com.forgeessentials.util.output.LoggingHandler;
 
 public class Kit
 {
@@ -66,15 +67,20 @@ public class Kit
     {
         if (!PermissionManager.checkPermission(player, CommandKit.PERM_BYPASS_COOLDOWN))
         {
-            PlayerInfo pi = PlayerInfo.get(player.getPersistentID());
-            long timeout = pi.getRemainingTimeout("KIT_" + name);
-            if (timeout > 0)
-            {
-                ChatOutputHandler.chatWarning(player,
-                        Translator.format("Kit cooldown active, %s to go!", ChatOutputHandler.formatTimeDurationReadable(timeout / 1000L, true)));
-                return;
-            }
-            pi.startTimeout("KIT_" + name, cooldown < 0 ? 10L * MILLISECONDS_PER_YEAR : cooldown * 1000L);
+            PlayerInfo pi;
+			try {
+				pi = PlayerInfo.get(player.getPersistentID());
+
+				long timeout = pi.getRemainingTimeout("KIT_" + name);
+				if (timeout > 0) {
+					ChatOutputHandler.chatWarning(player, Translator.format("Kit cooldown active, %s to go!",
+							ChatOutputHandler.formatTimeDurationReadable(timeout / 1000L, true)));
+					return;
+				}
+				pi.startTimeout("KIT_" + name, cooldown < 0 ? 10L * MILLISECONDS_PER_YEAR : cooldown * 1000L);
+			} catch (Exception e) {
+				LoggingHandler.felog.error("Error getting player Info");
+			}
         }
 
         boolean couldNotGiveItems = false;

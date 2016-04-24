@@ -15,6 +15,7 @@ import com.forgeessentials.core.misc.Translator;
 import com.forgeessentials.util.CommandParserArgs;
 import com.forgeessentials.util.PlayerInfo;
 import com.forgeessentials.util.output.ChatOutputHandler;
+import com.forgeessentials.util.output.LoggingHandler;
 
 public class CommandTempBan extends FEcmdModuleCommands
 {
@@ -75,11 +76,16 @@ public class CommandTempBan extends FEcmdModuleCommands
             throw new TranslatedCommandException(FEPermissions.MSG_NOT_ENOUGH_ARGUMENTS);
         long duration = arguments.parseLong();
 
-        PlayerInfo pi = PlayerInfo.get(player.getUuid());
-        pi.startTimeout("tempban", duration * 1000L);
-        if (player.hasPlayer())
-            player.getPlayerMP().playerNetServerHandler.kickPlayerFromServer(Translator.format("You have been banned for %s",
-                    ChatOutputHandler.formatTimeDurationReadable(duration, true)));
+        PlayerInfo pi;
+		try {
+			pi = PlayerInfo.get(player.getUuid());
+			pi.startTimeout("tempban", duration * 1000L);
+			if (player.hasPlayer())
+				player.getPlayerMP().playerNetServerHandler.kickPlayerFromServer(Translator.format(
+						"You have been banned for %s", ChatOutputHandler.formatTimeDurationReadable(duration, true)));
+		} catch (Exception e) {
+			LoggingHandler.felog.error("Error getting player Info");
+		}
     }
     
 }

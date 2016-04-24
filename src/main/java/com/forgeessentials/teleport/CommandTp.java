@@ -35,7 +35,7 @@ public class CommandTp extends CommandTeleport implements PermissionObject
             }
             else
             {
-                entity = getEntity(sender, args[0]);
+                entity = getEntity(sender, args[0], sender.getCommandSenderEntity().getClass());
                 b0 = 1;
             }
 
@@ -104,7 +104,7 @@ public class CommandTp extends CommandTeleport implements PermissionObject
             }
             else
             {
-                Entity targetEntity = getEntity(sender, args[args.length - 1]);
+                Entity targetEntity = getEntity(sender, args[args.length - 1], sender.getCommandSenderEntity().getClass());
                 if (targetEntity instanceof EntityPlayerMP)
                 {
                     WarpPoint pos = new WarpPoint(targetEntity.worldObj.provider.getDimensionId(), targetEntity.posX, targetEntity.posY, targetEntity.posZ,

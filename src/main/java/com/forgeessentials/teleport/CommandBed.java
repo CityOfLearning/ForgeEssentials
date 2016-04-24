@@ -20,6 +20,7 @@ import com.forgeessentials.core.commands.ForgeEssentialsCommandBase;
 import com.forgeessentials.core.misc.TeleportHelper;
 import com.forgeessentials.core.misc.TranslatedCommandException;
 import com.forgeessentials.util.PlayerInfo;
+import com.forgeessentials.util.output.LoggingHandler;
 
 public class CommandBed extends ForgeEssentialsCommandBase
 {
@@ -73,7 +74,11 @@ public class CommandBed extends ForgeEssentialsCommandBase
         if (spawn == null)
             throw new TranslatedCommandException("Your bed has been obstructed.");
 
-        PlayerInfo.get(player.getPersistentID()).setLastTeleportOrigin(new WarpPoint(player));
+        try {
+			PlayerInfo.get(player.getPersistentID()).setLastTeleportOrigin(new WarpPoint(player));
+		} catch (Exception e) {
+			LoggingHandler.felog.error("Error getting player Info");
+		}
         WarpPoint spawnPoint = new WarpPoint(world.provider.getDimensionId(), spawn, player.rotationPitch, player.rotationYaw);
         TeleportHelper.teleport(player, spawnPoint);
     }
