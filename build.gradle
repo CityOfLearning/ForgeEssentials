@@ -57,11 +57,6 @@ if (System.getenv("BUILD_NUMBER") != null) {
 
 }
 
-// Get commit hash
-import org.ajoberstar.grgit.Grgit
-def repo = Grgit.open(project.file("."))
-ext.gitCommitHash = repo.log().find().abbreviatedId
-
 // Set build properties
 ext.baseVersion = "1.8.5"
 version = baseVersion + "." + buildNumber
@@ -76,6 +71,8 @@ minecraft {
 	runDir = "rundir"
 	
 	mappings = "stable_20"
+	makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
+
 
 	replaceIn "src/utils/java/com/forgeessentials/commons/BuildInfo.java"
 	replace "_VERSION_", project.version
@@ -84,7 +81,7 @@ minecraft {
 // Configure shared manifest
 ext.sharedManifest = manifest {
 	attributes (
-		"BuildID": gitCommitHash,
+		"BuildID": baseVersion,
 		"BuildNumber": buildNumber,
 		"FMLCorePluginContainsFMLMod": "true",
 		"ForceLoadAsMod": "true",
@@ -132,7 +129,6 @@ dependencies {
 	serverLib "mysql:mysql-connector-java:5.1.22"
 	serverLib "org.hibernate:hibernate-entitymanager:4.3.7.Final"
 	buildDep "org.hibernate:hibernate-jpamodelgen:4.3.7.Final"
-	/* serverLib "org.eclipse.persistence:eclipselink:2.6.0" */
 	
 	// WorldEdit
     //buildDep group: "com.sk89q.worldedit", name: "worldedit-forge-1.8.9", version: "6.1.1-SNAPSHOT", changing: true
@@ -211,6 +207,31 @@ jar.doLast {
 	delete (serverLibArchive.archivePath)
 }
 
+jar.doFirst {
+
+	FileCollection collection = files { sourceSets.main.output }
+	
+	collection.collect { relativePath(it) }.sort().each { println it }
+	
+	collection.each {File file ->
+		if (file.path.contains("classes")){
+			FileCollection subColl = files { file.listFiles() }
+			subColl.collect { relativePath(it) }.sort().each { if(it.contains("mcmod.info")){delete it} }
+		}
+	}
+	
+	collection.each {File file ->
+		if (file.path.contains("classes")){
+			FileCollection subColl = files { file.listFiles() }
+			subColl.collect { relativePath(it) }.sort().each { println it }
+		}
+	}
+
+	from (sourceSets.main.output){
+		delete ('mcmod.info')
+	}
+}
+
 // Configure server jar (default)
 jar {
 	dependsOn "serverLibArchive"
@@ -219,11 +240,11 @@ jar {
 	
 	from sourceSets.main.output
 	from sourceSets.utils.output
-	from fileTree(serverLibArchive.archivePath)
+	from fileTree(serverLibArchive.archivePath)	
 	configurations.shade.copyRecursive().setTransitive(false).each { artifact ->
-		from (zipTree(artifact))
+		from (zipTree(artifact)) 
 	}
-
+	
 	manifest {
 		from serverManifest
 	}
@@ -258,56 +279,6 @@ mixin {
 }
 
 /************************************************************
- * Deobfuscated server jar
- * Dependency name for maven = com.forgeessentials:forgeessentials:<version>:
-
-task deobfJar(dependsOn: "classes", type: Jar) {
-	classifier = "dev"
-	appendix = minecraft.version
-	
-	from sourceSets.main.output
-	from sourceSets.utils.output
-	
-	from (sourceSets.main.java) {
-		into ("src/")
-	}
-
-	manifest {
-		from serverManifest
-	}
-}
-task sourceJar(type: Jar) {
-	classifier = "sources"
-	appendix = minecraft.version
-	
-	from sourceSets.main.allSource
-	
-	manifest {
-		from serverManifest
-	}
-}
-*/
-
-/************************************************************
- * Configure API javadoc
- */
-
-javadoc {
-	include "com/forgeessentials/api/**"
-	classpath = sourceSets.main.compileClasspath + sourceSets.main.output
-	options.addBooleanOption("Xdoclint:reference,accessibility,html", true) // excluded: syntax, missing
-}
-
-task javadocJar(type: Jar, dependsOn: javadoc) {
-	classifier = "javadoc"
-	appendix = project.minecraft.version
-	
-	from javadoc.destinationDir
-	
-	manifest { from sharedManifest }
-}
-
-/************************************************************
  * Configure reobfuscation
  */
 
@@ -323,7 +294,6 @@ reobf {
 
 // Add default artifacts for task "build"
 artifacts {
-	//archives deobfJar
 	archives clientJar
 }
 
