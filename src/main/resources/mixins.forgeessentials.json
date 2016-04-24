@@ -2,7 +2,6 @@
     "package": "com.forgeessentials.core.preloader.mixin",
     "plugin": "com.forgeessentials.core.preloader.mixin.FEMixinConfig",
     "mixins": [
-        "block.MixinBlock",
         "block.MixinBlockFire",
         "command.MixinCommandHandler",
         "entity.MixinEntity",

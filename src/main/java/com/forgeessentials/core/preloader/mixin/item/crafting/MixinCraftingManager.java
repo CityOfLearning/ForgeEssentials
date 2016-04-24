@@ -30,7 +30,7 @@ public abstract class MixinCraftingManager
      * @param cir the callback info
      */
     @Inject(
-        method = "findMatchingRecipe",
+        method = "findMatchingRecipe(Lnet.minecraft.inventory.InventoryCrafting;Lnet/minecraft/world/World;)V",
         at = @At(
             value = "INVOKE",
             target = "Ljava/util/List;size()I",
