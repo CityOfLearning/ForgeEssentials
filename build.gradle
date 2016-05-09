@@ -290,3 +290,11 @@ artifacts {
 task wrapper(type: Wrapper) {
 	gradleVersion = "2.10"
 }
+
+reobfJar.doLast {
+    ant.checksum file: tasks.jar.archivePath
+}
+
+reobfClientJar.doLast {
+    ant.checksum file: tasks.clientJar.archivePath
+}
