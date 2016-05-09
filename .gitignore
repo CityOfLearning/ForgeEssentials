@@ -36,3 +36,4 @@ modlist.txt
 /bin
 /.apt_generated/
 .factorypath
+*.launch

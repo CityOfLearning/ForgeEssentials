@@ -93,7 +93,7 @@ public class MixinNetHandlerPlayServer
         method = "processVanilla250Packet",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/entity/player/EntityPlayerMP;canCommandSenderUseCommand(ILjava/lang/String;)Z"
+            target = "Lnet/minecraft/entity/player/EntityPlayerMP;canUseCommand(ILjava/lang/String;)Z"
         ),
         require = 1
     )

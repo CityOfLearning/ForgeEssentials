@@ -219,21 +219,11 @@ jar.doFirst {
 			subColl.collect { relativePath(it) }.sort().each { if(it.contains("mcmod.info")){delete it} }
 		}
 	}
-	
-	collection.each {File file ->
-		if (file.path.contains("classes")){
-			FileCollection subColl = files { file.listFiles() }
-			subColl.collect { relativePath(it) }.sort().each { println it }
-		}
-	}
-
-	from (sourceSets.main.output){
-		delete ('mcmod.info')
-	}
 }
 
 // Configure server jar (default)
 jar {
+	setDuplicatesStrategy(DuplicatesStrategy.EXCLUDE)
 	dependsOn "serverLibArchive"
 	classifier = "server"
 	appendix = minecraft.version
