@@ -20,7 +20,6 @@ import com.forgeessentials.commons.network.Packet2Reach;
 import com.forgeessentials.commons.network.Packet3PlayerPermissions;
 import com.forgeessentials.commons.network.Packet5Noclip;
 import com.forgeessentials.commons.network.Packet7Remote;
-import com.forgeessentials.compat.CompatReiMinimap;
 import com.forgeessentials.compat.HelpFixer;
 import com.forgeessentials.core.commands.CommandFEInfo;
 import com.forgeessentials.core.commands.CommandFEWorldInfo;
@@ -339,7 +338,6 @@ public class ForgeEssentials extends ConfigLoaderBase {
 		questioner = new Questioner();
 		respawnHandler = new RespawnHandler();
 		selectionHandler = new SelectionHandler();
-		APIRegistry.getFEEventBus().register(new CompatReiMinimap());
 
 		// Load submodules
 		moduleLauncher = new ModuleLauncher();

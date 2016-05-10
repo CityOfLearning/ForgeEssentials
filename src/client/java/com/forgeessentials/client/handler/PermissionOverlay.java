@@ -10,6 +10,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.WorldRenderer;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.MovingObjectPosition.MovingObjectType;
@@ -41,15 +44,16 @@ public class PermissionOverlay extends Gui implements IMessageHandler<Packet3Pla
 	public void drawTexturedRect(double xPos, double yPos, double width, double height) {
 		/*
 		 * TODO update to 1.8.9
-		 * 
-		 * WorldRenderer renderer =
-		 * Tessellator.getInstance().getWorldRenderer();
-		 * renderer.startDrawingQuads(); renderer.addVertexWithUV(xPos, yPos +
-		 * height, zLevel, 0, 1); renderer.addVertexWithUV(xPos + width, yPos +
-		 * height, zLevel, 1, 1); renderer.addVertexWithUV(xPos + width, yPos,
-		 * zLevel, 1, 0); renderer.addVertexWithUV(xPos, yPos, zLevel, 0, 0);
-		 * Tessellator.getInstance().draw();
-		 */
+		 */ 
+		WorldRenderer renderer = Tessellator.getInstance().getWorldRenderer();
+		// renderer.startDrawingQuads();
+		renderer.begin(7, DefaultVertexFormats.POSITION_TEX);
+		renderer.pos(xPos, yPos + height, zLevel).tex(0, 1).endVertex();
+		renderer.pos(xPos + width, yPos + height, zLevel).tex(1, 1).endVertex();
+		renderer.pos(xPos + width, yPos, zLevel).tex(1, 0);
+		renderer.pos(xPos, yPos, zLevel).tex(0, 0);
+		Tessellator.getInstance().draw();
+		 
 	}
 
 	@Override
