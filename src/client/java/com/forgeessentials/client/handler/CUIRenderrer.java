@@ -39,7 +39,8 @@ public class CUIRenderrer implements IMessageHandler<Packet1SelectionUpdate, IMe
 		WorldRenderer renderer = Tessellator.getInstance().getWorldRenderer();
 		renderer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION);
 
-		// FRONT renderer.pos(-0.5, -0.5, -0.5);
+		// FRONT 
+		renderer.pos(-0.5, -0.5, -0.5).endVertex();
 		renderer.pos(-0.5, 0.5, -0.5).endVertex();
 
 		renderer.pos(-0.5, 0.5, -0.5).endVertex();
@@ -51,7 +52,9 @@ public class CUIRenderrer implements IMessageHandler<Packet1SelectionUpdate, IMe
 		renderer.pos(0.5, -0.5, -0.5).endVertex();
 		renderer.pos(-0.5, -0.5, -0.5).endVertex();
 
-		// BACK renderer.pos(-0.5, -0.5, 0.5); renderer.pos(-0.5, 0.5, 0.5);
+		// BACK 
+		renderer.pos(-0.5, -0.5, 0.5).endVertex(); 
+		renderer.pos(-0.5, 0.5, 0.5).endVertex();
 
 		renderer.pos(-0.5, 0.5, 0.5).endVertex();
 		renderer.pos(0.5, 0.5, 0.5).endVertex();
@@ -62,7 +65,8 @@ public class CUIRenderrer implements IMessageHandler<Packet1SelectionUpdate, IMe
 		renderer.pos(0.5, -0.5, 0.5).endVertex();
 		renderer.pos(-0.5, -0.5, 0.5).endVertex();
 
-		// betweens. renderer.pos(0.5, 0.5, -0.5);
+		// betweens. 
+		renderer.pos(0.5, 0.5, -0.5).endVertex();
 		renderer.pos(0.5, 0.5, 0.5).endVertex();
 
 		renderer.pos(0.5, -0.5, -0.5).endVertex();
@@ -71,7 +75,7 @@ public class CUIRenderrer implements IMessageHandler<Packet1SelectionUpdate, IMe
 		renderer.pos(-0.5, -0.5, -0.5).endVertex();
 		renderer.pos(-0.5, -0.5, 0.5).endVertex();
 
-		renderer.pos(-0.5, 0.5, -0.5);
+		renderer.pos(-0.5, 0.5, -0.5).endVertex();
 		renderer.pos(-0.5, 0.5, 0.5).endVertex();
 
 		Tessellator.getInstance().draw();
