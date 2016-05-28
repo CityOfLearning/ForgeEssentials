@@ -2,6 +2,7 @@ package com.forgeessentials.teleport;
 
 import com.forgeessentials.commons.selections.WarpPoint;
 import com.forgeessentials.core.misc.TeleportHelper;
+import com.forgeessentials.util.output.LoggingHandler;
 
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
@@ -28,6 +29,7 @@ public class CommandTp extends CommandTeleport implements PermissionObject {
 
 	@Override
 	public void processCommand(ICommandSender sender, String[] args) throws CommandException {
+		try{
 		if (args.length < 1) {
 			throw new WrongUsageException("commands.tp.usage", new Object[0]);
 		} else {
@@ -130,6 +132,10 @@ public class CommandTp extends CommandTeleport implements PermissionObject {
 							new Object[] { targetEntity.getName(), targetEntity.getName() });
 				}
 			}
+		}
+		} catch(NullPointerException npe){
+			LoggingHandler.felog.warn("Encountered Error in FE Command TP class, likely no entity associated with command sender");
+			npe.printStackTrace();
 		}
 	}
 
