@@ -33,9 +33,7 @@ public class CUIRenderrer implements IMessageHandler<Packet1SelectionUpdate, IMe
 	 * must be translated to proper point before calling
 	 */
 	private static void renderBox() {
-		
-		  /*TODO update to 1.8.9*/
-		  
+				  
 		WorldRenderer renderer = Tessellator.getInstance().getWorldRenderer();
 		renderer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION);
 

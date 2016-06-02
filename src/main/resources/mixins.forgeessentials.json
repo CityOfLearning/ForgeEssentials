@@ -9,8 +9,6 @@
 		"network.MixinNetHandlerPlayServer_01",
         "server.management.MixinItemInWorldManager_01",
         "item.crafting.MixinCraftingManager",
-
-        "block.MixinBlock",
         "fml.common.MixinEventBus"
 	]
 }

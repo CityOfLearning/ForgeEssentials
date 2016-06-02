@@ -10,6 +10,7 @@ import java.util.regex.Matcher;
 
 import com.forgeessentials.api.APIRegistry;
 import com.forgeessentials.api.UserIdent;
+import com.forgeessentials.api.economy.Plot;
 import com.forgeessentials.api.permissions.AreaZone;
 import com.forgeessentials.api.permissions.FEPermissions;
 import com.forgeessentials.api.permissions.IPermissionsHelper;
@@ -33,7 +34,7 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.permission.PermissionLevel;
 
-public class Plot {
+public class Plots implements Plot {
 
 	public static class PlotRedefinedException extends Exception {
 		/* */
@@ -100,11 +101,11 @@ public class Plot {
 
 	public static final String PERM_SELL_PRICE = PERM_DATA + ".price";
 
-	private static Map<Integer, Plot> plots = new HashMap<>();
+	private static Map<Integer, Plots> plots = new HashMap<>();
 
-	public static Plot define(WorldArea area, UserIdent owner) throws EventCancelledException, PlotRedefinedException {
+	public static Plots define(WorldArea area, UserIdent owner) throws EventCancelledException, PlotRedefinedException {
 		WorldZone worldZone = APIRegistry.perms.getServerZone().getWorldZone(area.getDimension());
-		for (Plot zone : plots.values()) {
+		for (Plots zone : plots.values()) {
 			if (zone.getZone().getArea().contains(area) || zone.getZone().getArea().intersectsWith(area)) {
 				throw new PlotRedefinedException();
 			}
@@ -117,14 +118,14 @@ public class Plot {
 
 		AreaZone zone = new AreaZone(worldZone, "_PLOT_" + (APIRegistry.perms.getServerZone().getMaxZoneID() + 1),
 				area);
-		Plot plot = new Plot(zone, owner);
+		Plots plot = new Plots(zone, owner);
 		registerPlot(plot);
 		zone.setHidden(true);
 		plot.setDefaultPermissions();
 		return plot;
 	}
 
-	public static void deletePlot(Plot plot) {
+	public static void deletePlot(Plots plot) {
 		plot.getZone().getWorldZone().removeAreaZone(plot.getZone());
 		plots.remove(plot.getZone().getId());
 	}
@@ -154,14 +155,14 @@ public class Plot {
 		return (long) (getAccountedSize(area) * pricePerUnit);
 	}
 
-	public static Plot getPlot(int zoneId) {
+	public static Plots getPlot(int zoneId) {
 		return plots.get(zoneId);
 	}
 
-	public static Plot getPlot(WorldPoint point) {
+	public static Plots getPlot(WorldPoint point) {
 		List<Zone> zones = APIRegistry.perms.getServerZone().getZonesAt(point);
 		for (Zone zone : zones) {
-			Plot plot = plots.get(zone.getId());
+			Plots plot = plots.get(zone.getId());
 			if (plot != null) {
 				return plot;
 			}
@@ -169,7 +170,7 @@ public class Plot {
 		return null;
 	}
 
-	public static Collection<Plot> getPlots() {
+	public static Collection<Plots> getPlots() {
 		return plots.values();
 	}
 
@@ -193,7 +194,7 @@ public class Plot {
 			if (zone instanceof AreaZone) {
 				UserIdent ownerIdent = UserIdent.getFromUuid(zone.getGroupPermission(GROUP_ALL, PERM_OWNER));
 				if (ownerIdent != null) {
-					registerPlot(new Plot((AreaZone) zone, ownerIdent));
+					registerPlot(new Plots((AreaZone) zone, ownerIdent));
 				}
 			}
 		}
@@ -261,7 +262,7 @@ public class Plot {
 		CommandFeSettings.addAlias(CATEGORY, "size.max", PERM_SIZE_MAX);
 	}
 
-	private static void registerPlot(Plot plot) {
+	private static void registerPlot(Plots plot) {
 		plots.put(plot.getZone().getId(), plot);
 	}
 
@@ -269,7 +270,7 @@ public class Plot {
 
 	private UserIdent owner;
 
-	private Plot(AreaZone zone, UserIdent owner) {
+	private Plots(AreaZone zone, UserIdent owner) {
 		this.zone = zone;
 		this.owner = owner;
 	}

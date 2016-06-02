@@ -18,7 +18,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 public class PlotManager extends ServerEventHandler {
 
 	public static void serverStarting() {
-		Plot.registerPermissions();
+		Plots.registerPermissions();
 	}
 
 	public PlotManager() {
@@ -29,8 +29,8 @@ public class PlotManager extends ServerEventHandler {
 
 	@SubscribeEvent(priority = EventPriority.LOW)
 	public void onZoneChange(PlayerChangedZone event) {
-		Plot oldPlot = Plot.getPlot(event.beforePoint.toWorldPoint());
-		Plot plot = Plot.getPlot(event.afterPoint.toWorldPoint());
+		Plots oldPlot = Plots.getPlot(event.beforePoint.toWorldPoint());
+		Plots plot = Plots.getPlot(event.afterPoint.toWorldPoint());
 		// TODO: This could fail, another (non-plot) zone starts on the same
 		// plane as the plot!!!
 		// Plot plot = Plot.getPlot(event.afterZone.getId());
@@ -39,10 +39,10 @@ public class PlotManager extends ServerEventHandler {
 
 			UserIdent ident = UserIdent.get(event.entityPlayer);
 			Set<String> groups = plot.getZone().getStoredPlayerGroups(ident);
-			if (groups.contains(Plot.GROUP_PLOT_OWNER)) {
+			if (groups.contains(Plots.GROUP_PLOT_OWNER)) {
 				message += " " + Translator.translate("as owner");
 				ChatOutputHandler.chatConfirmation(event.entityPlayer, message);
-			} else if (groups.contains(Plot.GROUP_PLOT_USER)) {
+			} else if (groups.contains(Plots.GROUP_PLOT_USER)) {
 				message += " " + Translator.translate("with user access");
 				ChatOutputHandler.chatConfirmation(event.entityPlayer, message);
 			} else if (!plot.hasOwner()) {
@@ -72,6 +72,6 @@ public class PlotManager extends ServerEventHandler {
 
 	@SubscribeEvent
 	public void permissionAfterLoadEvent(PermissionEvent.AfterLoad event) {
-		Plot.loadPlots();
+		Plots.loadPlots();
 	}
 }
