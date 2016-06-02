@@ -269,6 +269,28 @@ mixin {
 }
 
 /************************************************************
+ * Deobfuscated server jar
+ * Dependency name for maven = com.forgeessentials:forgeessentials:<version>:
+
+
+task deobfJar(dependsOn: "classes", type: Jar) {
+	classifier = "dev"
+	appendix = minecraft.version
+	
+	from sourceSets.main.output
+	from sourceSets.utils.output
+	
+	from (sourceSets.main.java) {
+		into ("src/")
+	}
+
+	manifest {
+		from serverManifest
+	}
+}
+ */
+
+/************************************************************
  * Configure reobfuscation
  */
 
@@ -284,6 +306,7 @@ reobf {
 
 // Add default artifacts for task "build"
 artifacts {
+	//archives deobfJar
 	archives clientJar
 }
 
