@@ -116,20 +116,6 @@ configurations {
 
 // Configure dependencies (build-only, shaded and packed libraries)
 dependencies {
-	// IRC
-	serverLib("org.pircbotx:pircbotx:2.0.1") {
-        // these are all packaged with the minecraft server jar
-        exclude module: 'guava'
-        exclude module: 'commons-lang3'
-        exclude module: 'commons-codec'
-    }
-	
-	// Database libraries
-	serverLib "com.h2database:h2:1.3.175"
-	serverLib "mysql:mysql-connector-java:5.1.22"
-	serverLib "org.hibernate:hibernate-entitymanager:4.3.7.Final"
-	buildDep "org.hibernate:hibernate-jpamodelgen:4.3.7.Final"
-	
 	// WorldEdit
     //buildDep group: "com.sk89q.worldedit", name: "worldedit-forge-1.8.9", version: "6.1.1-SNAPSHOT", changing: true
     buildDep "com.sk89q.worldedit:worldedit-core:6.1.1-SNAPSHOT"
@@ -271,7 +257,7 @@ mixin {
 /************************************************************
  * Deobfuscated server jar
  * Dependency name for maven = com.forgeessentials:forgeessentials:<version>:
-
+*/
 
 task deobfJar(dependsOn: "classes", type: Jar) {
 	classifier = "dev"
@@ -288,7 +274,7 @@ task deobfJar(dependsOn: "classes", type: Jar) {
 		from serverManifest
 	}
 }
- */
+ 
 
 /************************************************************
  * Configure reobfuscation
@@ -306,7 +292,7 @@ reobf {
 
 // Add default artifacts for task "build"
 artifacts {
-	//archives deobfJar
+	archives deobfJar
 	archives clientJar
 }
 

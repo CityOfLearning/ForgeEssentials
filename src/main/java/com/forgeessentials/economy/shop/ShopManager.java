@@ -63,7 +63,7 @@ public class ShopManager extends ServerEventHandler implements ConfigLoader {
 	public static final String MSG_MODIFY_DENIED = "You are not allowed to modify shops!";
 	public static final String STOCK_HELP = "If disabled, shops have an infinite stock. Otherwise players can only buy items, that have been sold to the shop before";
 
-	public static final String CONFIG_FILE = "EconomyConfig";
+	public static final String CONFIG_FILE = "Shops";
 
 	public static final Set<String> shopTags = new HashSet<String>();
 

@@ -18,14 +18,17 @@ import com.forgeessentials.commons.network.Packet0Handshake;
 import com.forgeessentials.commons.network.Packet1SelectionUpdate;
 import com.forgeessentials.commons.network.Packet2Reach;
 import com.forgeessentials.commons.network.Packet3PlayerPermissions;
+import com.forgeessentials.commons.network.Packet4PlotsUpdate;
 import com.forgeessentials.commons.network.Packet5Noclip;
-import com.forgeessentials.commons.network.Packet7Remote;
+import com.forgeessentials.commons.network.Packet6SyncPlots;
+import com.forgeessentials.commons.selections.WorldArea;
 import com.forgeessentials.compat.HelpFixer;
 import com.forgeessentials.core.commands.CommandFEInfo;
 import com.forgeessentials.core.commands.CommandFEWorldInfo;
 import com.forgeessentials.core.commands.CommandFeReload;
 import com.forgeessentials.core.commands.CommandFeSettings;
 import com.forgeessentials.core.commands.CommandUuid;
+import com.forgeessentials.core.environment.CommandSetChecker;
 import com.forgeessentials.core.environment.Environment;
 import com.forgeessentials.core.mcstats.ConstantPlotter;
 import com.forgeessentials.core.mcstats.Metrics;
@@ -41,6 +44,7 @@ import com.forgeessentials.core.moduleLauncher.config.ConfigLoaderBase;
 import com.forgeessentials.core.moduleLauncher.config.ConfigManager;
 import com.forgeessentials.core.preloader.FELaunchHandler;
 import com.forgeessentials.data.v2.DataManager;
+import com.forgeessentials.economy.plots.Plot;
 import com.forgeessentials.util.FEChunkLoader;
 import com.forgeessentials.util.PlayerInfo;
 import com.forgeessentials.util.ServerUtil;
@@ -373,11 +377,12 @@ public class ForgeEssentials extends ConfigLoaderBase {
 				LoggingHandler.felog.error("Error getting player Info");
 			}
 			return null;
-		} , Packet0Handshake.class, 0, Side.SERVER);
+		}, Packet0Handshake.class, 0, Side.SERVER);
 		NetworkUtils.registerMessageProxy(Packet1SelectionUpdate.class, 1, Side.CLIENT,
 				new NullMessageHandler<Packet1SelectionUpdate>() {
 					/* dummy */
 				});
+
 		NetworkUtils.registerMessageProxy(Packet2Reach.class, 2, Side.CLIENT, new NullMessageHandler<Packet2Reach>() {
 			/* dummy */
 		});
@@ -385,12 +390,39 @@ public class ForgeEssentials extends ConfigLoaderBase {
 				new NullMessageHandler<Packet3PlayerPermissions>() {
 					/* dummy */
 				});
+		NetworkUtils.registerMessageProxy(Packet4PlotsUpdate.class, 4, Side.CLIENT,
+				new NullMessageHandler<Packet4PlotsUpdate>() {
+					/* dummy */
+				});
 		NetworkUtils.registerMessageProxy(Packet5Noclip.class, 5, Side.CLIENT, new NullMessageHandler<Packet5Noclip>() {
 			/* dummy */
 		});
-		NetworkUtils.registerMessageProxy(Packet7Remote.class, 7, Side.CLIENT, new NullMessageHandler<Packet7Remote>() {
-			/* dummy */
-		});
+		NetworkUtils.registerMessage((message, ctx) -> {
+			for (Plot p : Plot.getPlots()) {
+				if (p.hasOwner() && p.getOwner().isPlayer()) {
+					if (p.getOwner().equals(UserIdent.get(ctx.getServerHandler().playerEntity))) { 
+						// players plot
+						NetworkUtils.netHandler.sendTo(
+								new Packet4PlotsUpdate(new WorldArea(p.getDimension(), p.getZone().getArea()), 1, true),
+								ctx.getServerHandler().playerEntity);
+					} else if (p.getOwner().getPlayer() != null && ctx.getServerHandler().playerEntity.isOnSameTeam(p.getOwner().getPlayer())) { 
+						// teams plot, why is player coming up null?
+						NetworkUtils.netHandler.sendTo(
+								new Packet4PlotsUpdate(new WorldArea(p.getDimension(), p.getZone().getArea()), 2, true),
+								ctx.getServerHandler().playerEntity);
+					} else { // someone elses plot
+						NetworkUtils.netHandler.sendTo(
+								new Packet4PlotsUpdate(new WorldArea(p.getDimension(), p.getZone().getArea()), 3, true),
+								ctx.getServerHandler().playerEntity);
+					}
+				} else { // ownerless plot
+					NetworkUtils.netHandler.sendTo(
+							new Packet4PlotsUpdate(new WorldArea(p.getDimension(), p.getZone().getArea()), 0, true),
+							ctx.getServerHandler().playerEntity);
+				}
+			}
+			return null;
+		}, Packet6SyncPlots.class, 6, Side.SERVER);
 
 	}
 
@@ -429,7 +461,6 @@ public class ForgeEssentials extends ConfigLoaderBase {
 	public void serverStarted(FMLServerStartedEvent e) {
 		APIRegistry.getFEEventBus().post(new FEModuleEvent.FEModuleServerPostInitEvent(e));
 
-		// TODO: what the fuck? I don't think we should just go and delete all
 		// commands colliding with ours!
 		// CommandSetChecker.remove();
 		FECommandManager.registerCommands();

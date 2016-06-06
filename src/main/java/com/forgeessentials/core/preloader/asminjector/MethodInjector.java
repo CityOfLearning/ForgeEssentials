@@ -372,7 +372,7 @@ public class MethodInjector implements Comparable<MethodInjector> {
 
 	/**
 	 * Inject cloned instruction into target method
-	 * 
+	 *
 	 * @param instruction
 	 */
 	private synchronized void inject(AbstractInsnNode instruction) {
@@ -472,7 +472,7 @@ public class MethodInjector implements Comparable<MethodInjector> {
 	 * <br>
 	 * This method runs synchronized to prevent concurrent modification of
 	 * internal states
-	 * 
+	 *
 	 * @param target
 	 *            The target method where the code should be injected into
 	 * @param insertPoint

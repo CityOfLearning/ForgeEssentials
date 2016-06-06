@@ -169,7 +169,7 @@ public class CommandWeather extends ParserCommandBase implements ConfigurableCom
 
 	@Override
 	public String getCommandUsage(ICommandSender sender) {
-		return "/weather rain|storm [enable|disable|force]: Weather manipulation";
+		return "/feweather rain|storm [enable|disable|force]: Weather manipulation";
 	}
 
 	@Override
@@ -205,7 +205,7 @@ public class CommandWeather extends ParserCommandBase implements ConfigurableCom
 	@Override
 	public void parse(CommandParserArgs arguments) throws CommandException {
 		if (arguments.isEmpty()) {
-			arguments.confirm("/weather rain|storm enable|disable|force");
+			arguments.confirm("/feweather rain|storm enable|disable|force");
 			return;
 		}
 		if (arguments.senderPlayer == null) {

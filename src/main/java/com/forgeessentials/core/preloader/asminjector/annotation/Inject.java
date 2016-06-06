@@ -17,7 +17,7 @@ public @interface Inject {
 	/**
 	 * List of <code>key=value</code> pairs that are used for obfuscation
 	 * mapping
-	 * 
+	 *
 	 * @return alias mappings
 	 */
 	public String[] aliases() default {};
@@ -25,14 +25,14 @@ public @interface Inject {
 	/**
 	 * Array of {@link At} annotations which describe the {@link InjectionPoint}
 	 * s in the target method.
-	 * 
+	 *
 	 * @return injection point specifiers for this injector
 	 */
 	public At[] at();
 
 	/**
 	 * Whether to completely overwrite the target method or not
-	 * 
+	 *
 	 * @return flag specifying, if this injector should overwrite the target
 	 *         method completely
 	 */
@@ -41,7 +41,7 @@ public @interface Inject {
 	/**
 	 * Priority of this injector. Default priority is 0 (can be negative). A
 	 * higher value means the injector is executed earlier.
-	 * 
+	 *
 	 * @return
 	 */
 	public int priority() default 0;
@@ -49,7 +49,7 @@ public @interface Inject {
 	/**
 	 * Target method name and descriptor. <br>
 	 * Example: <code>myMethod(IILjava/lang/String;)V</code>
-	 * 
+	 *
 	 * @return target method name for this injector
 	 */
 	public String target();

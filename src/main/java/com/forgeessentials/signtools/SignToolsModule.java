@@ -79,8 +79,9 @@ public class SignToolsModule extends ConfigLoaderBase {
 				String send = signText[1].getUnformattedText() + " " + signText[2].getUnformattedText() + " "
 						+ signText[3].getUnformattedText();
 				if (send != null) {
-					if (MinecraftServer.getServer().getCommandManager() != null)
+					if (MinecraftServer.getServer().getCommandManager() != null) {
 						MinecraftServer.getServer().getCommandManager().executeCommand(event.entityPlayer, send);
+					}
 					event.setCanceled(true);
 				}
 			}
@@ -91,7 +92,7 @@ public class SignToolsModule extends ConfigLoaderBase {
 
 	/**
 	 * works the same as the old /colorize command
-	 * 
+	 *
 	 * @param e
 	 */
 	@SubscribeEvent

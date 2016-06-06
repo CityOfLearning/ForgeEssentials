@@ -42,23 +42,23 @@ public class Censor extends ConfigLoaderBase {
 
 	private static final String CENSOR_HELP = "Words to be censored. Prepend with ! to disable word boundary check.";
 
-	private List<CensoredWord> filterList = new ArrayList<>();
+	private static List<CensoredWord> filterList = new ArrayList<>();
 
-	public boolean enabled;
+	public static boolean enabled;
 
-	public String censorSymbol;
+	public static String censorSymbol;
 
-	public int censorSlap;
+	public static int censorSlap;
 
-	public Censor() {
-		ForgeEssentials.getConfigManager().registerLoader(ModuleChat.CONFIG_FILE, this);
+	public static boolean containsSwear(String message) {
+		return !message.equals(filter(message));
 	}
 
-	public String filter(String message) {
+	public static String filter(String message) {
 		return filter(message, null);
 	}
 
-	public String filter(String message, EntityPlayer player) {
+	public static String filter(String message, EntityPlayer player) {
 		if (!enabled) {
 			return message;
 		}
@@ -77,7 +77,7 @@ public class Censor extends ConfigLoaderBase {
 		return message;
 	}
 
-	public String filterIRC(String message) {
+	public static String filterIRC(String message) {
 		if (!enabled) {
 			return message;
 		}
@@ -91,6 +91,10 @@ public class Censor extends ConfigLoaderBase {
 			}
 		}
 		return message;
+	}
+
+	public Censor() {
+		ForgeEssentials.getConfigManager().registerLoader(ModuleChat.CONFIG_FILE, this);
 	}
 
 	@Override

@@ -73,7 +73,7 @@ public final class ChatOutputHandler extends ConfigLoaderBase {
 
 	/**
 	 * Apply a set of {@link EnumChatFormatting} to a {@link ChatStyle}
-	 * 
+	 *
 	 * @param chatStyle
 	 * @param formattings
 	 */
@@ -87,7 +87,7 @@ public final class ChatOutputHandler extends ConfigLoaderBase {
 
 	/**
 	 * Apply an {@link EnumChatFormatting} to a {@link ChatStyle}
-	 * 
+	 *
 	 * @param chatStyle
 	 * @param formatting
 	 */
@@ -165,7 +165,7 @@ public final class ChatOutputHandler extends ConfigLoaderBase {
 
 	/**
 	 * outputs a notification message to the chat box of the given sender.
-	 * 
+	 *
 	 * @param sender
 	 *            CommandSender to chat to.
 	 * @param msg
@@ -193,7 +193,7 @@ public final class ChatOutputHandler extends ConfigLoaderBase {
 	/**
 	 * Take a string of chat format codes (without \u00a7) and return them as
 	 * {@link EnumChatFormatting} collection
-	 * 
+	 *
 	 * @param textFormats
 	 * @return
 	 */
@@ -386,7 +386,7 @@ public final class ChatOutputHandler extends ConfigLoaderBase {
 	/**
 	 * Sends a message to a {@link ICommandSender} and performs some security
 	 * checks
-	 * 
+	 *
 	 * @param recipient
 	 * @param message
 	 */
@@ -479,7 +479,7 @@ public final class ChatOutputHandler extends ConfigLoaderBase {
 
 	/**
 	 * Strips any minecraft formatting codes
-	 * 
+	 *
 	 * @param message
 	 * @return
 	 */

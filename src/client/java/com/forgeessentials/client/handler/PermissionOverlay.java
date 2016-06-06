@@ -44,7 +44,7 @@ public class PermissionOverlay extends Gui implements IMessageHandler<Packet3Pla
 	public void drawTexturedRect(double xPos, double yPos, double width, double height) {
 		/*
 		 * TODO update to 1.8.9
-		 */ 
+		 */
 		WorldRenderer renderer = Tessellator.getInstance().getWorldRenderer();
 		// renderer.startDrawingQuads();
 		renderer.begin(7, DefaultVertexFormats.POSITION_TEX);
@@ -53,7 +53,7 @@ public class PermissionOverlay extends Gui implements IMessageHandler<Packet3Pla
 		renderer.pos(xPos + width, yPos, zLevel).tex(1, 0);
 		renderer.pos(xPos, yPos, zLevel).tex(0, 0);
 		Tessellator.getInstance().draw();
-		 
+
 	}
 
 	@Override

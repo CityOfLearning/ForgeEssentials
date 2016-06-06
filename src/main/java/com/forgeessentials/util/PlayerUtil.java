@@ -18,7 +18,7 @@ public abstract class PlayerUtil {
 
 	/**
 	 * Apply potion effects to the player
-	 * 
+	 *
 	 * @param player
 	 * @param effectString
 	 *            Comma separated list of id:duration:amplifier or id:duration
@@ -58,7 +58,7 @@ public abstract class PlayerUtil {
 
 	/**
 	 * Get the player persisted NBT tag
-	 * 
+	 *
 	 * @param player
 	 * @return
 	 */
@@ -107,7 +107,7 @@ public abstract class PlayerUtil {
 
 	/**
 	 * Give player the item stack or drop it if his inventory is full
-	 * 
+	 *
 	 * @param player
 	 * @param item
 	 */
@@ -119,7 +119,7 @@ public abstract class PlayerUtil {
 
 	/**
 	 * Swaps the player's inventory with the one provided and returns the old.
-	 * 
+	 *
 	 * @param player
 	 * @param newItems
 	 * @return

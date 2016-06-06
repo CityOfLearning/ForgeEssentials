@@ -53,7 +53,7 @@ public class HelpFixer extends CommandHelp {
 	/**
 	 * Fix for retard mods who think they can just return null in
 	 * {@link ICommand#getCommandUsage(ICommandSender)}
-	 * 
+	 *
 	 * @throws CommandException
 	 */
 	@Override

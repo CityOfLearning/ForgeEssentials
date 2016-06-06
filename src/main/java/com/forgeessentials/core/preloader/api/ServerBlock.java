@@ -1,8 +1,7 @@
 package com.forgeessentials.core.preloader.api;
 
-public interface ServerBlock
-{
+public interface ServerBlock {
 
-    public String getTextureNameServer();
-    
+	public String getTextureNameServer();
+
 }

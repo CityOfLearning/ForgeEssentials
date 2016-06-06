@@ -9,9 +9,6 @@ import com.forgeessentials.api.UserIdent.NpcUserIdent;
 import com.forgeessentials.api.UserIdent.ServerUserIdent;
 import com.forgeessentials.api.economy.Economy;
 import com.forgeessentials.api.permissions.IPermissionsHelper;
-import com.forgeessentials.api.remote.FERemoteHandler;
-import com.forgeessentials.api.remote.RemoteHandler;
-import com.forgeessentials.api.remote.RemoteManager;
 
 import net.minecraftforge.fml.common.eventhandler.EventBus;
 
@@ -62,17 +59,6 @@ public class APIRegistry {
 	 * to call the old one in your implementation!
 	 */
 	public static NamedWorldHandler namedWorldHandler = new NamedWorldHandler.DefaultNamedWorldHandler();
-
-	/**
-	 * This manager allows registering custom {@link RemoteHandler}s for
-	 * remote-module. Please be careful to use unique IDs when registering
-	 * handlers.
-	 * 
-	 * Using this instance to register handlers is deprecated. Use the
-	 * {@link FERemoteHandler} annotation instead.
-	 */
-	@Deprecated
-	public static RemoteManager remoteManager = new RemoteManager.DefaultRemoteHandlerManager();
 
 	/**
 	 * The FE internal event-bus

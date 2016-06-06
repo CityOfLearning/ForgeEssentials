@@ -165,7 +165,7 @@ public abstract class Zone {
 
 	/**
 	 * Checks, if a group permission is true, false or empty.
-	 * 
+	 *
 	 * @param group
 	 * @param permissionNode
 	 * @return true / false or null, if not set
@@ -181,7 +181,7 @@ public abstract class Zone {
 
 	/**
 	 * Checks, if a player permission is true, false or empty.
-	 * 
+	 *
 	 * @param ident
 	 * @param permissionNode
 	 * @return true / false or null, if not set
@@ -197,7 +197,7 @@ public abstract class Zone {
 
 	/**
 	 * Clears a player permission
-	 * 
+	 *
 	 * @param group
 	 * @param permissionNode
 	 */
@@ -215,7 +215,7 @@ public abstract class Zone {
 
 	/**
 	 * Clears a player permission
-	 * 
+	 *
 	 * @param ident
 	 * @param permissionNode
 	 */
@@ -258,7 +258,7 @@ public abstract class Zone {
 
 	/**
 	 * Returns the value of a group permission, or null if empty.
-	 * 
+	 *
 	 * @param group
 	 * @param permissionNode
 	 * @return permission value or null, if not set
@@ -281,7 +281,7 @@ public abstract class Zone {
 	/**
 	 * Gets the group permissions for the specified group, or null if not
 	 * present.
-	 * 
+	 *
 	 * @param group
 	 *            Group
 	 */
@@ -304,7 +304,7 @@ public abstract class Zone {
 	/**
 	 * Gets the group permissions for the specified group. If no permission-map
 	 * is present, a new one is created.
-	 * 
+	 *
 	 * @param group
 	 *            Group
 	 */
@@ -324,7 +324,7 @@ public abstract class Zone {
 	/**
 	 * Gets the player permissions for the specified player. If no
 	 * permission-map is present, a new one is created.
-	 * 
+	 *
 	 * @param ident
 	 */
 	public PermissionList getOrCreatePlayerPermissions(UserIdent ident) {
@@ -357,7 +357,7 @@ public abstract class Zone {
 
 	/**
 	 * Returns the value of a player permission, or null if empty.
-	 * 
+	 *
 	 * @param player
 	 * @param permissionNode
 	 * @return permission value or null, if not set
@@ -368,7 +368,7 @@ public abstract class Zone {
 
 	/**
 	 * Returns the value of a player permission, or null if empty.
-	 * 
+	 *
 	 * @param ident
 	 * @param permissionNode
 	 */
@@ -390,7 +390,7 @@ public abstract class Zone {
 	/**
 	 * Gets the player permissions for the specified player, or null if not
 	 * present.
-	 * 
+	 *
 	 * @param ident
 	 */
 	public PermissionList getPlayerPermissions(UserIdent ident) {
@@ -444,14 +444,14 @@ public abstract class Zone {
 
 	/**
 	 * Checks, whether the area is entirely contained within the zone.
-	 * 
+	 *
 	 * @param point
 	 */
 	public abstract boolean isInZone(WorldArea point);
 
 	/**
 	 * Checks, whether the player is in the zone.
-	 * 
+	 *
 	 * @param point
 	 */
 	public abstract boolean isInZone(WorldPoint point);
@@ -462,14 +462,14 @@ public abstract class Zone {
 
 	/**
 	 * Checks, whether a part of the area is in the zone.
-	 * 
+	 *
 	 * @param point
 	 */
 	public abstract boolean isPartOfZone(WorldArea point);
 
 	/**
 	 * Checks, whether the player is in the zone.
-	 * 
+	 *
 	 * @param player
 	 */
 	public boolean isPlayerInZone(EntityPlayer player) {
@@ -495,7 +495,7 @@ public abstract class Zone {
 
 	/**
 	 * Set a group permission
-	 * 
+	 *
 	 * @param group
 	 * @param permissionNode
 	 * @param value
@@ -506,7 +506,7 @@ public abstract class Zone {
 
 	/**
 	 * Set a group permission-property
-	 * 
+	 *
 	 * @param group
 	 * @param permissionNode
 	 * @param value
@@ -528,7 +528,7 @@ public abstract class Zone {
 
 	/**
 	 * Set a player permission
-	 * 
+	 *
 	 * @param ident
 	 * @param permissionNode
 	 * @param value
@@ -539,7 +539,7 @@ public abstract class Zone {
 
 	/**
 	 * Set a player permission-property
-	 * 
+	 *
 	 * @param ident
 	 * @param permissionNode
 	 * @param value

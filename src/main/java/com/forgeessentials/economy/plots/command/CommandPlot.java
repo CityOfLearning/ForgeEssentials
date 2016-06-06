@@ -20,8 +20,8 @@ import com.forgeessentials.core.commands.ParserCommandBase;
 import com.forgeessentials.core.misc.TranslatedCommandException;
 import com.forgeessentials.core.misc.Translator;
 import com.forgeessentials.economy.ModuleEconomy;
-import com.forgeessentials.economy.plots.Plots;
-import com.forgeessentials.economy.plots.Plots.PlotRedefinedException;
+import com.forgeessentials.economy.plots.Plot;
+import com.forgeessentials.economy.plots.Plot.PlotRedefinedException;
 import com.forgeessentials.protection.MobType;
 import com.forgeessentials.protection.ModuleProtection;
 import com.forgeessentials.util.CommandParserArgs;
@@ -52,7 +52,7 @@ public class CommandPlot extends ParserCommandBase {
 			return values;
 		}
 
-		public boolean check(ICommandSender sender, Plots plot) {
+		public boolean check(ICommandSender sender, Plot plot) {
 			switch (this) {
 			case ALL:
 				return true;
@@ -74,7 +74,7 @@ public class CommandPlot extends ParserCommandBase {
 
 	}
 
-	public static void buyPlot(CommandParserArgs arguments, Plots plot, long price) throws CommandException {
+	public static void buyPlot(CommandParserArgs arguments, Plot plot, long price) throws CommandException {
 		String priceStr = APIRegistry.economy.toString(price);
 		Wallet buyerWallet = APIRegistry.economy.getWallet(arguments.ident);
 		if (!buyerWallet.withdraw(price)) {
@@ -104,11 +104,11 @@ public class CommandPlot extends ParserCommandBase {
 
 	private static void checkLimits(CommandParserArgs arguments, WorldArea newArea) throws CommandException {
 		int plotSize = newArea.getXLength() * newArea.getZLength()
-				* (Plots.isColumnMode(newArea.getDimension()) ? 1 : newArea.getYLength());
+				* (Plot.isColumnMode(newArea.getDimension()) ? 1 : newArea.getYLength());
 
-		int minAxis = ServerUtil.parseIntDefault(APIRegistry.perms.getGlobalPermissionProperty(Plots.PERM_SIZE_MIN),
+		int minAxis = ServerUtil.parseIntDefault(APIRegistry.perms.getGlobalPermissionProperty(Plot.PERM_SIZE_MIN),
 				Integer.MIN_VALUE);
-		int maxAxis = ServerUtil.parseIntDefault(APIRegistry.perms.getGlobalPermissionProperty(Plots.PERM_SIZE_MAX),
+		int maxAxis = ServerUtil.parseIntDefault(APIRegistry.perms.getGlobalPermissionProperty(Plot.PERM_SIZE_MAX),
 				Integer.MAX_VALUE);
 
 		if ((newArea.getXLength() < minAxis) || (newArea.getZLength() < minAxis)) {
@@ -120,12 +120,12 @@ public class CommandPlot extends ParserCommandBase {
 		}
 
 		int limitCount = ServerUtil.parseIntDefault(
-				APIRegistry.perms.getUserPermissionProperty(arguments.ident, Plots.PERM_LIMIT_COUNT), Integer.MAX_VALUE);
+				APIRegistry.perms.getUserPermissionProperty(arguments.ident, Plot.PERM_LIMIT_COUNT), Integer.MAX_VALUE);
 		int limitSize = ServerUtil.parseIntDefault(
-				APIRegistry.perms.getUserPermissionProperty(arguments.ident, Plots.PERM_LIMIT_SIZE), Integer.MAX_VALUE);
+				APIRegistry.perms.getUserPermissionProperty(arguments.ident, Plot.PERM_LIMIT_SIZE), Integer.MAX_VALUE);
 		int usedCount = 0;
 		long usedSize = 0;
-		for (Plots plot : Plots.getPlots()) {
+		for (Plot plot : Plot.getPlots()) {
 			if (arguments.ident.equals(plot.getOwner())) {
 				usedCount++;
 				usedSize += plot.getAccountedSize();
@@ -139,8 +139,8 @@ public class CommandPlot extends ParserCommandBase {
 		}
 	}
 
-	public static Plots getPlot(ICommandSender sender) throws CommandException {
-		Plots plot = Plots.getPlot(new WorldPoint(sender.getEntityWorld(), sender.getPosition()));
+	public static Plot getPlot(ICommandSender sender) throws CommandException {
+		Plot plot = Plot.getPlot(new WorldPoint(sender.getEntityWorld(), sender.getPosition()));
 		if (plot == null) {
 			throw new TranslatedCommandException(
 					"There is no plot at this position. You have to stand inside it to use plot commands.");
@@ -149,7 +149,7 @@ public class CommandPlot extends ParserCommandBase {
 	}
 
 	public static void parseBuyStart(final CommandParserArgs arguments) throws CommandException {
-		final Plots plot = getPlot(arguments.sender);
+		final Plot plot = getPlot(arguments.sender);
 		if (plot == null) {
 			throw new TranslatedCommandException("There is no plot at this position");
 		}
@@ -241,7 +241,7 @@ public class CommandPlot extends ParserCommandBase {
 	}
 
 	public static void parseClaim(final CommandParserArgs arguments) throws CommandException {
-		arguments.checkPermission(Plots.PERM_CLAIM);
+		arguments.checkPermission(Plot.PERM_CLAIM);
 		arguments.requirePlayer();
 
 		if (arguments.isTabCompletion) {
@@ -253,7 +253,7 @@ public class CommandPlot extends ParserCommandBase {
 			throw new TranslatedCommandException("Need a valid selection to define a plot");
 		}
 
-		final long price = Plots.getCalculatedPrice(selection);
+		final long price = Plot.getCalculatedPrice(selection);
 
 		QuestionerCallback handler = response -> {
 			if (response == null) {
@@ -273,7 +273,7 @@ public class CommandPlot extends ParserCommandBase {
 				checkLimits(arguments, selection);
 
 				try {
-					Plots.define(selection, arguments.ident);
+					Plot.define(selection, arguments.ident);
 					wallet.withdraw(price);
 					arguments.confirm("Plot created for %s!", APIRegistry.economy.toString(price));
 				} catch (PlotRedefinedException e1) {
@@ -295,7 +295,7 @@ public class CommandPlot extends ParserCommandBase {
 	}
 
 	public static void parseDefine(CommandParserArgs arguments) throws CommandException {
-		arguments.checkPermission(Plots.PERM_DEFINE);
+		arguments.checkPermission(Plot.PERM_DEFINE);
 		arguments.requirePlayer();
 
 		if (arguments.isTabCompletion) {
@@ -308,7 +308,7 @@ public class CommandPlot extends ParserCommandBase {
 		}
 
 		try {
-			Plots.define(selection, arguments.ident);
+			Plot.define(selection, arguments.ident);
 			arguments.confirm("Plot created!");
 		} catch (PlotRedefinedException e) {
 			throw new TranslatedCommandException("There is already a plot defined in this area");
@@ -318,29 +318,31 @@ public class CommandPlot extends ParserCommandBase {
 	}
 
 	public static void parseDelete(CommandParserArgs arguments) throws CommandException {
-		Plots plot = getPlot(arguments.sender);
-		if ((plot.getOwner() != UserIdent.get(arguments.senderPlayer)) || arguments.hasPermission(Plots.PERM_DELETE)) {
+		Plot plot = getPlot(arguments.sender);
+		// why was this set to not? players should be able to delete their own
+		// plots
+		if ((plot.getOwner() == UserIdent.get(arguments.senderPlayer)) || arguments.hasPermission(Plot.PERM_DELETE)) {
 			arguments.confirm("Plot \"%s\" has been deleted.", plot.getNameNotNull());
-			Plots.deletePlot(plot);
+			Plot.deletePlot(plot);
 		} else {
 			throw new TranslatedCommandException("You are not the owner of this plot, you can't delete it!");
 		}
 	}
 
 	public static void parseLimits(CommandParserArgs arguments) throws CommandException {
-		String limitCount = APIRegistry.perms.getUserPermissionProperty(arguments.ident, Plots.PERM_LIMIT_COUNT);
+		String limitCount = APIRegistry.perms.getUserPermissionProperty(arguments.ident, Plot.PERM_LIMIT_COUNT);
 		if ((limitCount == null) || limitCount.isEmpty()) {
 			limitCount = "infinite";
 		}
 
-		String limitSize = APIRegistry.perms.getUserPermissionProperty(arguments.ident, Plots.PERM_LIMIT_SIZE);
+		String limitSize = APIRegistry.perms.getUserPermissionProperty(arguments.ident, Plot.PERM_LIMIT_SIZE);
 		if ((limitSize == null) || limitSize.isEmpty()) {
 			limitSize = "infinite";
 		}
 
 		int usedCount = 0;
 		long usedSize = 0;
-		for (Plots plot : Plots.getPlots()) {
+		for (Plot plot : Plot.getPlots()) {
 			if (arguments.ident.equals(plot.getOwner())) {
 				usedCount++;
 				usedSize += plot.getAccountedSize();
@@ -352,7 +354,7 @@ public class CommandPlot extends ParserCommandBase {
 	}
 
 	public static void parseList(final CommandParserArgs arguments) throws CommandException {
-		arguments.checkPermission(Plots.PERM_LIST);
+		arguments.checkPermission(Plot.PERM_LIST);
 
 		PlotListingType listType = PlotListingType.OWN;
 		if (!arguments.isEmpty()) {
@@ -370,7 +372,7 @@ public class CommandPlot extends ParserCommandBase {
 
 		final WorldPoint playerRef = arguments.senderPlayer != null ? arguments.getSenderPoint().setY(0)
 				: new WorldPoint(0, 0, 0, 0);
-		SortedSet<Plots> plots = new TreeSet<Plots>((a, b) -> {
+		SortedSet<Plot> plots = new TreeSet<Plot>((a, b) -> {
 			if (a.getDimension() != playerRef.getDimension()) {
 				if (b.getDimension() == playerRef.getDimension()) {
 					return 1;
@@ -385,24 +387,24 @@ public class CommandPlot extends ParserCommandBase {
 			return (int) Math.signum(aDist - bDist);
 		});
 
-		for (Plots plot : Plots.getPlots()) {
+		for (Plot plot : Plot.getPlots()) {
 			if (listType.check(arguments.sender, plot)) {
 				plots.add(plot);
 			}
 		}
 
 		arguments.confirm(Translator.translate("Listing " + listType.toString().toLowerCase() + " plots:"));
-		for (Plots plot : plots) {
+		for (Plot plot : plots) {
 			plot.printInfo(arguments.sender);
 		}
 	}
 
 	public static void parseMods(CommandParserArgs arguments, boolean modifyUsers) throws CommandException {
-		Plots plot = getPlot(arguments.sender);
+		Plot plot = getPlot(arguments.sender);
 		String type = modifyUsers ? "users" : "mods";
-		String group = modifyUsers ? Plots.GROUP_PLOT_USER : Plots.GROUP_PLOT_MOD;
+		String group = modifyUsers ? Plot.GROUP_PLOT_USER : Plot.GROUP_PLOT_MOD;
 
-		arguments.checkPermission(Plots.PERM_MODS);
+		arguments.checkPermission(Plot.PERM_MODS);
 		if (arguments.isEmpty()) {
 			arguments.confirm("/plot " + type + " add|remove <player>: Add / remove " + type);
 			arguments.confirm("Plot " + type + ":");
@@ -423,11 +425,11 @@ public class CommandPlot extends ParserCommandBase {
 
 		switch (action) {
 		case "add":
-			plot.getZone().addPlayerToGroup(player, modifyUsers ? Plots.GROUP_PLOT_USER : Plots.GROUP_PLOT_MOD);
+			plot.getZone().addPlayerToGroup(player, modifyUsers ? Plot.GROUP_PLOT_USER : Plot.GROUP_PLOT_MOD);
 			arguments.confirm("Added %s to plot " + type, player.getUsernameOrUuid());
 			break;
 		case "remove":
-			plot.getZone().removePlayerFromGroup(player, modifyUsers ? Plots.GROUP_PLOT_USER : Plots.GROUP_PLOT_MOD);
+			plot.getZone().removePlayerFromGroup(player, modifyUsers ? Plot.GROUP_PLOT_USER : Plot.GROUP_PLOT_MOD);
 			arguments.confirm("Removed %s from plot " + type, player.getUsernameOrUuid());
 			break;
 		default:
@@ -439,8 +441,8 @@ public class CommandPlot extends ParserCommandBase {
 		final String[] tabCompletion = new String[] { "build", "interact", "use", "chest", "button", "lever", "door",
 				"animal" };
 
-		arguments.checkPermission(Plots.PERM_PERMS);
-		Plots plot = getPlot(arguments.sender);
+		arguments.checkPermission(Plot.PERM_PERMS);
+		Plot plot = getPlot(arguments.sender);
 		if (arguments.isEmpty()) {
 			arguments.confirm("/plot perms <type> true|false: Control what other players can do in a plot");
 			arguments.confirm("Possible perms: %s", StringUtils.join(tabCompletion, ", "));
@@ -528,22 +530,22 @@ public class CommandPlot extends ParserCommandBase {
 	}
 
 	public static void parseSelect(CommandParserArgs arguments) throws CommandException {
-		Plots plot = getPlot(arguments.sender);
+		Plot plot = getPlot(arguments.sender);
 		SelectionHandler.select(arguments.senderPlayer, plot.getDimension(), plot.getZone().getArea());
 		arguments.confirm("Selected plot");
 	}
 
 	public static void parseSet(CommandParserArgs arguments) throws CommandException {
 		if (arguments.isEmpty()) {
-			if (arguments.hasPermission(Plots.PERM_SET_PRICE)) {
+			if (arguments.hasPermission(Plot.PERM_SET_PRICE)) {
 				arguments.confirm("/plot set price: Put up plot for sale");
 			}
-			if (arguments.hasPermission(Plots.PERM_SET_FEE)) {
+			if (arguments.hasPermission(Plot.PERM_SET_FEE)) {
 				arguments.confirm(Translator.translate("/plot set fee: Set a fee (WIP)")); // TODO
 																							// WIP
 																							// plots
 			}
-			if (arguments.hasPermission(Plots.PERM_SET_NAME)) {
+			if (arguments.hasPermission(Plot.PERM_SET_NAME)) {
 				arguments.confirm("/plot set name: Set the plot name");
 			}
 			return;
@@ -570,9 +572,9 @@ public class CommandPlot extends ParserCommandBase {
 	}
 
 	public static void parseSetFee(CommandParserArgs arguments) throws CommandException {
-		Plots plot = getPlot(arguments.sender);
+		Plot plot = getPlot(arguments.sender);
 		if (arguments.isEmpty()) {
-			if (arguments.hasPermission(Plots.PERM_SET_FEE)) {
+			if (arguments.hasPermission(Plot.PERM_SET_FEE)) {
 				arguments.confirm(Translator.translate("/plot set fee <amount> <timeout>: Set fee (WIP)")); // TODO
 																											// WIP
 			}
@@ -580,7 +582,7 @@ public class CommandPlot extends ParserCommandBase {
 			arguments.confirm("Current plot fee: %s", APIRegistry.economy.toString(plot.getFee()));
 			return;
 		}
-		arguments.checkPermission(Plots.PERM_SET_FEE);
+		arguments.checkPermission(Plot.PERM_SET_FEE);
 
 		int amount = arguments.parseInt();
 		int timeout = arguments.parseInt();
@@ -595,12 +597,12 @@ public class CommandPlot extends ParserCommandBase {
 	}
 
 	public static void parseSetName(CommandParserArgs arguments) throws CommandException {
-		Plots plot = getPlot(arguments.sender);
+		Plot plot = getPlot(arguments.sender);
 		if (arguments.isEmpty()) {
-			if (arguments.hasPermission(Plots.PERM_SET_NAME)) {
+			if (arguments.hasPermission(Plot.PERM_SET_NAME)) {
 				arguments.confirm("/plot set name <name>: Set plot name");
 			}
-			String name = APIRegistry.perms.getGroupPermissionProperty(Plots.GROUP_ALL, Plots.PERM_NAME);
+			String name = APIRegistry.perms.getGroupPermissionProperty(Plot.GROUP_ALL, Plot.PERM_NAME);
 			if ((name == null) || name.isEmpty()) {
 				name = "none";
 			}
@@ -608,18 +610,18 @@ public class CommandPlot extends ParserCommandBase {
 			return;
 		}
 		String name = arguments.toString();
-		arguments.checkPermission(Plots.PERM_SET_NAME);
+		arguments.checkPermission(Plot.PERM_SET_NAME);
 		if (arguments.isTabCompletion) {
 			return;
 		}
-		plot.getZone().setGroupPermissionProperty(Plots.GROUP_ALL, Plots.PERM_NAME, name);
+		plot.getZone().setGroupPermissionProperty(Plot.GROUP_ALL, Plot.PERM_NAME, name);
 		arguments.confirm("Set plot name to \"%s\"", name);
 	}
 
 	public static void parseSetOwner(CommandParserArgs arguments) throws CommandException {
-		Plots plot = getPlot(arguments.sender);
+		Plot plot = getPlot(arguments.sender);
 		if (arguments.isEmpty()) {
-			if (arguments.hasPermission(Plots.PERM_SET_OWNER)) {
+			if (arguments.hasPermission(Plot.PERM_SET_OWNER)) {
 				arguments.confirm("/plot set owner <player>: Set plot owner");
 				arguments.confirm("/plot set owner " + APIRegistry.IDENT_SERVER.getUsernameOrUuid()
 						+ ": Set plot owner to server");
@@ -632,7 +634,7 @@ public class CommandPlot extends ParserCommandBase {
 			return;
 		}
 		UserIdent newOwner = arguments.parsePlayer(true, false);
-		arguments.checkPermission(Plots.PERM_SET_OWNER);
+		arguments.checkPermission(Plot.PERM_SET_OWNER);
 		if (arguments.isTabCompletion) {
 			return;
 		}
@@ -641,9 +643,9 @@ public class CommandPlot extends ParserCommandBase {
 	}
 
 	public static void parseSetPrice(CommandParserArgs arguments) throws CommandException {
-		Plots plot = getPlot(arguments.sender);
+		Plot plot = getPlot(arguments.sender);
 		if (arguments.isEmpty()) {
-			if (arguments.hasPermission(Plots.PERM_SET_PRICE)) {
+			if (arguments.hasPermission(Plot.PERM_SET_PRICE)) {
 				arguments.confirm("/plot set price <amount>: Offer plot for sale");
 				arguments.confirm("/plot set price clear: Remove plot from sale");
 			}
@@ -655,7 +657,7 @@ public class CommandPlot extends ParserCommandBase {
 			}
 			return;
 		}
-		arguments.checkPermission(Plots.PERM_SET_PRICE);
+		arguments.checkPermission(Plot.PERM_SET_PRICE);
 
 		arguments.tabComplete("clear");
 		String priceStr = arguments.remove().toLowerCase();
@@ -699,26 +701,26 @@ public class CommandPlot extends ParserCommandBase {
 
 	@Override
 	public String getPermissionNode() {
-		return Plots.PERM_COMMAND;
+		return Plot.PERM_COMMAND;
 	}
 
 	@Override
 	public void parse(final CommandParserArgs arguments) throws CommandException {
 		if (arguments.isEmpty()) {
-			if (arguments.hasPermission(Plots.PERM_LIST)) {
+			if (arguments.hasPermission(Plot.PERM_LIST)) {
 				arguments.confirm("/plot list [own|sale|all]: List plots");
 			}
-			if (arguments.hasPermission(Plots.PERM_DEFINE)) {
+			if (arguments.hasPermission(Plot.PERM_DEFINE)) {
 				arguments.confirm("/plot define: Define selection as plot");
 			}
-			if (arguments.hasPermission(Plots.PERM_CLAIM)) {
+			if (arguments.hasPermission(Plot.PERM_CLAIM)) {
 				arguments.confirm("/plot claim: Buy your selected area as plot");
 			}
 			arguments.confirm("/plot limits: Show your plot limits");
-			if (arguments.hasPermission(Plots.PERM_SET)) {
+			if (arguments.hasPermission(Plot.PERM_SET)) {
 				arguments.confirm("/plot set: Control plot settings");
 			}
-			if (arguments.hasPermission(Plots.PERM_PERMS)) {
+			if (arguments.hasPermission(Plot.PERM_PERMS)) {
 				arguments.confirm("/plot perms: Control plot permissions");
 			}
 			arguments.confirm(Translator.translate(

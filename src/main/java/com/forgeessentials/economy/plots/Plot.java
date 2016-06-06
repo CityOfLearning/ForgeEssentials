@@ -10,7 +10,6 @@ import java.util.regex.Matcher;
 
 import com.forgeessentials.api.APIRegistry;
 import com.forgeessentials.api.UserIdent;
-import com.forgeessentials.api.economy.Plot;
 import com.forgeessentials.api.permissions.AreaZone;
 import com.forgeessentials.api.permissions.FEPermissions;
 import com.forgeessentials.api.permissions.IPermissionsHelper;
@@ -34,7 +33,7 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.permission.PermissionLevel;
 
-public class Plots implements Plot {
+public class Plot {
 
 	public static class PlotRedefinedException extends Exception {
 		/* */
@@ -101,11 +100,11 @@ public class Plots implements Plot {
 
 	public static final String PERM_SELL_PRICE = PERM_DATA + ".price";
 
-	private static Map<Integer, Plots> plots = new HashMap<>();
+	private static Map<Integer, Plot> plots = new HashMap<>();
 
-	public static Plots define(WorldArea area, UserIdent owner) throws EventCancelledException, PlotRedefinedException {
+	public static Plot define(WorldArea area, UserIdent owner) throws EventCancelledException, PlotRedefinedException {
 		WorldZone worldZone = APIRegistry.perms.getServerZone().getWorldZone(area.getDimension());
-		for (Plots zone : plots.values()) {
+		for (Plot zone : plots.values()) {
 			if (zone.getZone().getArea().contains(area) || zone.getZone().getArea().intersectsWith(area)) {
 				throw new PlotRedefinedException();
 			}
@@ -118,23 +117,25 @@ public class Plots implements Plot {
 
 		AreaZone zone = new AreaZone(worldZone, "_PLOT_" + (APIRegistry.perms.getServerZone().getMaxZoneID() + 1),
 				area);
-		Plots plot = new Plots(zone, owner);
+		Plot plot = new Plot(zone, owner);
 		registerPlot(plot);
 		zone.setHidden(true);
 		plot.setDefaultPermissions();
+		PlotManager.handleNewPlot(plot);
 		return plot;
 	}
 
-	public static void deletePlot(Plots plot) {
+	public static void deletePlot(Plot plot) {
 		plot.getZone().getWorldZone().removeAreaZone(plot.getZone());
 		plots.remove(plot.getZone().getId());
+		PlotManager.handleDeletePlot(plot);
 	}
 
 	/**
 	 * Gets the size that counts for price / limit calculation. Depending on
 	 * whether the column flag is set or not, this is the area or volume of the
 	 * plot.
-	 * 
+	 *
 	 * @return accounted size
 	 */
 	public static long getAccountedSize(WorldArea area) {
@@ -155,14 +156,14 @@ public class Plots implements Plot {
 		return (long) (getAccountedSize(area) * pricePerUnit);
 	}
 
-	public static Plots getPlot(int zoneId) {
+	public static Plot getPlot(int zoneId) {
 		return plots.get(zoneId);
 	}
 
-	public static Plots getPlot(WorldPoint point) {
+	public static Plot getPlot(WorldPoint point) {
 		List<Zone> zones = APIRegistry.perms.getServerZone().getZonesAt(point);
 		for (Zone zone : zones) {
-			Plots plot = plots.get(zone.getId());
+			Plot plot = plots.get(zone.getId());
 			if (plot != null) {
 				return plot;
 			}
@@ -170,7 +171,7 @@ public class Plots implements Plot {
 		return null;
 	}
 
-	public static Collection<Plots> getPlots() {
+	public static Collection<Plot> getPlots() {
 		return plots.values();
 	}
 
@@ -194,7 +195,7 @@ public class Plots implements Plot {
 			if (zone instanceof AreaZone) {
 				UserIdent ownerIdent = UserIdent.getFromUuid(zone.getGroupPermission(GROUP_ALL, PERM_OWNER));
 				if (ownerIdent != null) {
-					registerPlot(new Plots((AreaZone) zone, ownerIdent));
+					registerPlot(new Plot((AreaZone) zone, ownerIdent));
 				}
 			}
 		}
@@ -262,7 +263,7 @@ public class Plots implements Plot {
 		CommandFeSettings.addAlias(CATEGORY, "size.max", PERM_SIZE_MAX);
 	}
 
-	private static void registerPlot(Plots plot) {
+	private static void registerPlot(Plot plot) {
 		plots.put(plot.getZone().getId(), plot);
 	}
 
@@ -270,7 +271,7 @@ public class Plots implements Plot {
 
 	private UserIdent owner;
 
-	private Plots(AreaZone zone, UserIdent owner) {
+	private Plot(AreaZone zone, UserIdent owner) {
 		this.zone = zone;
 		this.owner = owner;
 	}
@@ -279,7 +280,7 @@ public class Plots implements Plot {
 	 * Gets the size that counts for price / limit calculation. Depending on
 	 * whether the column flag is set or not, this is the area or volume of the
 	 * plot.
-	 * 
+	 *
 	 * @return accounted size
 	 */
 	public long getAccountedSize() {
@@ -456,6 +457,7 @@ public class Plots implements Plot {
 		zone.setGroupPermissionProperty(GROUP_ALL, PERM_OWNER, owner.getOrGenerateUuid().toString());
 		zone.addPlayerToGroup(newOwner, GROUP_PLOT_OWNER);
 		APIRegistry.getFEEventBus().post(event);
+		PlotManager.handlePlotOwnershipChange(this);
 	}
 
 	public void setPermission(String permission, boolean userPerm, boolean value) {

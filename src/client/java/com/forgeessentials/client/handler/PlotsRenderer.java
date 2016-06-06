@@ -1,11 +1,20 @@
 package com.forgeessentials.client.handler;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
-import com.forgeessentials.commons.network.Packet1SelectionUpdate;
+import com.forgeessentials.client.ForgeEssentialsClient;
+import com.forgeessentials.commons.network.NetworkUtils;
+import com.forgeessentials.commons.network.Packet0Handshake;
+import com.forgeessentials.commons.network.Packet4PlotsUpdate;
+import com.forgeessentials.commons.network.Packet6SyncPlots;
 import com.forgeessentials.commons.selections.Point;
-import com.forgeessentials.commons.selections.Selection;
+import com.forgeessentials.commons.selections.WorldArea;
 
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.WorldRenderer;
@@ -23,11 +32,11 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(value = Side.CLIENT)
-public class CUIRenderrer implements IMessageHandler<Packet1SelectionUpdate, IMessage> {
+public class PlotsRenderer implements IMessageHandler<Packet4PlotsUpdate, IMessage> {
 
 	private static final float ALPHA = .25f;
 
-	private static Selection selection;
+	public static Map<Integer, List<WorldArea>> plots = new HashMap<Integer, List<WorldArea>>();
 
 	/**
 	 * must be translated to proper point before calling
@@ -82,12 +91,40 @@ public class CUIRenderrer implements IMessageHandler<Packet1SelectionUpdate, IMe
 
 	@SubscribeEvent
 	public void connectionOpened(ClientConnectedToServerEvent e) {
-		selection = null;
+		plots = new HashMap<Integer, List<WorldArea>>();
+		if (ForgeEssentialsClient.serverHasFE()) {
+			System.out.println("Requesting plots");
+			NetworkUtils.netHandler.sendToServer(new Packet6SyncPlots());
+		}
 	}
 
 	@Override
-	public IMessage onMessage(Packet1SelectionUpdate message, MessageContext ctx) {
-		selection = message.getSelection();
+	public IMessage onMessage(Packet4PlotsUpdate message, MessageContext ctx) {
+		System.out.println("got plot message");
+		if (plots != null) {
+			if (message.shouldAdd()) {
+				if (plots.containsKey(message.getOwnership())) {
+					plots.get(message.getOwnership()).add(message.getArea());
+				} else {
+					ArrayList<WorldArea> temp = new ArrayList<WorldArea>();
+					temp.add(message.getArea());
+					plots.put(message.getOwnership(), temp);
+				}
+				System.out.println("Created new plot registry " + message.getArea());
+			} else {
+				for(Integer key : plots.keySet()){
+					for (WorldArea plot : plots.get(key)) {
+						if (plot.getCenter().equals(message.getArea().getCenter())) {
+							plots.get(key).remove(plot);
+							System.out.println("Deleted plot registry " + message.getArea());
+							break;
+						}
+					}
+				}
+			}
+		} else {
+			System.out.println("Plots map is null?");
+		}
 		return null;
 	}
 
@@ -98,8 +135,7 @@ public class CUIRenderrer implements IMessageHandler<Packet1SelectionUpdate, IMe
 			return;
 		}
 
-		if ((selection == null)
-				|| (selection.getDimension() != FMLClientHandler.instance().getClient().thePlayer.dimension)) {
+		if (plots == null) {
 			return;
 		}
 
@@ -114,7 +150,7 @@ public class CUIRenderrer implements IMessageHandler<Packet1SelectionUpdate, IMe
 		GL11.glDisable(GL11.GL_LIGHTING);
 		GL11.glLineWidth(2);
 
-		boolean seeThrough = true;
+		boolean seeThrough = false;
 		while (true) {
 			if (seeThrough) {
 				GL11.glDisable(GL11.GL_DEPTH_TEST);
@@ -125,52 +161,55 @@ public class CUIRenderrer implements IMessageHandler<Packet1SelectionUpdate, IMe
 				GL11.glEnable(GL11.GL_DEPTH_TEST);
 			}
 
-			// render start
-			if (selection.getStart() != null) {
-				Point p = selection.getStart();
-				GL11.glPushMatrix();
-				GL11.glTranslated(p.getX(), p.getY(), p.getZ());
-				GL11.glScalef(0.96F, 0.96F, 0.96F);
-				if (seeThrough) {
-					GL11.glColor4f(1, 0, 0, ALPHA);
-				} else {
-					GL11.glColor3f(1, 0, 0);
+			for (Integer type : plots.keySet()) {
+				switch (type) {
+				case 0: // ownerless
+					if (seeThrough) {
+						GL11.glColor4f(1, 1, 1, ALPHA);
+					} else {
+						GL11.glColor3f(1, 1, 1);
+					}
+					break;
+				case 1: // players
+					if (seeThrough) {
+						GL11.glColor4f(0, 0.5f, 0.75f, ALPHA);
+					} else {
+						GL11.glColor3f(0, 0.5f, 0.75f);
+					}
+					break;
+				case 2: // teams
+					if (seeThrough) {
+						GL11.glColor4f(1, 0, 1, ALPHA);
+					} else {
+						GL11.glColor3f(1, 0, 1);
+					}
+					break;
+				case 3: // other non team player
+					if (seeThrough) {
+						GL11.glColor4f(1, 0, 0, ALPHA);
+					} else {
+						GL11.glColor3f(1, 0, 0);
+					}
+					break;
 				}
-				renderBox();
-				GL11.glPopMatrix();
-			}
+				for (WorldArea plot : plots.get(type)) {
+					// only render plots in this dimension
+					if (plot.getDimension() == FMLClientHandler.instance().getClient().thePlayer.dimension) {
+						// render start
+						
 
-			// render end
-			if (selection.getEnd() != null) {
-				Point p = selection.getEnd();
-				GL11.glPushMatrix();
-				GL11.glTranslated(p.getX(), p.getY(), p.getZ());
-				GL11.glScalef(0.98F, 0.98F, 0.98F);
-				if (seeThrough) {
-					GL11.glColor4f(0, 1, 0, ALPHA);
-				} else {
-					GL11.glColor3f(0, 1, 0);
+						Point p1 = plot.getHighPoint();
+						Point p2 = plot.getLowPoint();
+						Point size = plot.getSize();
+						GL11.glPushMatrix();
+						GL11.glTranslated((float) (p1.getX() + p2.getX()) / 2, (float) (p1.getY() + p2.getY()) / 2,
+								(float) (p1.getZ() + p2.getZ()) / 2);
+						GL11.glScalef(1 + size.getX(), 1 + size.getY(), 1 + size.getZ());
+						renderBox();
+						GL11.glPopMatrix();
+					}
 				}
-				renderBox();
-				GL11.glPopMatrix();
-			}
 
-			// render box
-			if ((selection.getStart() != null) && (selection.getEnd() != null)) {
-				Point p1 = selection.getStart();
-				Point p2 = selection.getEnd();
-				Point size = selection.getSize();
-				GL11.glPushMatrix();
-				GL11.glTranslated((float) (p1.getX() + p2.getX()) / 2, (float) (p1.getY() + p2.getY()) / 2,
-						(float) (p1.getZ() + p2.getZ()) / 2);
-				GL11.glScalef(1 + size.getX(), 1 + size.getY(), 1 + size.getZ());
-				if (seeThrough) {
-					GL11.glColor4f(0, 0, 1, ALPHA);
-				} else {
-					GL11.glColor3f(0, 1, 1);
-				}
-				renderBox();
-				GL11.glPopMatrix();
 			}
 
 			if (!seeThrough) {

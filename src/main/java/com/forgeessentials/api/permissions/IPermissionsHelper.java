@@ -24,7 +24,7 @@ public interface IPermissionsHelper extends IPermissionProvider {
 
 	/**
 	 * Add a player to a group
-	 * 
+	 *
 	 * @param ident
 	 * @param group
 	 */
@@ -36,7 +36,7 @@ public interface IPermissionsHelper extends IPermissionProvider {
 
 	/**
 	 * Converts a string permission into a boolean value
-	 * 
+	 *
 	 * @param permissionValue
 	 * @return
 	 */
@@ -44,7 +44,7 @@ public interface IPermissionsHelper extends IPermissionProvider {
 
 	/**
 	 * Gets a global permission from the _ALL_ group
-	 * 
+	 *
 	 * @param permissionNode
 	 * @return
 	 */
@@ -52,7 +52,7 @@ public interface IPermissionsHelper extends IPermissionProvider {
 
 	/**
 	 * Gets a global permission from the _ALL_ group in the specified zone
-	 * 
+	 *
 	 * @param zone
 	 * @param permissionNode
 	 * @return
@@ -61,7 +61,7 @@ public interface IPermissionsHelper extends IPermissionProvider {
 
 	/**
 	 * Gets a permission for the specified group
-	 * 
+	 *
 	 * @param permissionNode
 	 * @return property, if it exists, null otherwise
 	 */
@@ -69,7 +69,7 @@ public interface IPermissionsHelper extends IPermissionProvider {
 
 	/**
 	 * Checks a permission for a group at a certain position
-	 * 
+	 *
 	 * @param group
 	 * @param point
 	 * @param permissionNode
@@ -78,7 +78,7 @@ public interface IPermissionsHelper extends IPermissionProvider {
 
 	/**
 	 * Gets a permission for the specified group in the specified zone
-	 * 
+	 *
 	 * @param zone
 	 * @param permissionNode
 	 * @return property, if it exists, null otherwise
@@ -87,7 +87,7 @@ public interface IPermissionsHelper extends IPermissionProvider {
 
 	/**
 	 * Checks a permission for a player
-	 * 
+	 *
 	 * @param player
 	 * @param permissionNode
 	 */
@@ -95,7 +95,7 @@ public interface IPermissionsHelper extends IPermissionProvider {
 
 	/**
 	 * Checks a permission for a player
-	 * 
+	 *
 	 * @param ident
 	 * @param permissionNode
 	 */
@@ -103,7 +103,7 @@ public interface IPermissionsHelper extends IPermissionProvider {
 
 	/**
 	 * Checks a permission for a player in a certain area
-	 * 
+	 *
 	 * @param ident
 	 * @param targetArea
 	 * @param permissionNode
@@ -112,7 +112,7 @@ public interface IPermissionsHelper extends IPermissionProvider {
 
 	/**
 	 * Checks a permission for a player at a certain position
-	 * 
+	 *
 	 * @param ident
 	 * @param targetPoint
 	 * @param permissionNode
@@ -121,7 +121,7 @@ public interface IPermissionsHelper extends IPermissionProvider {
 
 	/**
 	 * Checks a permission for a player in the specified zone
-	 * 
+	 *
 	 * @param ident
 	 * @param zone
 	 * @param permissionNode
@@ -130,7 +130,7 @@ public interface IPermissionsHelper extends IPermissionProvider {
 
 	/**
 	 * Create a group
-	 * 
+	 *
 	 * @param groupName
 	 */
 	boolean createGroup(String groupName);
@@ -139,7 +139,7 @@ public interface IPermissionsHelper extends IPermissionProvider {
 
 	/**
 	 * Gets a global permission-property from the _ALL_ group
-	 * 
+	 *
 	 * @param permissionNode
 	 * @return property, if it exists, null otherwise
 	 */
@@ -148,7 +148,7 @@ public interface IPermissionsHelper extends IPermissionProvider {
 	/**
 	 * Gets a global permission-property from the _ALL_ group in the specified
 	 * zone
-	 * 
+	 *
 	 * @param zone
 	 * @param permissionNode
 	 * @return property, if it exists, null otherwise
@@ -157,7 +157,7 @@ public interface IPermissionsHelper extends IPermissionProvider {
 
 	/**
 	 * Gets a permission-property for the specified group
-	 * 
+	 *
 	 * @param permissionNode
 	 * @return property, if it exists, null otherwise
 	 */
@@ -167,7 +167,7 @@ public interface IPermissionsHelper extends IPermissionProvider {
 
 	/**
 	 * Gets a permission-property for a group at a certain position
-	 * 
+	 *
 	 * @param group
 	 * @param point
 	 * @param permissionNode
@@ -177,7 +177,7 @@ public interface IPermissionsHelper extends IPermissionProvider {
 
 	/**
 	 * Gets a permission-property for the specified group in the specified zone
-	 * 
+	 *
 	 * @param zone
 	 * @param permissionNode
 	 * @return property, if it exists, null otherwise
@@ -191,7 +191,7 @@ public interface IPermissionsHelper extends IPermissionProvider {
 
 	/**
 	 * Get a permission description
-	 * 
+	 *
 	 * @param permissionNode
 	 * @return
 	 */
@@ -201,7 +201,7 @@ public interface IPermissionsHelper extends IPermissionProvider {
 
 	/**
 	 * Gets a permission-property for a player
-	 * 
+	 *
 	 * @param player
 	 * @param permissionNode
 	 * @return property, if it exists, null otherwise
@@ -211,7 +211,7 @@ public interface IPermissionsHelper extends IPermissionProvider {
 	/**
 	 * Get all groups the player belongs to, together with the system- and
 	 * included groups. Groups are ordered by priority.
-	 * 
+	 *
 	 * @param ident
 	 */
 	SortedSet<GroupEntry> getPlayerGroups(UserIdent ident);
@@ -220,7 +220,7 @@ public interface IPermissionsHelper extends IPermissionProvider {
 
 	/**
 	 * Returns the highest-priority group the the player belongs to.
-	 * 
+	 *
 	 * @param ident
 	 */
 	String getPrimaryGroup(UserIdent ident);
@@ -232,14 +232,14 @@ public interface IPermissionsHelper extends IPermissionProvider {
 
 	/**
 	 * Get all groups the player belongs to. Groups are ordered by priority.
-	 * 
+	 *
 	 * @param ident
 	 */
 	SortedSet<GroupEntry> getStoredPlayerGroups(UserIdent ident);
 
 	/**
 	 * Gets a permission-property for a player
-	 * 
+	 *
 	 * @param ident
 	 * @param permissionNode
 	 * @return property, if it exists, null otherwise
@@ -248,7 +248,7 @@ public interface IPermissionsHelper extends IPermissionProvider {
 
 	/**
 	 * Gets a permission-property for a player in a certain area
-	 * 
+	 *
 	 * @param ident
 	 * @param targetArea
 	 * @param permissionNode
@@ -258,7 +258,7 @@ public interface IPermissionsHelper extends IPermissionProvider {
 
 	/**
 	 * Gets a permission-property for a player at a certain position
-	 * 
+	 *
 	 * @param ident
 	 * @param targetPoint
 	 * @param permissionNode
@@ -270,7 +270,7 @@ public interface IPermissionsHelper extends IPermissionProvider {
 
 	/**
 	 * Gets a permission-property for a player in the specified zone
-	 * 
+	 *
 	 * @param ident
 	 * @param zone
 	 * @param permissionNode
@@ -280,7 +280,7 @@ public interface IPermissionsHelper extends IPermissionProvider {
 
 	/**
 	 * Gets a permission-property for a player as integer
-	 * 
+	 *
 	 * @param ident
 	 * @param permissionNode
 	 * @return property, if it exists, null otherwise
@@ -289,7 +289,7 @@ public interface IPermissionsHelper extends IPermissionProvider {
 
 	/**
 	 * Returns a zone by it's ID
-	 * 
+	 *
 	 * @return Zone or null
 	 */
 	Zone getZoneById(int id);
@@ -297,7 +297,7 @@ public interface IPermissionsHelper extends IPermissionProvider {
 	/**
 	 * Returns a zone by it's ID as string. It the string is no valid integer,
 	 * it returns null.
-	 * 
+	 *
 	 * @return Zone or null
 	 */
 	Zone getZoneById(String id);
@@ -311,7 +311,7 @@ public interface IPermissionsHelper extends IPermissionProvider {
 
 	/**
 	 * Checks, if a group exists
-	 * 
+	 *
 	 * @param groupName
 	 * @return true, if the group exists
 	 */
@@ -319,7 +319,7 @@ public interface IPermissionsHelper extends IPermissionProvider {
 
 	/**
 	 * Checks, if the specified group is a system-group
-	 * 
+	 *
 	 * @param group
 	 * @return
 	 */
@@ -333,7 +333,7 @@ public interface IPermissionsHelper extends IPermissionProvider {
 	/**
 	 * This is where permissions are registered with their default value. This
 	 * function also allows to register a description.
-	 * 
+	 *
 	 * @param permissionNode
 	 * @param level
 	 *            Default level of the permission. This can be used to tell the
@@ -347,7 +347,7 @@ public interface IPermissionsHelper extends IPermissionProvider {
 
 	/**
 	 * Register a permission description
-	 * 
+	 *
 	 * @param permissionNode
 	 * @param description
 	 *            Description for the permission. Description will be stored as
@@ -357,7 +357,7 @@ public interface IPermissionsHelper extends IPermissionProvider {
 
 	/**
 	 * Registers a permission property
-	 * 
+	 *
 	 * @param permissionNode
 	 * @param defaultValue
 	 */
@@ -365,7 +365,7 @@ public interface IPermissionsHelper extends IPermissionProvider {
 
 	/**
 	 * Registers a permission property
-	 * 
+	 *
 	 * @param permissionNode
 	 * @param defaultValue
 	 * @param description
@@ -376,7 +376,7 @@ public interface IPermissionsHelper extends IPermissionProvider {
 
 	/**
 	 * Registers a permission property
-	 * 
+	 *
 	 * @param permissionNode
 	 * @param defaultValue
 	 */
@@ -384,7 +384,7 @@ public interface IPermissionsHelper extends IPermissionProvider {
 
 	/**
 	 * Registers a permission property
-	 * 
+	 *
 	 * @param permissionNode
 	 * @param defaultValue
 	 * @param description
@@ -393,7 +393,7 @@ public interface IPermissionsHelper extends IPermissionProvider {
 
 	/**
 	 * Remove a player from a group
-	 * 
+	 *
 	 * @param ident
 	 * @param group
 	 */
@@ -402,14 +402,14 @@ public interface IPermissionsHelper extends IPermissionProvider {
 	/**
 	 * Marks the permission storage as dirty, so it will be persisted as soon as
 	 * possible.
-	 * 
+	 *
 	 * @param registeredPermission
 	 */
 	void setDirty(boolean registeredPermission);
 
 	/**
 	 * Sets a group permission
-	 * 
+	 *
 	 * @param group
 	 *            Group name
 	 * @param permissionNode
@@ -419,7 +419,7 @@ public interface IPermissionsHelper extends IPermissionProvider {
 
 	/**
 	 * Sets a group permission-property
-	 * 
+	 *
 	 * @param group
 	 * @param permissionNode
 	 * @param value
@@ -428,7 +428,7 @@ public interface IPermissionsHelper extends IPermissionProvider {
 
 	/**
 	 * Sets a player permission
-	 * 
+	 *
 	 * @param ident
 	 * @param permissionNode
 	 * @param value
@@ -437,7 +437,7 @@ public interface IPermissionsHelper extends IPermissionProvider {
 
 	/**
 	 * Sets a player permission-property
-	 * 
+	 *
 	 * @param ident
 	 * @param permissionNode
 	 * @param value

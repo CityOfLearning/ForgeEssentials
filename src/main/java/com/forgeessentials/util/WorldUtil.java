@@ -12,7 +12,7 @@ public abstract class WorldUtil {
 	/**
 	 * Checks if the blocks from [x,y,z] to [x,y+h-1,z] are either air or
 	 * replacable
-	 * 
+	 *
 	 * @param world
 	 * @param x
 	 * @param y
@@ -40,7 +40,7 @@ public abstract class WorldUtil {
 	 * near y. If the blocks at [x,y,z] are free, it returns the next location
 	 * that is on the ground. If the blocks at [x,y,z] are not free, it goes up
 	 * until it finds a free spot.
-	 * 
+	 *
 	 * @param world
 	 * @param x
 	 * @param y
@@ -56,7 +56,7 @@ public abstract class WorldUtil {
 	 * near y. If the blocks at [x,y,z] are free, it returns the next location
 	 * that is on the ground. If the blocks at [x,y,z] are not free, it goes up
 	 * until it finds a free spot.
-	 * 
+	 *
 	 * @param world
 	 * @param x
 	 * @param y

@@ -11,14 +11,21 @@ import net.minecraft.entity.EntityTrackerEntry;
 import net.minecraft.util.IntHashMap;
 
 @Mixin(EntityTracker.class)
-public abstract class MixinEntityTracker_01 implements EntityTrackerHelper {
+public class MixinEntityTracker_01 implements EntityTrackerHelper {
 
 	@Shadow
-	private IntHashMap trackedEntityHashTable = new IntHashMap();
+	private IntHashMap<EntityTrackerEntry> trackedEntityHashTable = new IntHashMap<EntityTrackerEntry>();
 
+	/**
+	 * Provides support for vanish functionality.
+	 *
+	 * @param entity
+	 *            the entity
+	 * @return the entity tracker entry
+	 */
 	@Override
 	public EntityTrackerEntry getEntityTrackerEntry(Entity entity) {
-		return (EntityTrackerEntry) trackedEntityHashTable.lookup(entity.getEntityId());
+		return trackedEntityHashTable.lookup(entity.getEntityId());
 	}
 
 }

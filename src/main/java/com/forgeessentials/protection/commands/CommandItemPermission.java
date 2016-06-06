@@ -109,8 +109,7 @@ public class CommandItemPermission extends ParserCommandBase {
 			APIRegistry.perms.getServerZone().setGroupPermission(Zone.GROUP_DEFAULT, permStart + type + permEnd, value);
 		}
 		arguments.confirm(
-				value == null ? "Cleared [%s] for item %s"
-						: //
+				value == null ? "Cleared [%s] for item %s" : //
 						(value ? "Allowed [%s] for item %s" : "Denied [%s] for item %s"),
 				type, ModuleProtection.getItemPermission(stack, false));
 	}

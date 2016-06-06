@@ -1,7 +1,7 @@
 package com.forgeessentials.util.events;
 
 import com.forgeessentials.api.UserIdent;
-import com.forgeessentials.economy.plots.Plots;
+import com.forgeessentials.economy.plots.Plot;
 
 import net.minecraftforge.fml.common.eventhandler.Cancelable;
 import net.minecraftforge.fml.common.eventhandler.Event;
@@ -12,7 +12,7 @@ public abstract class PlotEvent extends Event {
 	 */
 	@Cancelable
 	public static class Define extends PlotEvent {
-		public Define(Plots plot) {
+		public Define(Plot plot) {
 			super(plot);
 		}
 	}
@@ -22,7 +22,7 @@ public abstract class PlotEvent extends Event {
 	 */
 	@Cancelable
 	public static class Delete extends PlotEvent {
-		public Delete(Plots plot) {
+		public Delete(Plot plot) {
 			super(plot);
 		}
 	}
@@ -33,15 +33,15 @@ public abstract class PlotEvent extends Event {
 	public static class OwnerChanged extends PlotEvent {
 		public final UserIdent oldOwner;
 
-		public OwnerChanged(Plots plot, UserIdent oldOwner) {
+		public OwnerChanged(Plot plot, UserIdent oldOwner) {
 			super(plot);
 			this.oldOwner = oldOwner;
 		}
 	}
 
-	public final Plots plot;
+	public final Plot plot;
 
-	public PlotEvent(Plots plot) {
+	public PlotEvent(Plot plot) {
 		this.plot = plot;
 	}
 

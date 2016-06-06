@@ -8,7 +8,7 @@ public interface Wallet {
 
 	/**
 	 * Checks, if the wallet has enough currency in it to cover the withdraw
-	 * 
+	 *
 	 * @param value
 	 * @return
 	 */
@@ -21,7 +21,7 @@ public interface Wallet {
 	/**
 	 * Get the amount in this wallet described as string together with the
 	 * currency
-	 * 
+	 *
 	 * @return Returns the amount in this wallet described as string together
 	 *         with the currency
 	 */

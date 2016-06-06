@@ -3,10 +3,9 @@ package com.forgeessentials.client.core;
 import static com.forgeessentials.client.ForgeEssentialsClient.feclientlog;
 
 import com.forgeessentials.client.ForgeEssentialsClient;
-import com.forgeessentials.client.auth.ClientAuthNetHandler;
 import com.forgeessentials.client.handler.CUIRenderrer;
 import com.forgeessentials.client.handler.PermissionOverlay;
-import com.forgeessentials.client.handler.QRRenderer;
+import com.forgeessentials.client.handler.PlotsRenderer;
 import com.forgeessentials.client.handler.QuestionerKeyHandler;
 import com.forgeessentials.client.handler.ReachDistanceHandler;
 import com.forgeessentials.commons.BuildInfo;
@@ -16,9 +15,9 @@ import com.forgeessentials.commons.network.Packet0Handshake;
 import com.forgeessentials.commons.network.Packet1SelectionUpdate;
 import com.forgeessentials.commons.network.Packet2Reach;
 import com.forgeessentials.commons.network.Packet3PlayerPermissions;
+import com.forgeessentials.commons.network.Packet4PlotsUpdate;
 import com.forgeessentials.commons.network.Packet5Noclip;
-import com.forgeessentials.commons.network.Packet6AuthLogin;
-import com.forgeessentials.commons.network.Packet7Remote;
+import com.forgeessentials.commons.network.Packet6SyncPlots;
 
 import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.common.MinecraftForge;
@@ -46,8 +45,7 @@ public class ClientProxy extends CommonProxy {
 
 	/* ------------------------------------------------------------ */
 
-	public static boolean allowCUI, allowQRCodeRender, allowPermissionRender, allowQuestionerShortcuts,
-			allowAuthAutoLogin;
+	public static boolean allowCUI, allowPUI, allowPermissionRender, allowQuestionerShortcuts;
 
 	public static float reachDistance;
 
@@ -55,7 +53,7 @@ public class ClientProxy extends CommonProxy {
 
 	private static CUIRenderrer cuiRenderer = new CUIRenderrer();
 
-	private static QRRenderer qrCodeRenderer = new QRRenderer();
+	private static PlotsRenderer plotRenderer = new PlotsRenderer();
 
 	private static PermissionOverlay permissionOverlay = new PermissionOverlay();
 
@@ -119,24 +117,22 @@ public class ClientProxy extends CommonProxy {
 
 		allowCUI = config.getBoolean("allowCUI", Configuration.CATEGORY_GENERAL, true,
 				"Set to false to disable graphical selections.");
-		allowQRCodeRender = config.get(Configuration.CATEGORY_GENERAL, "allowQRCodeRender", true,
-				"Set to false to disable QR code rendering when you enter /remote qr.").getBoolean(true);
+		allowPUI = config
+				.get(Configuration.CATEGORY_GENERAL, "allowPUI", true, "Set to false to disable rendering plots.")
+				.getBoolean(true);
 		allowPermissionRender = config.get(Configuration.CATEGORY_GENERAL, "allowPermRender", true,
 				"Set to false to disable visual indication of block/item permissions").getBoolean(true);
 		allowQuestionerShortcuts = config
 				.get(Configuration.CATEGORY_GENERAL, "allowQuestionerShortcuts", true,
 						"Use shortcut buttons to answer questions. Defaults are F8 for yes and F9 for no, change in game options menu.")
 				.getBoolean(true);
-		allowAuthAutoLogin = config
-				.get(Configuration.CATEGORY_GENERAL, "allowAuthAutoLogin", true,
-						"Save tokens to automatically log in to servers using FE's Authentication Module.")
-				.getBoolean(true);
 
 		if (allowCUI) {
 			MinecraftForge.EVENT_BUS.register(cuiRenderer);
 		}
-		if (allowQRCodeRender) {
-			MinecraftForge.EVENT_BUS.register(qrCodeRenderer);
+		if (allowPUI) {
+			//the handshake seems to happen before this...
+			MinecraftForge.EVENT_BUS.register(plotRenderer);
 		}
 		if (allowPermissionRender) {
 			MinecraftForge.EVENT_BUS.register(permissionOverlay);
@@ -164,17 +160,22 @@ public class ClientProxy extends CommonProxy {
 		NetworkUtils.registerMessage(cuiRenderer, Packet1SelectionUpdate.class, 1, Side.CLIENT);
 		NetworkUtils.registerMessage(reachDistanceHandler, Packet2Reach.class, 2, Side.CLIENT);
 		NetworkUtils.registerMessage(permissionOverlay, Packet3PlayerPermissions.class, 3, Side.CLIENT);
+		NetworkUtils.registerMessage(plotRenderer, Packet4PlotsUpdate.class, 4, Side.CLIENT);
+
 		NetworkUtils.registerMessage((message, ctx) -> {
 			FMLClientHandler.instance().getClientPlayerEntity().noClip = message.getNoclip();
 			return null;
-		} , Packet5Noclip.class, 5, Side.CLIENT);
-		NetworkUtils.registerMessage(new ClientAuthNetHandler(), Packet6AuthLogin.class, 6, Side.CLIENT);
-		NetworkUtils.registerMessage(qrCodeRenderer, Packet7Remote.class, 7, Side.CLIENT);
+		}, Packet5Noclip.class, 5, Side.CLIENT);
+		NetworkUtils.registerMessageProxy(Packet6SyncPlots.class, 6, Side.SERVER,
+				new NullMessageHandler<Packet6SyncPlots>() {
+					/* dummy */
+				});
 	}
 
 	public void sendClientHandshake() {
 		if (ForgeEssentialsClient.serverHasFE()) {
 			NetworkUtils.netHandler.sendToServer(new Packet0Handshake());
+			NetworkUtils.netHandler.sendToServer(new Packet6SyncPlots());
 		}
 	}
 

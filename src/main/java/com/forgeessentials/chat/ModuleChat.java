@@ -19,9 +19,6 @@ import com.forgeessentials.api.permissions.FEPermissions;
 import com.forgeessentials.api.permissions.GroupEntry;
 import com.forgeessentials.api.permissions.ServerZone;
 import com.forgeessentials.chat.command.CommandGroupMessage;
-import com.forgeessentials.chat.command.CommandIrc;
-import com.forgeessentials.chat.command.CommandIrcBot;
-import com.forgeessentials.chat.command.CommandIrcPm;
 import com.forgeessentials.chat.command.CommandMessageReplacement;
 import com.forgeessentials.chat.command.CommandMute;
 import com.forgeessentials.chat.command.CommandNickname;
@@ -29,7 +26,6 @@ import com.forgeessentials.chat.command.CommandPm;
 import com.forgeessentials.chat.command.CommandReply;
 import com.forgeessentials.chat.command.CommandTimedMessages;
 import com.forgeessentials.chat.command.CommandUnmute;
-import com.forgeessentials.chat.irc.IrcHandler;
 import com.forgeessentials.commands.util.ModuleCommandsEventHandler;
 import com.forgeessentials.commons.selections.WorldPoint;
 import com.forgeessentials.core.ForgeEssentials;
@@ -270,7 +266,7 @@ public class ModuleChat {
 		EntityPlayer player = sender instanceof EntityPlayer ? (EntityPlayer) sender : null;
 		msg = player != null ? getChatHeader(UserIdent.get((EntityPlayer) sender))
 				: new ChatComponentTranslation("SERVER ");
-		String censored = censor.filter(message, player);
+		String censored = Censor.filter(message, player);
 		String formatted = processChatReplacements(sender, censored);
 
 		IChatComponent msgGroup = new ChatComponentText("@" + groupName + "@ ");
@@ -292,8 +288,6 @@ public class ModuleChat {
 	private PrintWriter logWriter;
 
 	public Mailer mailer;
-
-	public IrcHandler ircHandler;
 
 	@SubscribeEvent(priority = EventPriority.LOW)
 	public void chatEvent(ServerChatEvent event) {
@@ -321,7 +315,7 @@ public class ModuleChat {
 		logChatMessage(event.player.getName(), event.message);
 
 		// Initialize parameters
-		String message = processChatReplacements(event.player, censor.filter(event.message, event.player));
+		String message = processChatReplacements(event.player, Censor.filter(event.message, event.player));
 		IChatComponent header = getChatHeader(ident);
 
 		// Apply colors
@@ -399,7 +393,6 @@ public class ModuleChat {
 
 		ForgeEssentials.getConfigManager().registerLoader(CONFIG_FILE, new ChatConfig());
 
-		ircHandler = new IrcHandler();
 		censor = new Censor();
 		mailer = new Mailer();
 
@@ -440,10 +433,6 @@ public class ModuleChat {
 		FECommandManager.registerCommand(new CommandUnmute());
 		FECommandManager.registerCommand(new CommandGroupMessage());
 
-		FECommandManager.registerCommand(new CommandIrc());
-		FECommandManager.registerCommand(new CommandIrcPm());
-		FECommandManager.registerCommand(new CommandIrcBot());
-
 		APIRegistry.perms.registerPermissionDescription(PERM, "Chat permissions");
 		APIRegistry.perms.registerPermission(PERM_CHAT, PermissionLevel.TRUE, "Allow players to use the public chat");
 		APIRegistry.perms.registerPermission(PERM_COLOR, PermissionLevel.TRUE,
@@ -461,7 +450,6 @@ public class ModuleChat {
 	@SubscribeEvent
 	public void serverStopping(FEModuleServerStopEvent e) {
 		closeLog();
-		ircHandler.disconnect();
 	}
 
 	/* ------------------------------------------------------------ */

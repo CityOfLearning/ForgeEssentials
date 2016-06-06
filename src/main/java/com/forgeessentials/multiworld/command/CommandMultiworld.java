@@ -22,7 +22,7 @@ public class CommandMultiworld extends ParserCommandBase {
 
 	/**
 	 * Create a new multiworld
-	 * 
+	 *
 	 * @throws CommandException
 	 */
 	public static void parseCreate(CommandParserArgs arguments) throws CommandException {
@@ -89,7 +89,7 @@ public class CommandMultiworld extends ParserCommandBase {
 
 	/**
 	 * Delete a multiworld
-	 * 
+	 *
 	 * @throws CommandException
 	 */
 	public static void parseDelete(CommandParserArgs arguments) throws CommandException {

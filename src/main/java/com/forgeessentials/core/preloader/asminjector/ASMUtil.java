@@ -151,7 +151,7 @@ public final class ASMUtil {
 	}
 
 	public static FieldNode findField(ClassNode classNode, String name) {
-		for (FieldNode f : ((List<FieldNode>)classNode.fields)) {
+		for (FieldNode f : ((List<FieldNode>) classNode.fields)) {
 			if (f.name.equals(name)) {
 				return f;
 			}
@@ -160,7 +160,7 @@ public final class ASMUtil {
 	}
 
 	public static MethodNode findMethod(ClassNode classNode, String name) {
-		for (MethodNode method : ((List<MethodNode>)classNode.methods)) {
+		for (MethodNode method : ((List<MethodNode>) classNode.methods)) {
 			if (method.name.equals(name)) {
 				return method;
 			}
@@ -169,7 +169,7 @@ public final class ASMUtil {
 	}
 
 	public static MethodNode findMethod(ClassNode classNode, String name, String desc) {
-		for (MethodNode method : ((List<MethodNode>)classNode.methods)) {
+		for (MethodNode method : ((List<MethodNode>) classNode.methods)) {
 			if (method.name.equals(name) && method.desc.equals(desc)) {
 				return method;
 			}

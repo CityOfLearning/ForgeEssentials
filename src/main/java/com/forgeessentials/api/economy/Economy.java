@@ -14,7 +14,7 @@ public interface Economy {
 
 	/**
 	 * Get the wallet for a player
-	 * 
+	 *
 	 * @param player
 	 * @return
 	 */

@@ -7,7 +7,7 @@ public interface IPermissionProvider {
 
 	/**
 	 * Checks a permission
-	 * 
+	 *
 	 * @param context
 	 *            The context where the permission is being checked in
 	 * @param permission
@@ -18,7 +18,7 @@ public interface IPermissionProvider {
 
 	/**
 	 * Notifies the permission manager about registered permissions
-	 * 
+	 *
 	 * @param permission
 	 *            The name of the permission
 	 * @param level

@@ -45,7 +45,7 @@ public class Multiworld {
 
 	/**
 	 * Teleport the player to the multiworld
-	 * 
+	 *
 	 * @throws CommandException
 	 */
 	public static void teleport(EntityPlayerMP player, WorldServer world, boolean instant) throws CommandException {
@@ -54,7 +54,7 @@ public class Multiworld {
 
 	/**
 	 * Teleport the player to the multiworld
-	 * 
+	 *
 	 * @throws CommandException
 	 */
 	public static void teleport(EntityPlayerMP player, WorldServer world, double x, double y, double z, boolean instant)
@@ -232,7 +232,7 @@ public class Multiworld {
 
 	/**
 	 * Teleport the player to the multiworld
-	 * 
+	 *
 	 * @throws CommandException
 	 */
 	public void teleport(EntityPlayerMP player, boolean instant) throws CommandException {

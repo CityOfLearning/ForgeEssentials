@@ -86,7 +86,7 @@ public final class PermissionManager {
 	 * <b>FOR INTERNAL USE ONLY</b> <br>
 	 * This method should not be called directly, but instead is called by forge
 	 * upon registration of a new command
-	 * 
+	 *
 	 * @param command
 	 */
 	public static void registerCommandPermission(ICommand command) {
@@ -96,7 +96,7 @@ public final class PermissionManager {
 	/**
 	 * This method allows you to register permissions for commands that cannot
 	 * implement the PermissionObject interface for any reason.
-	 * 
+	 *
 	 * @param command
 	 * @param permission
 	 */
@@ -107,7 +107,7 @@ public final class PermissionManager {
 	/**
 	 * This method allows you to register permissions for commands that cannot
 	 * implement the PermissionObject interface for any reason.
-	 * 
+	 *
 	 * @param command
 	 * @param permission
 	 * @param permissionLevel
@@ -122,7 +122,7 @@ public final class PermissionManager {
 	/**
 	 * <b>FOR INTERNAL USE ONLY</b> <br>
 	 * TODO This method should be removed in the PR
-	 * 
+	 *
 	 * @param command
 	 */
 	public static void registerCommandPermissions() {

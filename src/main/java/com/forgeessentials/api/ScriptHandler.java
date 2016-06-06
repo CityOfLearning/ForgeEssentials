@@ -6,7 +6,7 @@ public interface ScriptHandler {
 	/**
 	 * Call before ServerStarting, so that your scripts with custom keys can be
 	 * added
-	 * 
+	 *
 	 * @param key
 	 *            your custom script key
 	 */
@@ -14,7 +14,7 @@ public interface ScriptHandler {
 
 	/**
 	 * Call when you want scripts with your custom key to be run.
-	 * 
+	 *
 	 * @param key
 	 *            your custom script key
 	 * @param sender

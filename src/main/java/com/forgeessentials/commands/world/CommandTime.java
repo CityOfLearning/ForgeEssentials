@@ -182,7 +182,7 @@ public class CommandTime extends ParserCommandBase implements ConfigurableComman
 
 	@Override
 	public String getCommandUsage(ICommandSender sender) {
-		return "/time freeze|set|add [day|night|<t>]: Manipulate time.";
+		return "/fetime freeze|set|add [day|night|<t>]: Manipulate time.";
 	}
 
 	/* ------------------------------------------------------------ */
@@ -221,8 +221,8 @@ public class CommandTime extends ParserCommandBase implements ConfigurableComman
 	@Override
 	public void parse(CommandParserArgs arguments) throws CommandException {
 		if (arguments.isEmpty()) {
-			arguments.confirm("/time set|add <t> [dim]");
-			arguments.confirm("/time freeze [dim]");
+			arguments.confirm("/fetime set|add <t> [dim]");
+			arguments.confirm("/fetime freeze [dim]");
 			return;
 		}
 

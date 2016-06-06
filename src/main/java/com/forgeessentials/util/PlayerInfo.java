@@ -210,7 +210,7 @@ public class PlayerInfo implements Loadable {
 
 	/**
 	 * Check, if a timeout passed
-	 * 
+	 *
 	 * @param name
 	 * @return true, if the timeout passed
 	 */
@@ -439,7 +439,7 @@ public class PlayerInfo implements Loadable {
 	/**
 	 * Start a named timeout. Use {@link #checkTimeout(String)} to check if the
 	 * timeout has passed.
-	 * 
+	 *
 	 * @param name
 	 *            Unique name of the timeout
 	 * @param milliseconds

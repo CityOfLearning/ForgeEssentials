@@ -73,7 +73,7 @@ public class CommandTPA extends ParserCommandBase {
 									arguments.error(e.getMessage());
 								}
 							}
-						} , 20);
+						}, 20);
 			} catch (QuestionerStillActiveException.CommandException e) {
 				throw new QuestionerStillActiveException.CommandException();
 			}
@@ -114,7 +114,7 @@ public class CommandTPA extends ParserCommandBase {
 								arguments.error(e.getMessage());
 							}
 						}
-					} , 20);
+					}, 20);
 		} catch (QuestionerStillActiveException.CommandException e) {
 			throw new QuestionerStillActiveException.CommandException();
 		}

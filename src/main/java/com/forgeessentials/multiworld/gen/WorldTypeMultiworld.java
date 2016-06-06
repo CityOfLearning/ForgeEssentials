@@ -97,7 +97,7 @@ public class WorldTypeMultiworld extends WorldType {
 
 	/**
 	 * Get the height to render the clouds for this world type
-	 * 
+	 *
 	 * @return The height to render clouds at
 	 */
 	@Override
