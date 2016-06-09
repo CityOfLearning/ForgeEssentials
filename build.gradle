@@ -1,31 +1,31 @@
 // Build repositories
 buildscript {
 	repositories {
+		jcenter()
 		maven {
 			name = "forge"
 			url = "http://files.minecraftforge.net/maven"
 		}
-		maven {
-			name = "sonatype"
-			url = "https://oss.sonatype.org/content/repositories/releases/"
-		}
-		mavenCentral()
-		mavenLocal()
-		maven {
-			name = "sonatype"
-			url = "https://oss.sonatype.org/content/repositories/snapshots/"
-		}
+//		maven {
+//			name = "sonatype"
+//			url = "https://oss.sonatype.org/content/repositories/releases/"
+//		}
+//		mavenCentral()
+//		mavenLocal()
+//		maven {
+//			name = "sonatype"
+//			url = "https://oss.sonatype.org/content/repositories/snapshots/"
+//		}
         maven {
             name = "sponge"
             url = "http://repo.spongepowered.org/maven/"
         }
-		jcenter()
+		
 
 	}
 	dependencies {
 		classpath "net.minecraftforge.gradle:ForgeGradle:2.1-SNAPSHOT"
-		classpath "org.jfrog.buildinfo:build-info-extractor-gradle:3.0.1"
-		classpath "org.ajoberstar:gradle-git:0.12.0"
+	//	classpath "org.jfrog.buildinfo:build-info-extractor-gradle:3.0.1"
         classpath 'org.spongepowered:mixingradle:0.4-SNAPSHOT'
 	}
 
@@ -54,7 +54,6 @@ apply plugin: 'org.spongepowered.mixin'
 ext.buildNumber = "0"
 if (System.getenv("BUILD_NUMBER") != null) {
 	buildNumber = System.getenv("BUILD_NUMBER")
-
 }
 
 // Set build properties
@@ -62,6 +61,7 @@ ext.baseVersion = "1.8.5"
 version = baseVersion + "." + buildNumber
 group = "com.forgeessentials"
 archivesBaseName = "forgeessentials"
+
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
@@ -253,27 +253,6 @@ mixin {
     add sourceSets.main, "main.refmap.json"
     add sourceSets.client, "client.refmap.json"
 }
-
-/************************************************************
- * Deobfuscated server jar
- * Dependency name for maven = com.forgeessentials:forgeessentials:<version>:
-*/
-
-task deobfJar(dependsOn: "classes", type: Jar) {
-	classifier = "dev"
-	appendix = minecraft.version
-	
-	from sourceSets.main.output
-	from sourceSets.utils.output
-	
-	from (sourceSets.main.java) {
-		into ("src/")
-	}
-
-	manifest {
-		from serverManifest
-	}
-}
  
 
 /************************************************************
@@ -292,7 +271,6 @@ reobf {
 
 // Add default artifacts for task "build"
 artifacts {
-	archives deobfJar
 	archives clientJar
 }
 

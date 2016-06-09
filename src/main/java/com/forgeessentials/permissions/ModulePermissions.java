@@ -150,7 +150,7 @@ public class ModulePermissions extends ConfigLoaderBase {
 
 	@Override
 	public void load(Configuration config, boolean isReload) {
-		persistenceBackend = config.get(CONFIG_CAT, "persistenceBackend", "singlejson", PERSISTENCE_HELP).getString();
+		persistenceBackend = config.get(CONFIG_CAT, "persistenceBackend", "flatfile", PERSISTENCE_HELP).getString();
 		dbConnector.loadOrGenerate(config, CONFIG_CAT + ".SQL");
 	}
 

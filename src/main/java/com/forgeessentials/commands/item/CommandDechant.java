@@ -59,7 +59,8 @@ public class CommandDechant extends ParserCommandBase {
 
 		List<String> validEnchantmentNames = new ArrayList<>();
 		Map<String, Enchantment> validEnchantments = new HashMap<>();
-		for (Enchantment enchantment : Enchantment.enchantmentsList) {
+		//the book list seems to be a copy of the enchantment list
+		for (Enchantment enchantment : Enchantment.enchantmentsBookList) {
 			if ((enchantment != null) && enchantments.containsKey(enchantment.effectId)) {
 				String name = StatCollector.translateToLocal(enchantment.getName()).replaceAll(" ", "");
 				validEnchantmentNames.add(name);
