@@ -6,16 +6,7 @@ buildscript {
 			name = "forge"
 			url = "http://files.minecraftforge.net/maven"
 		}
-//		maven {
-//			name = "sonatype"
-//			url = "https://oss.sonatype.org/content/repositories/releases/"
-//		}
-//		mavenCentral()
-//		mavenLocal()
-//		maven {
-//			name = "sonatype"
-//			url = "https://oss.sonatype.org/content/repositories/snapshots/"
-//		}
+
         maven {
             name = "sponge"
             url = "http://repo.spongepowered.org/maven/"
@@ -25,7 +16,6 @@ buildscript {
 	}
 	dependencies {
 		classpath "net.minecraftforge.gradle:ForgeGradle:2.1-SNAPSHOT"
-	//	classpath "org.jfrog.buildinfo:build-info-extractor-gradle:3.0.1"
         classpath 'org.spongepowered:mixingradle:0.4-SNAPSHOT'
 	}
 
@@ -45,6 +35,8 @@ repositories {
 
 apply plugin: 'net.minecraftforge.gradle.forge'
 apply plugin: 'org.spongepowered.mixin'
+//we have to do this for jitpack
+apply plugin: 'maven'
 
 /************************************************************
  * General configuration
@@ -59,7 +51,7 @@ if (System.getenv("BUILD_NUMBER") != null) {
 // Set build properties
 ext.baseVersion = "1.8.5"
 version = baseVersion + "." + buildNumber
-group = "com.forgeessentials"
+group = 'com.github.CityOfLearning'
 archivesBaseName = "forgeessentials"
 
 sourceCompatibility = 1.8

@@ -100,7 +100,6 @@ public class PlotsRenderer implements IMessageHandler<Packet4PlotsUpdate, IMessa
 
 	@Override
 	public IMessage onMessage(Packet4PlotsUpdate message, MessageContext ctx) {
-		System.out.println("got plot message");
 		if (plots != null) {
 			if (message.shouldAdd()) {
 				if (plots.containsKey(message.getOwnership())) {
@@ -110,7 +109,6 @@ public class PlotsRenderer implements IMessageHandler<Packet4PlotsUpdate, IMessa
 					temp.add(message.getArea());
 					plots.put(message.getOwnership(), temp);
 				}
-				System.out.println("Created new plot registry " + message.getArea());
 			} else {
 				for(Integer key : plots.keySet()){
 					for (WorldArea plot : plots.get(key)) {
