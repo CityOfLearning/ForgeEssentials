@@ -263,6 +263,7 @@ reobf {
 
 // Add default artifacts for task "build"
 artifacts {
+	archives jar
 	archives clientJar
 }
 
@@ -281,7 +282,7 @@ reobfClientJar.doLast {
 // this step is necessary when installing both jars in the local maven repository
 install {
     repositories.mavenInstaller {
-		addFilter('server') { artifact, file -> artifact.name.endsWith('server') }
-		addFilter('client') { artifact, file -> artifact.name.endsWith('client') }
+		addFilter('server') { artifact, file -> artifact.name.endsWith('jar') }
+		addFilter('client') { artifact, file -> artifact.name.endsWith('clientJar') }
     }
 }
