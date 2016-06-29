@@ -203,7 +203,7 @@ jar.doFirst {
 jar {
 	setDuplicatesStrategy(DuplicatesStrategy.EXCLUDE)
 	dependsOn "serverLibArchive"
-	//classifier = "server"
+	classifier = "server"
 	appendix = minecraft.version
 	
 	from sourceSets.main.output
