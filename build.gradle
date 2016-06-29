@@ -277,3 +277,11 @@ reobfJar.doLast {
 reobfClientJar.doLast {
     ant.checksum file: tasks.clientJar.archivePath
 }
+
+// this step is necessary when installing both jars in the local maven repository
+install {
+    repositories.mavenInstaller {
+		addFilter('server') { artifact, file -> artifact.name.endsWith('server') }
+		addFilter('client') { artifact, file -> artifact.name.endsWith('client') }
+    }
+}
