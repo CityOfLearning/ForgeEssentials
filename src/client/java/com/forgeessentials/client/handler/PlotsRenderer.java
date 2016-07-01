@@ -93,7 +93,6 @@ public class PlotsRenderer implements IMessageHandler<Packet4PlotsUpdate, IMessa
 	public void connectionOpened(ClientConnectedToServerEvent e) {
 		plots = new HashMap<Integer, List<WorldArea>>();
 		if (ForgeEssentialsClient.serverHasFE()) {
-			System.out.println("Requesting plots");
 			NetworkUtils.netHandler.sendToServer(new Packet6SyncPlots());
 		}
 	}

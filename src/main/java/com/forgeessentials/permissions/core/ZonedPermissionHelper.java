@@ -654,6 +654,16 @@ public class ZonedPermissionHelper extends ServerEventHandler implements IPermis
 			event.serverZone.setGroupPermissionProperty(Zone.GROUP_PLAYERS, FEPermissions.GROUP_PRIORITY, "1");
 			event.serverZone.setGroupPermissionProperty(Zone.GROUP_DEFAULT, FEPermissions.GROUP_NAME, "players");
 		}
+		if (!event.serverZone.groupExists(Zone.GROUP_STUDENTS)) {
+			event.serverZone.setGroupPermission(Zone.GROUP_STUDENTS, FEPermissions.GROUP, true);
+			event.serverZone.setGroupPermissionProperty(Zone.GROUP_STUDENTS, FEPermissions.GROUP_PRIORITY, "1");
+			event.serverZone.setGroupPermissionProperty(Zone.GROUP_STUDENTS, FEPermissions.GROUP_NAME, "students");
+		}
+		if (!event.serverZone.groupExists(Zone.GROUP_MENTORS)) {
+			event.serverZone.setGroupPermission(Zone.GROUP_MENTORS, FEPermissions.GROUP, true);
+			event.serverZone.setGroupPermissionProperty(Zone.GROUP_MENTORS, FEPermissions.GROUP_PRIORITY, "2");
+			event.serverZone.setGroupPermissionProperty(Zone.GROUP_MENTORS, FEPermissions.GROUP_NAME, "mentors");
+		}
 		if (!event.serverZone.groupExists(Zone.GROUP_NPC)) {
 			event.serverZone.setGroupPermission(Zone.GROUP_NPC, FEPermissions.GROUP, true);
 			event.serverZone.setGroupPermissionProperty(Zone.GROUP_NPC, FEPermissions.GROUP_PRIORITY, "1");
