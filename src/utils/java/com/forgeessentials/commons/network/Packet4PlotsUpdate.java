@@ -17,13 +17,12 @@ public class Packet4PlotsUpdate implements IMessage {
 	public Packet4PlotsUpdate(WorldArea area, int owner, boolean addDel) {
 		this.area = area;
 		this.owner = owner;
-		this.add = addDel;
+		add = addDel;
 	}
 
 	@Override
 	public void fromBytes(ByteBuf byteBuf) {
-		area = new WorldArea(byteBuf.readInt(),
-				new Point(byteBuf.readInt(), byteBuf.readInt(), byteBuf.readInt()),
+		area = new WorldArea(byteBuf.readInt(), new Point(byteBuf.readInt(), byteBuf.readInt(), byteBuf.readInt()),
 				new Point(byteBuf.readInt(), byteBuf.readInt(), byteBuf.readInt()));
 
 		owner = byteBuf.readInt();
@@ -39,7 +38,7 @@ public class Packet4PlotsUpdate implements IMessage {
 	}
 
 	public boolean shouldAdd() {
-		//false is delete, true is add
+		// false is delete, true is add
 		return add;
 	}
 

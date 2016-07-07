@@ -12,9 +12,9 @@ import com.forgeessentials.core.misc.FECommandManager;
 import com.forgeessentials.core.misc.Translator;
 import com.forgeessentials.core.moduleLauncher.config.ConfigLoader;
 import com.forgeessentials.economy.plots.command.CommandPlot;
+import com.forgeessentials.util.events.FEModuleEvent.FEModuleServerInitEvent;
 import com.forgeessentials.util.events.PlayerChangedZone;
 import com.forgeessentials.util.events.ServerEventHandler;
-import com.forgeessentials.util.events.FEModuleEvent.FEModuleServerInitEvent;
 import com.forgeessentials.util.output.ChatOutputHandler;
 
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -24,69 +24,70 @@ import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class PlotManager extends ServerEventHandler implements ConfigLoader {
-	
-//	public static final String CONFIG_FILE = "Plots";
-//
-//	public static final String GROUP_ALL = Zone.GROUP_DEFAULT;
-//	public static final String GROUP_PLOT_OWNER = "PLOT_OWNER";
-//	public static final String GROUP_PLOT_MOD = "PLOT_MOD";
-//
-//	public static final String GROUP_PLOT_USER = "PLOT_USER";
-//
-//	public static final String SERVER_OWNER = "SERVER";
-//
-//	public static final String CATEGORY = "Plots";
-//
-//	// Internal data permission properties (should NEVER be edited by hand)
-//	public static final String PERM_OWNER = FEPermissions.FE_INTERNAL + ".plot.owner";
-//	// Basic plot permissions
-//	public static final String PERM = ModuleEconomy.PERM + ".plot";
-//	public static final String PERM_PRICE = PERM + ".price";
-//
-//	public static final String PERM_COLUMN = PERM + ".column";
-//	// public static final String PERM_ADMIN = PERM + ".admin";
-//	public static final String PERM_COMMAND = PERM + ".command";
-//	public static final String PERM_DEFINE = PERM_COMMAND + ".define";
-//	public static final String PERM_CLAIM = PERM_COMMAND + ".claim";
-//	public static final String PERM_DELETE = PERM_COMMAND + ".delete";
-//	public static final String PERM_BUY = PERM_COMMAND + ".buy";
-//	public static final String PERM_SELL = PERM_COMMAND + ".sell";
-//
-//	public static final String PERM_MODS = PERM_COMMAND + ".mods";
-//	public static final String PERM_SET = PERM_COMMAND + ".set";
-//	public static final String PERM_SET_PRICE = PERM_SET + ".price";
-//	public static final String PERM_SET_FEE = PERM_SET + ".fee";
-//	public static final String PERM_SET_NAME = PERM_SET + ".name";
-//
-//	public static final String PERM_SET_OWNER = PERM_SET + ".owner";
-//	public static final String PERM_PERMS = PERM_COMMAND + ".perms";
-//	public static final String PERM_PERMS_BUILD = PERM_SET + ".build";
-//	public static final String PERM_PERMS_USE = PERM_SET + ".use";
-//	public static final String PERM_PERMS_INTERACT = PERM_SET + ".interact";
-//
-//	public static final String PERM_PERMS_CHEST = PERM_SET + ".chest";
-//	public static final String PERM_LIST = PERM_COMMAND + ".list";
-//	public static final String PERM_LIST_OWN = PERM_LIST + ".own";
-//	public static final String PERM_LIST_ALL = PERM_LIST + ".all";
-//
-//	public static final String PERM_LIST_SALE = PERM_LIST + ".sale";
-//	// Maximum number and total size of plots a user is allowed to claim
-//	public static final String PERM_LIMIT = PERM + ".limit";
-//	public static final String PERM_LIMIT_COUNT = PERM_LIMIT + ".count";
-//
-//	public static final String PERM_LIMIT_SIZE = PERM_LIMIT + ".size";
-//	// Maximum and minimum size a plot can be
-//	public static final String PERM_SIZE = PERM + ".size";
-//	public static final String PERM_SIZE_MIN = PERM_SIZE + ".min";
-//
-//	public static final String PERM_SIZE_MAX = PERM_SIZE + ".max";
-//	// User editable plot data permissions
-//	public static final String PERM_DATA = PERM + ".data";
-//	public static final String PERM_NAME = PERM_DATA + ".name";
-//	public static final String PERM_FEE = PERM_DATA + ".fee";
-//	public static final String PERM_FEE_TIMEOUT = PERM_DATA + ".fee.timeout";
-//
-//	public static final String PERM_SELL_PRICE = PERM_DATA + ".price";
+
+	// public static final String CONFIG_FILE = "Plots";
+	//
+	// public static final String GROUP_ALL = Zone.GROUP_DEFAULT;
+	// public static final String GROUP_PLOT_OWNER = "PLOT_OWNER";
+	// public static final String GROUP_PLOT_MOD = "PLOT_MOD";
+	//
+	// public static final String GROUP_PLOT_USER = "PLOT_USER";
+	//
+	// public static final String SERVER_OWNER = "SERVER";
+	//
+	// public static final String CATEGORY = "Plots";
+	//
+	// // Internal data permission properties (should NEVER be edited by hand)
+	// public static final String PERM_OWNER = FEPermissions.FE_INTERNAL +
+	// ".plot.owner";
+	// // Basic plot permissions
+	// public static final String PERM = ModuleEconomy.PERM + ".plot";
+	// public static final String PERM_PRICE = PERM + ".price";
+	//
+	// public static final String PERM_COLUMN = PERM + ".column";
+	// // public static final String PERM_ADMIN = PERM + ".admin";
+	// public static final String PERM_COMMAND = PERM + ".command";
+	// public static final String PERM_DEFINE = PERM_COMMAND + ".define";
+	// public static final String PERM_CLAIM = PERM_COMMAND + ".claim";
+	// public static final String PERM_DELETE = PERM_COMMAND + ".delete";
+	// public static final String PERM_BUY = PERM_COMMAND + ".buy";
+	// public static final String PERM_SELL = PERM_COMMAND + ".sell";
+	//
+	// public static final String PERM_MODS = PERM_COMMAND + ".mods";
+	// public static final String PERM_SET = PERM_COMMAND + ".set";
+	// public static final String PERM_SET_PRICE = PERM_SET + ".price";
+	// public static final String PERM_SET_FEE = PERM_SET + ".fee";
+	// public static final String PERM_SET_NAME = PERM_SET + ".name";
+	//
+	// public static final String PERM_SET_OWNER = PERM_SET + ".owner";
+	// public static final String PERM_PERMS = PERM_COMMAND + ".perms";
+	// public static final String PERM_PERMS_BUILD = PERM_SET + ".build";
+	// public static final String PERM_PERMS_USE = PERM_SET + ".use";
+	// public static final String PERM_PERMS_INTERACT = PERM_SET + ".interact";
+	//
+	// public static final String PERM_PERMS_CHEST = PERM_SET + ".chest";
+	// public static final String PERM_LIST = PERM_COMMAND + ".list";
+	// public static final String PERM_LIST_OWN = PERM_LIST + ".own";
+	// public static final String PERM_LIST_ALL = PERM_LIST + ".all";
+	//
+	// public static final String PERM_LIST_SALE = PERM_LIST + ".sale";
+	// // Maximum number and total size of plots a user is allowed to claim
+	// public static final String PERM_LIMIT = PERM + ".limit";
+	// public static final String PERM_LIMIT_COUNT = PERM_LIMIT + ".count";
+	//
+	// public static final String PERM_LIMIT_SIZE = PERM_LIMIT + ".size";
+	// // Maximum and minimum size a plot can be
+	// public static final String PERM_SIZE = PERM + ".size";
+	// public static final String PERM_SIZE_MIN = PERM_SIZE + ".min";
+	//
+	// public static final String PERM_SIZE_MAX = PERM_SIZE + ".max";
+	// // User editable plot data permissions
+	// public static final String PERM_DATA = PERM + ".data";
+	// public static final String PERM_NAME = PERM_DATA + ".name";
+	// public static final String PERM_FEE = PERM_DATA + ".fee";
+	// public static final String PERM_FEE_TIMEOUT = PERM_DATA + ".fee.timeout";
+	//
+	// public static final String PERM_SELL_PRICE = PERM_DATA + ".price";
 
 	public static void handleDeletePlot(Plot plot) {
 		NetworkUtils.netHandler.sendToAll(
@@ -98,18 +99,15 @@ public class PlotManager extends ServerEventHandler implements ConfigLoader {
 			if (plot.hasOwner() && plot.getOwner().isPlayer()) {
 				if (plot.getOwner().equals(UserIdent.get(user))) { // players
 																	// plot
-					NetworkUtils.netHandler.sendTo(
-							new Packet4PlotsUpdate(new WorldArea(plot.getDimension(), plot.getZone().getArea()), 1, true),
-							user);
+					NetworkUtils.netHandler.sendTo(new Packet4PlotsUpdate(
+							new WorldArea(plot.getDimension(), plot.getZone().getArea()), 1, true), user);
 				} else if (user.isOnSameTeam(plot.getOwner().getPlayer())) { // teams
 																				// plot
-					NetworkUtils.netHandler.sendTo(
-							new Packet4PlotsUpdate(new WorldArea(plot.getDimension(), plot.getZone().getArea()), 2, true),
-							user);
+					NetworkUtils.netHandler.sendTo(new Packet4PlotsUpdate(
+							new WorldArea(plot.getDimension(), plot.getZone().getArea()), 2, true), user);
 				} else { // someone elses plot
-					NetworkUtils.netHandler.sendTo(
-							new Packet4PlotsUpdate(new WorldArea(plot.getDimension(), plot.getZone().getArea()), 3, true),
-							user);
+					NetworkUtils.netHandler.sendTo(new Packet4PlotsUpdate(
+							new WorldArea(plot.getDimension(), plot.getZone().getArea()), 3, true), user);
 				}
 			} else { // ownerless plot
 				NetworkUtils.netHandler.sendTo(
@@ -126,18 +124,15 @@ public class PlotManager extends ServerEventHandler implements ConfigLoader {
 			if (plot.hasOwner() && plot.getOwner().isPlayer()) {
 				if (plot.getOwner().equals(UserIdent.get(user))) { // players
 																	// plot
-					NetworkUtils.netHandler.sendTo(
-							new Packet4PlotsUpdate(new WorldArea(plot.getDimension(), plot.getZone().getArea()), 1, true),
-							user);
+					NetworkUtils.netHandler.sendTo(new Packet4PlotsUpdate(
+							new WorldArea(plot.getDimension(), plot.getZone().getArea()), 1, true), user);
 				} else if (user.isOnSameTeam(plot.getOwner().getPlayer())) { // teams
 																				// plot
-					NetworkUtils.netHandler.sendTo(
-							new Packet4PlotsUpdate(new WorldArea(plot.getDimension(), plot.getZone().getArea()), 2, true),
-							user);
+					NetworkUtils.netHandler.sendTo(new Packet4PlotsUpdate(
+							new WorldArea(plot.getDimension(), plot.getZone().getArea()), 2, true), user);
 				} else { // someone elses plot
-					NetworkUtils.netHandler.sendTo(
-							new Packet4PlotsUpdate(new WorldArea(plot.getDimension(), plot.getZone().getArea()), 3, true),
-							user);
+					NetworkUtils.netHandler.sendTo(new Packet4PlotsUpdate(
+							new WorldArea(plot.getDimension(), plot.getZone().getArea()), 3, true), user);
 				}
 			} else { // ownerless plot
 				NetworkUtils.netHandler.sendTo(
@@ -153,6 +148,19 @@ public class PlotManager extends ServerEventHandler implements ConfigLoader {
 
 	public PlotManager() {
 		FECommandManager.registerCommand(new CommandPlot());
+	}
+
+	@Override
+	public void load(Configuration config, boolean isReload) {
+		// useStock = config.getBoolean(CONFIG_FILE, "use_stock", false,
+		// STOCK_HELP);
+		// String[] tags = config.get(CONFIG_FILE, "shopTags",
+		// shopTags.toArray(new String[shopTags.size()]))
+		// .getStringList();
+		// shopTags.clear();
+		// for (String tag : tags) {
+		// shopTags.add(tag);
+		// }
 	}
 
 	@SubscribeEvent(priority = EventPriority.LOW)
@@ -203,28 +211,21 @@ public class PlotManager extends ServerEventHandler implements ConfigLoader {
 		Plot.loadPlots();
 	}
 
-	@Override
-	public void load(Configuration config, boolean isReload) {
-//		useStock = config.getBoolean(CONFIG_FILE, "use_stock", false, STOCK_HELP);
-//		String[] tags = config.get(CONFIG_FILE, "shopTags", shopTags.toArray(new String[shopTags.size()]))
-//				.getStringList();
-//		shopTags.clear();
-//		for (String tag : tags) {
-//			shopTags.add(tag);
-//		}
+	@SubscribeEvent
+	public void serverStarting(FEModuleServerInitEvent event) {
+		// load();
+		// APIRegistry.perms.registerPermissionDescription(PERM_BASE, "Shop
+		// permissions");
+		// APIRegistry.perms.registerPermission(PERM_USE, PermissionLevel.TRUE,
+		// "Allow usage of shops");
+		// APIRegistry.perms.registerPermission(PERM_CREATE, PermissionLevel.OP,
+		// "Allow creating shops");
+		// APIRegistry.perms.registerPermission(PERM_DESTROY,
+		// PermissionLevel.OP, "Allow destroying shops");
 	}
 
 	@Override
 	public boolean supportsCanonicalConfig() {
 		return true;
-	}
-	
-	@SubscribeEvent
-	public void serverStarting(FEModuleServerInitEvent event) {
-//		load();
-//		APIRegistry.perms.registerPermissionDescription(PERM_BASE, "Shop permissions");
-//		APIRegistry.perms.registerPermission(PERM_USE, PermissionLevel.TRUE, "Allow usage of shops");
-//		APIRegistry.perms.registerPermission(PERM_CREATE, PermissionLevel.OP, "Allow creating shops");
-//		APIRegistry.perms.registerPermission(PERM_DESTROY, PermissionLevel.OP, "Allow destroying shops");
 	}
 }

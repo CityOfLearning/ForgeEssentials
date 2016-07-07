@@ -28,7 +28,6 @@ import com.forgeessentials.core.commands.CommandFEWorldInfo;
 import com.forgeessentials.core.commands.CommandFeReload;
 import com.forgeessentials.core.commands.CommandFeSettings;
 import com.forgeessentials.core.commands.CommandUuid;
-import com.forgeessentials.core.environment.CommandSetChecker;
 import com.forgeessentials.core.environment.Environment;
 import com.forgeessentials.core.mcstats.ConstantPlotter;
 import com.forgeessentials.core.mcstats.Metrics;
@@ -400,12 +399,13 @@ public class ForgeEssentials extends ConfigLoaderBase {
 		NetworkUtils.registerMessage((message, ctx) -> {
 			for (Plot p : Plot.getPlots()) {
 				if (p.hasOwner() && p.getOwner().isPlayer()) {
-					if (p.getOwner().equals(UserIdent.get(ctx.getServerHandler().playerEntity))) { 
+					if (p.getOwner().equals(UserIdent.get(ctx.getServerHandler().playerEntity))) {
 						// players plot
 						NetworkUtils.netHandler.sendTo(
 								new Packet4PlotsUpdate(new WorldArea(p.getDimension(), p.getZone().getArea()), 1, true),
 								ctx.getServerHandler().playerEntity);
-					} else if (p.getOwner().getPlayer() != null && ctx.getServerHandler().playerEntity.isOnSameTeam(p.getOwner().getPlayer())) { 
+					} else if ((p.getOwner().getPlayer() != null)
+							&& ctx.getServerHandler().playerEntity.isOnSameTeam(p.getOwner().getPlayer())) {
 						// teams plot, why is player coming up null?
 						NetworkUtils.netHandler.sendTo(
 								new Packet4PlotsUpdate(new WorldArea(p.getDimension(), p.getZone().getArea()), 2, true),

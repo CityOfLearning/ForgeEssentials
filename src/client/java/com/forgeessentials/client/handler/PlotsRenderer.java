@@ -10,7 +10,6 @@ import org.lwjgl.opengl.GL12;
 
 import com.forgeessentials.client.ForgeEssentialsClient;
 import com.forgeessentials.commons.network.NetworkUtils;
-import com.forgeessentials.commons.network.Packet0Handshake;
 import com.forgeessentials.commons.network.Packet4PlotsUpdate;
 import com.forgeessentials.commons.network.Packet6SyncPlots;
 import com.forgeessentials.commons.selections.Point;
@@ -109,7 +108,7 @@ public class PlotsRenderer implements IMessageHandler<Packet4PlotsUpdate, IMessa
 					plots.put(message.getOwnership(), temp);
 				}
 			} else {
-				for(Integer key : plots.keySet()){
+				for (Integer key : plots.keySet()) {
 					for (WorldArea plot : plots.get(key)) {
 						if (plot.getCenter().equals(message.getArea().getCenter())) {
 							plots.get(key).remove(plot);
@@ -193,7 +192,6 @@ public class PlotsRenderer implements IMessageHandler<Packet4PlotsUpdate, IMessa
 					// only render plots in this dimension
 					if (plot.getDimension() == FMLClientHandler.instance().getClient().thePlayer.dimension) {
 						// render start
-						
 
 						Point p1 = plot.getHighPoint();
 						Point p2 = plot.getLowPoint();
