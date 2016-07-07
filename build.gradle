@@ -192,8 +192,23 @@ jar.doLast {
 def serverRefMap = "${tasks.compileJava.temporaryDir}" + File.separator + "mixins.forgeessentials.refmap.json"
 def clientRefMap = "${tasks.compileClientJava.temporaryDir}" + File.separator + "mixins.forgeessentials.client.refmap.json"
 
+jar.doFirst {
+
+	FileCollection collection = files { sourceSets.main.output }
+	
+	collection.collect { relativePath(it) }.sort().each { println it }
+	
+	collection.each {File file ->
+		if (file.path.contains("classes")){
+			FileCollection subColl = files { file.listFiles() }
+			subColl.collect { relativePath(it) }.sort().each { if(it.contains("mcmod.info")){delete it} }
+		}
+	}
+}
+
 // Configure server jar (default)
 jar {
+	setDuplicatesStrategy(DuplicatesStrategy.EXCLUDE)
 	dependsOn "serverLibArchive"
 	classifier = "server"
 	appendix = minecraft.version
