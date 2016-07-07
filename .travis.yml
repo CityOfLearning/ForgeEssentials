@@ -18,7 +18,7 @@ install:
 
 # Tell Travis to build the project.
 script:
-  - ./gradlew build -S
+  - ./gradlew build -S --refresh-dependencies
 
 # So the cache doesn't get repacked every time.
 before_cache:
