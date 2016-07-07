@@ -9,7 +9,6 @@ import com.forgeessentials.api.UserIdent;
 import com.forgeessentials.commands.ModuleCommands;
 import com.forgeessentials.core.commands.ParserCommandBase;
 import com.forgeessentials.core.misc.TranslatedCommandException;
-import com.forgeessentials.core.preloader.api.EntityTrackerHelper;
 import com.forgeessentials.util.CommandParserArgs;
 
 import net.minecraft.command.CommandException;
@@ -48,7 +47,9 @@ public class CommandVanish extends ParserCommandBase {
 			}
 		} else {
 			vanishedPlayers.remove(ident);
-			EntityTrackerEntry tracker = ((EntityTrackerHelper) world.getEntityTracker()).getEntityTrackerEntry(player);
+			EntityTrackerEntry tracker = (EntityTrackerEntry) world.getEntityTracker().getTrackingPlayers(player);
+			// ((EntityTrackerHelper)
+			// world.getEntityTracker()).getEntityTrackerEntry(player);
 			for (EntityPlayer otherPlayer : players) {
 				if (otherPlayer != player) {
 					tracker.trackingPlayers.remove(otherPlayer);
