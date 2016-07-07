@@ -20,6 +20,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.spongepowered.asm.launch.MixinBootstrap;
 import org.spongepowered.asm.mixin.MixinEnvironment;
+import org.spongepowered.asm.mixin.MixinEnvironment.CompatibilityLevel;
 import org.spongepowered.asm.mixin.MixinEnvironment.Phase;
 
 import net.minecraft.launchwrapper.ITweaker;
@@ -78,6 +79,7 @@ public class FELaunchHandler implements ITweaker {
 		}
 
 		MixinBootstrap.init();
+		MixinEnvironment.setCompatibilityLevel(CompatibilityLevel.JAVA_8);
 		// Fix CoFH compatibility. Fixes #1903
 		MixinEnvironment.getEnvironment(Phase.PREINIT).addTransformerExclusion("cofh.asm.CoFHAccessTransformer");
 

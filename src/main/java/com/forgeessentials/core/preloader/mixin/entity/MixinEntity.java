@@ -8,7 +8,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fe.event.world.PressurePlateEvent;
 
 @Mixin(Entity.class)
-public abstract class MixinEntity_01 {
+public abstract class MixinEntity {
 
 	@Overwrite
 	public boolean doesEntityNotTriggerPressurePlate() {

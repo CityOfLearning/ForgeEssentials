@@ -68,8 +68,7 @@ public class ClassInjector {
 
 		log.info(String.format("Scanning injector class %s", classNode.name));
 
-		for (Object o : classNode.methods) {
-			MethodNode methodNode = (MethodNode) o;
+		for (MethodNode methodNode : ((List<MethodNode>) classNode.methods)) {
 			AnnotationNode aInject = ASMUtil.getAnnotation(methodNode.visibleAnnotations,
 					Type.getDescriptor(Inject.class));
 			if (aInject == null) {

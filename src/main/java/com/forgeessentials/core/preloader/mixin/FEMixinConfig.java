@@ -8,8 +8,6 @@ import org.spongepowered.asm.lib.tree.ClassNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 
-import net.minecraftforge.common.ForgeVersion;
-
 /**
  * Mixin config for FE hooks. Likely to be permanent until Forge gets its act
  * together.
@@ -54,9 +52,6 @@ public class FEMixinConfig implements IMixinConfigPlugin {
 
 	@Override
 	public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
-		if (mixinClassName.contains("fml.common.MixinEventBus")) {
-			return (!(ForgeVersion.buildVersion < 1516));
-		}
 		return true;
 	}
 
