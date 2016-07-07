@@ -118,8 +118,12 @@ dependencies {
 	buildDep 'org.spongepowered:spongeapi:4.1.0-SNAPSHOT'
 
 	// Shade Mixin library
-	shade group: "org.spongepowered", name: "mixin", version: "0.5.3-SNAPSHOT", changing: true
-	shadeClient group: "org.spongepowered", name: "mixin", version: "0.5.3-SNAPSHOT", changing: true
+	shade (group: "org.spongepowered", name: "mixin", version: "0.5.6-SNAPSHOT", changing: true) {
+		exclude group: 'org.ow2.asm', module: 'asm-tree'
+	}
+	shadeClient (group: "org.spongepowered", name: "mixin", version: "0.5.6-SNAPSHOT", changing: true) {
+		exclude group: 'org.ow2.asm', module: 'asm-tree'
+	}
 }
 
 /************************************************************
@@ -185,34 +189,23 @@ jar.doLast {
 	delete (serverLibArchive.archivePath)
 }
 
-jar.doFirst {
-
-	FileCollection collection = files { sourceSets.main.output }
-	
-	collection.collect { relativePath(it) }.sort().each { println it }
-	
-	collection.each {File file ->
-		if (file.path.contains("classes")){
-			FileCollection subColl = files { file.listFiles() }
-			subColl.collect { relativePath(it) }.sort().each { if(it.contains("mcmod.info")){delete it} }
-		}
-	}
-}
+def serverRefMap = "${tasks.compileJava.temporaryDir}" + File.separator + "mixins.forgeessentials.refmap.json"
+def clientRefMap = "${tasks.compileClientJava.temporaryDir}" + File.separator + "mixins.forgeessentials.client.refmap.json"
 
 // Configure server jar (default)
 jar {
-	setDuplicatesStrategy(DuplicatesStrategy.EXCLUDE)
 	dependsOn "serverLibArchive"
 	classifier = "server"
 	appendix = minecraft.version
 	
 	from sourceSets.main.output
 	from sourceSets.utils.output
-	from fileTree(serverLibArchive.archivePath)	
+	from fileTree(serverLibArchive.archivePath)
 	configurations.shade.copyRecursive().setTransitive(false).each { artifact ->
-		from (zipTree(artifact)) 
+		from (zipTree(artifact))
 	}
-	
+    from serverRefMap
+
 	manifest {
 		from serverManifest
 	}
@@ -228,6 +221,7 @@ task clientJar (dependsOn: "clientClasses", type: Jar) {
 	
 	from sourceSets.client.output
 	from sourceSets.utils.output
+    from clientRefMap
 	configurations.shadeClient.copyRecursive().setTransitive(false).each { artifact ->
 		from (zipTree(artifact))
 	}
@@ -242,14 +236,21 @@ task clientJar (dependsOn: "clientClasses", type: Jar) {
 }
 
 mixin {
-    add sourceSets.main, "main.refmap.json"
-    add sourceSets.client, "client.refmap.json"
+    add sourceSets.main, "mixins.forgeessentials.refmap.json"
+    add sourceSets.client, "mixins.forgeessentials.client.refmap.json"
 }
- 
 
 /************************************************************
  * Configure reobfuscation
- */
+ *
+
+def mixinSrg = "${tasks.reobf.temporaryDir}" + File.separator + "mixins.srg"
+def mixinClientSrg = "${tasks.reobf.temporaryDir}" + File.separator + "mixinsClient.srg"
+afterEvaluate {
+	tasks.compileJava.options.compilerArgs += ["-AreobfSrgFile=${tasks.reobf.srg}", "-AoutSrgFile=${mixinSrg}", "-AoutRefMapFile=${serverRefMap}"]
+	tasks.compileClientJava.options.compilerArgs += ["-AreobfSrgFile=${tasks.reobf.srg}", "-AoutSrgFile=${mixinClientSrg}", "-AoutRefMapFile=${clientRefMap}"]
+}
+*/
 
 reobf {
     clientJar {
@@ -263,7 +264,7 @@ reobf {
 
 // Add default artifacts for task "build"
 artifacts {
-	archives jar
+	//archives deobfJar
 	archives clientJar
 }
 
