@@ -63,18 +63,18 @@ public class PlayerInfo implements Loadable {
 		return false;
 	}
 
-	public static PlayerInfo get(EntityPlayer player) throws Exception {
+	public static PlayerInfo get(EntityPlayer player) throws NullPointerException {
 		return get(player.getPersistentID());
 	}
 
-	public static PlayerInfo get(UserIdent ident) throws Exception {
+	public static PlayerInfo get(UserIdent ident) throws NullPointerException {
 		if (!ident.hasUuid()) {
 			throw new NullPointerException();
 		}
 		return get(ident.getUuid());
 	}
 
-	public static PlayerInfo get(UUID uuid) throws Exception {
+	public static PlayerInfo get(UUID uuid) throws NullPointerException {
 		PlayerInfo info = playerInfoMap.get(uuid);
 		if (info != null) {
 			return info;

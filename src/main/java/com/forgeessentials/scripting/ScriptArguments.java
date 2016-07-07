@@ -18,6 +18,7 @@ import com.forgeessentials.api.UserIdent;
 import com.forgeessentials.chat.ChatConfig;
 import com.forgeessentials.commons.selections.WorldPoint;
 import com.forgeessentials.core.FEConfig;
+import com.forgeessentials.core.ForgeEssentials;
 import com.forgeessentials.scripting.ScriptParser.MissingPlayerException;
 import com.forgeessentials.scripting.ScriptParser.ScriptArgument;
 import com.forgeessentials.scripting.ScriptParser.ScriptException;
@@ -595,6 +596,35 @@ public final class ScriptArguments {
 		@Override
 		public String process(ICommandSender sender) {
 			return Integer.toString(APIRegistry.perms.getServerZone().getKnownPlayers().size());
+		}
+	};
+
+	public static ScriptArgument exp = new ScriptArgument() {
+		@Override
+		public String getHelp() {
+			return "Returns the expLevel of the command sender";
+		}
+
+		@Override
+		public String process(ICommandSender sender) {
+			if (!(sender instanceof EntityPlayerMP)) {
+				throw new MissingPlayerException();
+			}
+			return Integer.toString(((EntityPlayerMP) sender).experienceLevel);
+		}
+	};
+
+	// Should be removed (randi function replaces it better)
+	@Deprecated
+	public static ScriptArgument random = new ScriptArgument() {
+		@Override
+		public String getHelp() {
+			return "Returns a random integer between -16777216 and 16777215 inclusive. (Deprecated, may be removed in a later update.  Use expression functions instead.) ";
+		}
+
+		@Override
+		public String process(ICommandSender sender) {
+			return Integer.toString(ForgeEssentials.rnd.nextInt(33554432) - 16777216);
 		}
 	};
 

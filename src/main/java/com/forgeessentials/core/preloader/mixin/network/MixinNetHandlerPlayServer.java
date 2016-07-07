@@ -74,7 +74,7 @@ public class MixinNetHandlerPlayServer {
 	 * @param ci
 	 *            the callback info
 	 */
-	@Redirect(method = "processUpdateSign", at = @At(value = "INVOKE", target = "net/minecraft/network/play/client/C12PacketUpdateSign;getLines()V"), require = 1)
+	@Redirect(method = "processUpdateSign", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/play/client/C12PacketUpdateSign;getLines()V"), require = 1)
 	private IChatComponent[] getLines(C12PacketUpdateSign packet, CallbackInfo ci) {
 		SignEditEvent event = new SignEditEvent(packet.getPosition(), packet.getLines(), playerEntity);
 		if (MinecraftForge.EVENT_BUS.post(event)) {
