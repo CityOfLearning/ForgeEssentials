@@ -18,6 +18,7 @@ import com.forgeessentials.util.events.FEModuleEvent.FEModuleServerInitEvent;
 import com.forgeessentials.util.events.PlayerMoveEvent;
 import com.forgeessentials.util.events.ServerEventHandler;
 import com.forgeessentials.util.output.LoggingHandler;
+import com.forgeessentials.worldborder.effect.EffectBlock;
 
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.world.World;
@@ -99,8 +100,12 @@ public class ModuleWorldBorder extends ServerEventHandler {
 			// Check which effects are active
 			Set<WorldBorderEffect> newActiveEffects = new HashSet<>();
 			if (!PermissionManager.checkPermission(player, PERM_BYPASS)) {
+				if (minBorderDistance <= 0) {
+					new EffectBlock().playerMove(border, event);
+				}
+
 				for (WorldBorderEffect effect : border.getEffects()) {
-					if (minBorderDistance <= effect.getTiggerDistance()) {
+					if (minBorderDistance <= effect.getTriggerDistance()) {
 						newActiveEffects.add(effect);
 					}
 				}
@@ -140,7 +145,7 @@ public class ModuleWorldBorder extends ServerEventHandler {
 		// Tick effects
 		for (EntityPlayerMP player : ServerUtil.getPlayerList()) {
 			WorldBorder border = getBorder(player.worldObj);
-			if (border != null) {
+			if ((border != null) && border.isEnabled()) {
 				Set<WorldBorderEffect> effects = border.getActiveEffects(player);
 				if (effects != null) {
 					for (WorldBorderEffect effect : effects) {
@@ -156,6 +161,7 @@ public class ModuleWorldBorder extends ServerEventHandler {
 		if (!FMLCommonHandler.instance().getEffectiveSide().isServer()) {
 			return;
 		}
+		borders.put((WorldServer) event.world, WorldBorder.load(event.world));
 		getBorder(event.world);
 	}
 

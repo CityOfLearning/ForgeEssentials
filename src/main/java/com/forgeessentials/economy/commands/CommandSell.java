@@ -126,7 +126,17 @@ public class CommandSell extends ParserCommandBase {
 		};
 		String message = Translator.format("Sell %d x %s each for %s (total: %s)?", amount, itemStack.getDisplayName(),
 				APIRegistry.economy.toString(price), APIRegistry.economy.toString(amount * price));
+		if (APIRegistry.perms.checkPermission(arguments.senderPlayer, getPermissionNode() + ".noconfirm")) {
+			handler.respond(true);
+			return;
+		}
 		Questioner.addChecked(arguments.sender, message, handler, 20);
+	}
+
+	@Override
+	public void registerExtraPermissions() {
+		APIRegistry.perms.registerPermission(getPermissionNode() + ".noconfirm", PermissionLevel.FALSE,
+				"Do not confirm selling items to the server.");
 	}
 
 }

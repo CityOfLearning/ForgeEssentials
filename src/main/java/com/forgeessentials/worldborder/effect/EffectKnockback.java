@@ -11,6 +11,11 @@ import net.minecraft.entity.player.EntityPlayerMP;
 public class EffectKnockback extends WorldBorderEffect {
 
 	@Override
+	public String getSyntax() {
+		return "";
+	}
+
+	@Override
 	public void playerMove(WorldBorder border, PlayerMoveEvent event) {
 		EntityPlayerMP player = (EntityPlayerMP) event.entityPlayer;
 		if (event.before.getDimension() != event.after.getDimension()) {
@@ -36,6 +41,17 @@ public class EffectKnockback extends WorldBorderEffect {
 		}
 		player.playerNetServerHandler.setPlayerLocation(p.getX(), p.getY(), p.getZ(), player.rotationYaw,
 				player.rotationPitch);
+	}
+
+	// no argument
+	@Override
+	public boolean provideArguments(String[] args) {
+		return true;
+	}
+
+	@Override
+	public String toString() {
+		return "knockback trigger: " + triggerDistance;
 	}
 
 }
