@@ -3,7 +3,6 @@ package com.forgeessentials.client.core;
 import static com.forgeessentials.client.ForgeEssentialsClient.feclientlog;
 
 import com.forgeessentials.client.ForgeEssentialsClient;
-import com.forgeessentials.client.handler.CUIRenderrer;
 import com.forgeessentials.client.handler.PermissionOverlay;
 import com.forgeessentials.client.handler.PlotsRenderer;
 import com.forgeessentials.client.handler.QuestionerKeyHandler;
@@ -45,13 +44,11 @@ public class ClientProxy extends CommonProxy {
 
 	/* ------------------------------------------------------------ */
 
-	public static boolean allowCUI, allowPUI, allowPermissionRender, allowQuestionerShortcuts;
+	public static boolean allowPUI, allowPermissionRender, allowQuestionerShortcuts;
 
 	public static float reachDistance;
 
 	/* ------------------------------------------------------------ */
-
-	private static CUIRenderrer cuiRenderer = new CUIRenderrer();
 
 	private static PlotsRenderer plotRenderer = new PlotsRenderer();
 
@@ -115,8 +112,6 @@ public class ClientProxy extends CommonProxy {
 		config.load();
 		config.addCustomCategoryComment(CONFIG_CAT, "Configure ForgeEssentials Client addon features.");
 
-		allowCUI = config.getBoolean("allowCUI", Configuration.CATEGORY_GENERAL, true,
-				"Set to false to disable graphical selections.");
 		allowPUI = config
 				.get(Configuration.CATEGORY_GENERAL, "allowPUI", true, "Set to false to disable rendering plots.")
 				.getBoolean(true);
@@ -127,9 +122,6 @@ public class ClientProxy extends CommonProxy {
 						"Use shortcut buttons to answer questions. Defaults are F8 for yes and F9 for no, change in game options menu.")
 				.getBoolean(true);
 
-		if (allowCUI) {
-			MinecraftForge.EVENT_BUS.register(cuiRenderer);
-		}
 		if (allowPUI) {
 			//the handshake seems to happen before this...
 			MinecraftForge.EVENT_BUS.register(plotRenderer);
@@ -157,7 +149,6 @@ public class ClientProxy extends CommonProxy {
 				new NullMessageHandler<Packet0Handshake>() {
 					/* dummy */
 				});
-		NetworkUtils.registerMessage(cuiRenderer, Packet1SelectionUpdate.class, 1, Side.CLIENT);
 		NetworkUtils.registerMessage(reachDistanceHandler, Packet2Reach.class, 2, Side.CLIENT);
 		NetworkUtils.registerMessage(permissionOverlay, Packet3PlayerPermissions.class, 3, Side.CLIENT);
 		NetworkUtils.registerMessage(plotRenderer, Packet4PlotsUpdate.class, 4, Side.CLIENT);
