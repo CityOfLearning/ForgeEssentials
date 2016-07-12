@@ -2,7 +2,6 @@ package com.forgeessentials.teleport;
 
 import com.forgeessentials.commons.selections.WarpPoint;
 import com.forgeessentials.core.misc.TeleportHelper;
-
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
@@ -32,15 +31,15 @@ public class CommandTp extends CommandTeleport implements PermissionObject {
 			throw new WrongUsageException("commands.tp.usage", new Object[0]);
 		} else {
 			byte b0 = 0;
-			Entity entity;
-
+			Entity entity;			
+			
 			if ((args.length != 2) && (args.length != 4) && (args.length != 6)) {
 				entity = getCommandSenderAsPlayer(sender);
 			} else {
-				entity = func_175768_b(sender, args[0]);//getEntity(sender, args[0]);
+				entity = func_175768_b(sender, args[0]);
 				b0 = 1;
 			}
-
+			
 			if ((args.length != 1) && (args.length != 2)) {
 				if (args.length < (b0 + 3)) {
 					throw new WrongUsageException("commands.tp.usage", new Object[0]);
@@ -106,7 +105,7 @@ public class CommandTp extends CommandTeleport implements PermissionObject {
 									Double.valueOf(argY.func_179628_a()), Double.valueOf(argZ.func_179628_a()) });
 				}
 			} else {
-				Entity targetEntity = entity = func_175768_b(sender, args[args.length - 1]);//getEntity(sender, args[args.length - 1]);
+				Entity targetEntity = func_175768_b(sender, args[args.length - 1]);
 				if (targetEntity instanceof EntityPlayerMP) {
 					WarpPoint pos = new WarpPoint(targetEntity.worldObj.provider.getDimensionId(), targetEntity.posX,
 							targetEntity.posY, targetEntity.posZ, targetEntity.rotationPitch, targetEntity.rotationYaw);
@@ -118,11 +117,11 @@ public class CommandTp extends CommandTeleport implements PermissionObject {
 
 					if (entity instanceof EntityPlayerMP) {
 						((EntityPlayerMP) entity).playerNetServerHandler.setPlayerLocation(targetEntity.posX,
-								targetEntity.posY, targetEntity.posZ, targetEntity.rotationPitch,
-								targetEntity.rotationYaw);
+								targetEntity.posY, targetEntity.posZ, targetEntity.rotationYaw,
+								targetEntity.rotationPitch);
 					} else {
 						entity.setLocationAndAngles(targetEntity.posX, targetEntity.posY, targetEntity.posZ,
-								targetEntity.rotationPitch, targetEntity.rotationYaw);
+								targetEntity.rotationYaw, targetEntity.rotationPitch);
 					}
 
 					notifyOperators(sender, this, "commands.tp.success",

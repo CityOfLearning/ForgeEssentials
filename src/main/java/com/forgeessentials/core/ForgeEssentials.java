@@ -435,12 +435,6 @@ public class ForgeEssentials extends ConfigLoaderBase {
 		APIRegistry.perms.registerPermission("mc.help", PermissionLevel.TRUE, "Help command");
 
 		// Teleport
-		APIRegistry.perms.registerPermissionProperty(TeleportHelper.TELEPORT_COOLDOWN, "5",
-				"Allow bypassing teleport cooldown");
-		APIRegistry.perms.registerPermissionProperty(TeleportHelper.TELEPORT_WARMUP, "3",
-				"Allow bypassing teleport warmup");
-		APIRegistry.perms.registerPermissionPropertyOp(TeleportHelper.TELEPORT_COOLDOWN, "0");
-		APIRegistry.perms.registerPermissionPropertyOp(TeleportHelper.TELEPORT_WARMUP, "0");
 		APIRegistry.perms.registerPermission(TeleportHelper.TELEPORT_CROSSDIM, PermissionLevel.TRUE,
 				"Allow teleporting across dimensions");
 		APIRegistry.perms.registerPermission(TeleportHelper.TELEPORT_FROM, PermissionLevel.TRUE,
@@ -448,8 +442,6 @@ public class ForgeEssentials extends ConfigLoaderBase {
 		APIRegistry.perms.registerPermission(TeleportHelper.TELEPORT_TO, PermissionLevel.TRUE,
 				"Allow being teleported to a certain location / dimension");
 
-		CommandFeSettings.addAlias("Teleport", "warmup", TeleportHelper.TELEPORT_WARMUP);
-		CommandFeSettings.addAlias("Teleport", "cooldown", TeleportHelper.TELEPORT_COOLDOWN);
 	}
 
 	@EventHandler

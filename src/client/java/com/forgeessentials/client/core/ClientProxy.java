@@ -11,7 +11,6 @@ import com.forgeessentials.commons.BuildInfo;
 import com.forgeessentials.commons.network.NetworkUtils;
 import com.forgeessentials.commons.network.NetworkUtils.NullMessageHandler;
 import com.forgeessentials.commons.network.Packet0Handshake;
-import com.forgeessentials.commons.network.Packet1SelectionUpdate;
 import com.forgeessentials.commons.network.Packet2Reach;
 import com.forgeessentials.commons.network.Packet3PlayerPermissions;
 import com.forgeessentials.commons.network.Packet4PlotsUpdate;
@@ -123,7 +122,7 @@ public class ClientProxy extends CommonProxy {
 				.getBoolean(true);
 
 		if (allowPUI) {
-			//the handshake seems to happen before this...
+			// the handshake seems to happen before this...
 			MinecraftForge.EVENT_BUS.register(plotRenderer);
 		}
 		if (allowPermissionRender) {

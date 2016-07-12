@@ -1,16 +1,11 @@
 package com.forgeessentials.core.misc;
 
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
-import java.util.UUID;
 
 import com.forgeessentials.api.APIRegistry;
 import com.forgeessentials.api.UserIdent;
 import com.forgeessentials.commons.selections.WarpPoint;
 import com.forgeessentials.util.PlayerInfo;
-import com.forgeessentials.util.ServerUtil;
-import com.forgeessentials.util.events.ServerEventHandler;
 import com.forgeessentials.util.output.ChatOutputHandler;
 import com.forgeessentials.util.output.LoggingHandler;
 
@@ -29,10 +24,8 @@ import net.minecraft.world.WorldProvider;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
 
-public class TeleportHelper extends ServerEventHandler {
+public class TeleportHelper {
 
 	public static class SimpleTeleporter extends Teleporter {
 
@@ -61,48 +54,9 @@ public class TeleportHelper extends ServerEventHandler {
 
 	}
 
-	public static class TeleportInfo {
-
-		private EntityPlayerMP player;
-
-		private long start;
-
-		private int timeout;
-
-		private WarpPoint point;
-
-		private WarpPoint playerPos;
-
-		public TeleportInfo(EntityPlayerMP player, WarpPoint point, int timeout) {
-			this.point = point;
-			this.timeout = timeout;
-			start = System.currentTimeMillis();
-			this.player = player;
-			playerPos = new WarpPoint(player);
-		}
-
-		public boolean check() {
-			if (playerPos.distance(new WarpPoint(player)) > 0.2) {
-				ChatOutputHandler.chatWarning(player, "Teleport cancelled.");
-				return true;
-			}
-			if ((System.currentTimeMillis() - start) < timeout) {
-				return false;
-			}
-			checkedTeleport(player, point);
-			ChatOutputHandler.chatConfirmation(player, "Teleported.");
-			return true;
-		}
-
-	}
-
-	public static final String TELEPORT_COOLDOWN = "fe.teleport.cooldown";
-	public static final String TELEPORT_WARMUP = "fe.teleport.warmup";
 	public static final String TELEPORT_CROSSDIM = "fe.teleport.crossdim";
 	public static final String TELEPORT_FROM = "fe.teleport.from";
 	public static final String TELEPORT_TO = "fe.teleport.to";
-
-	private static Map<UUID, TeleportInfo> tpInfos = new HashMap<>();
 
 	public static boolean canTeleportTo(WarpPoint point) {
 		if (point.getY() < 0) {
@@ -125,9 +79,8 @@ public class TeleportHelper extends ServerEventHandler {
 			return;
 		}
 
-		PlayerInfo pi;
 		try {
-			pi = PlayerInfo.get(player);
+			PlayerInfo pi = PlayerInfo.get(player);
 
 			pi.setLastTeleportOrigin(new WarpPoint(player));
 			pi.setLastTeleportTime(System.currentTimeMillis());
@@ -169,6 +122,7 @@ public class TeleportHelper extends ServerEventHandler {
 		if (point.getWorld() == null) {
 			DimensionManager.initDimension(point.getDimension());
 			if (point.getWorld() == null) {
+				LoggingHandler.felog.error("Unable to teleport to " + point + " Target dimension does not exist");
 				ChatOutputHandler.chatError(player,
 						Translator.translate("Unable to teleport! Target dimension does not exist"));
 				return;
@@ -178,53 +132,22 @@ public class TeleportHelper extends ServerEventHandler {
 		// Check permissions
 		UserIdent ident = UserIdent.get(player);
 		if (!APIRegistry.perms.checkPermission(player, TELEPORT_FROM)) {
+			LoggingHandler.felog.error("Player: " + player.getName() + " is not allowed to teleport from here.");
 			throw new TranslatedCommandException("You are not allowed to teleport from here.");
 		}
 		if (!APIRegistry.perms.checkUserPermission(ident, point.toWorldPoint(), TELEPORT_TO)) {
+			LoggingHandler.felog.error("Player: " + player.getName() + " is not allowed to teleport to that location.");
 			throw new TranslatedCommandException("You are not allowed to teleport to that location.");
 		}
 		if ((player.dimension != point.getDimension())
 				&& !APIRegistry.perms.checkUserPermission(ident, point.toWorldPoint(), TELEPORT_CROSSDIM)) {
+			LoggingHandler.felog
+					.error("Player: " + player.getName() + " is not allowed to teleport across dimensions.");
 			throw new TranslatedCommandException("You are not allowed to teleport across dimensions.");
 		}
 
-		// Get and check teleport cooldown
-		int teleportCooldown = ServerUtil
-				.parseIntDefault(APIRegistry.perms.getUserPermissionProperty(ident, TELEPORT_COOLDOWN), 0) * 1000;
-		if (teleportCooldown > 0) {
-			PlayerInfo pi;
-			try {
-				pi = PlayerInfo.get(player);
+		checkedTeleport(player, point);
 
-				long cooldownDuration = (pi.getLastTeleportTime() + teleportCooldown) - System.currentTimeMillis();
-				if (cooldownDuration >= 0) {
-					ChatOutputHandler.chatNotification(player,
-							Translator.format("Cooldown still active. %d seconds to go.", cooldownDuration / 1000));
-					return;
-				}
-			} catch (Exception e) {
-				LoggingHandler.felog.error("Error getting player Info");
-			}
-		}
-
-		// Get and check teleport warmup
-		int teleportWarmup = ServerUtil
-				.parseIntDefault(APIRegistry.perms.getUserPermissionProperty(ident, TELEPORT_WARMUP), 0);
-		if (teleportWarmup <= 0) {
-			checkedTeleport(player, point);
-			return;
-		}
-
-		if (!canTeleportTo(point)) {
-			ChatOutputHandler.chatError(player,
-					Translator.translate("Unable to teleport! Target location obstructed."));
-			return;
-		}
-
-		// Setup timed teleport
-		tpInfos.put(player.getPersistentID(), new TeleportInfo(player, point, teleportWarmup * 1000));
-		ChatOutputHandler.chatNotification(player, Translator.format("Teleporting. Please stand still for %s.",
-				ChatOutputHandler.formatTimeDurationReadable(teleportWarmup, true)));
 	}
 
 	public static void transferEntityToWorld(Entity entity, int oldDim, WorldServer oldWorld, WorldServer newWorld,
@@ -276,18 +199,6 @@ public class TeleportHelper extends ServerEventHandler {
 			player.playerNetServerHandler.sendPacket(new S1DPacketEntityEffect(player.getEntityId(), potioneffect));
 		}
 		FMLCommonHandler.instance().firePlayerChangedDimensionEvent(player, oldDim, dimension);
-	}
-
-	@SubscribeEvent
-	public void serverTickEvent(TickEvent.ServerTickEvent e) {
-		if (e.phase == TickEvent.Phase.START) {
-			for (Iterator<TeleportInfo> it = tpInfos.values().iterator(); it.hasNext();) {
-				TeleportInfo tpInfo = it.next();
-				if (tpInfo.check()) {
-					it.remove();
-				}
-			}
-		}
 	}
 
 }

@@ -83,7 +83,7 @@ public @interface At {
 	/**
 	 * If {@link #shift} is specified as {@link At.Shift#BY BY}, specifies the
 	 * number of opcodes to shift by (negative numbers are allowed).
-	 * 
+	 *
 	 * @return Amount of shift to apply for the {@link At.Shift#BY BY} shift
 	 */
 	public int by() default 0;
@@ -96,7 +96,7 @@ public @interface At {
 	 * of 0 or higher returns <em>only</em> the requested opcode (if one exists:
 	 * for example specifying an ordinal of 4 when only 2 opcodes are matched by
 	 * the InjectionPoint is not going to work particularly well!)
-	 * 
+	 *
 	 * @return ordinal value for supported InjectionPoint types
 	 */
 	public int ordinal() default -1;
@@ -109,7 +109,7 @@ public @interface At {
 	 * <br>
 	 * Use {@link At.Shift#BY BY} in conjunction with the {@link #by} parameter
 	 * to shift by an arbitrary number of opcodes.
-	 * 
+	 *
 	 * @return Type of shift to apply
 	 */
 	public Shift shift() default Shift.LAST_LABEL;
@@ -117,14 +117,14 @@ public @interface At {
 	/**
 	 * Target member used by INVOKE, INVOKE_STRING, INVOKE_ASSIGN and FIELD.
 	 * <br>
-	 * 
+	 *
 	 * @return target reference for supported {@link InjectionPoint} types
 	 */
 	public String target() default "";
 
 	/**
 	 * Type of this {@link InjectionPoint}
-	 * 
+	 *
 	 * @return
 	 */
 	public String value();
@@ -132,7 +132,7 @@ public @interface At {
 	/**
 	 * Target opcode for FIELD and JUMP InjectionPoints. See the javadoc for the
 	 * relevant injection point for more details.
-	 * 
+	 *
 	 * @return Bytecode opcode for supported InjectionPoints
 	 */
 	// public int opcode() default -1;

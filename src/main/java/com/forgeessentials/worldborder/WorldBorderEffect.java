@@ -35,7 +35,7 @@ public abstract class WorldBorderEffect {
 
 	/**
 	 * returns false if arguments are not as expected
-	 * 
+	 *
 	 * @param args
 	 * @return
 	 */
