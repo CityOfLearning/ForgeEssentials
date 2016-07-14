@@ -11,6 +11,7 @@ import com.forgeessentials.commons.BuildInfo;
 import com.forgeessentials.commons.network.NetworkUtils;
 import com.forgeessentials.commons.network.NetworkUtils.NullMessageHandler;
 import com.forgeessentials.commons.network.Packet0Handshake;
+import com.forgeessentials.commons.network.Packet1SelectionUpdate;
 import com.forgeessentials.commons.network.Packet2Reach;
 import com.forgeessentials.commons.network.Packet3PlayerPermissions;
 import com.forgeessentials.commons.network.Packet4PlotsUpdate;
@@ -146,6 +147,10 @@ public class ClientProxy extends CommonProxy {
 		// Register network messages
 		NetworkUtils.registerMessageProxy(Packet0Handshake.class, 0, Side.SERVER,
 				new NullMessageHandler<Packet0Handshake>() {
+					/* dummy */
+				});
+		NetworkUtils.registerMessageProxy(Packet1SelectionUpdate.class, 1, Side.CLIENT,
+				new NullMessageHandler<Packet1SelectionUpdate>() {
 					/* dummy */
 				});
 		NetworkUtils.registerMessage(reachDistanceHandler, Packet2Reach.class, 2, Side.CLIENT);
