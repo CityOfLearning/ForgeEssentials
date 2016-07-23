@@ -164,7 +164,7 @@ public class CommandWeather extends ParserCommandBase implements ConfigurableCom
 
 	@Override
 	public String getCommandName() {
-		return "weather";
+		return "feweather";
 	}
 
 	@Override
@@ -179,7 +179,7 @@ public class CommandWeather extends ParserCommandBase implements ConfigurableCom
 
 	@Override
 	public String getPermissionNode() {
-		return ModuleCommands.PERM + ".weather";
+		return ModuleCommands.PERM + ".feweather";
 	}
 
 	@Override

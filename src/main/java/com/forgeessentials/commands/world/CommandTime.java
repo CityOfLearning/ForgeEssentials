@@ -177,7 +177,7 @@ public class CommandTime extends ParserCommandBase implements ConfigurableComman
 
 	@Override
 	public String getCommandName() {
-		return "time";
+		return "fetime";
 	}
 
 	@Override
@@ -194,7 +194,7 @@ public class CommandTime extends ParserCommandBase implements ConfigurableComman
 
 	@Override
 	public String getPermissionNode() {
-		return ModuleCommands.PERM + ".time";
+		return ModuleCommands.PERM + ".fetime";
 	}
 
 	@Override
