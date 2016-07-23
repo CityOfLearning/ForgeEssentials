@@ -312,6 +312,7 @@ public class CommandZone extends ParserCommandBase {
 			arguments.confirm("/zone info <zone>|here: Zone information");
 			arguments.confirm("/zone define|redefine <zone-name>: define or redefine a zone.");
 			arguments.confirm("/zone delete <zone-id>: Delete a zone.");
+			arguments.confirm("/zone select <zone-id>: Select a zone.");
 			arguments.confirm("/zone entry|exit <zone-id> <message|clear>: Set the zone entry/exit message.");
 			return;
 		}

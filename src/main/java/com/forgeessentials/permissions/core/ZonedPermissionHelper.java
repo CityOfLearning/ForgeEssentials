@@ -215,9 +215,7 @@ public class ZonedPermissionHelper extends ServerEventHandler implements IPermis
 			ident = ((DoAsCommandSender) context.getSender()).getUserIdent();
 		} else if (context.getSender() instanceof CommandBlockLogic) {
 			ident = APIRegistry.IDENT_CMDBLOCK;
-		} else if (context.isRCon()) {
-			ident = APIRegistry.IDENT_RCON;
-		}
+		} 
 
 		if (context.getTargetLocationStart() != null) {
 			if (context.getTargetLocationEnd() != null) {
@@ -685,7 +683,6 @@ public class ZonedPermissionHelper extends ServerEventHandler implements IPermis
 
 		event.serverZone.setPlayerPermission(APIRegistry.IDENT_SERVER, "*", true);
 		event.serverZone.setPlayerPermission(APIRegistry.IDENT_CMDBLOCK, "*", true);
-		event.serverZone.setPlayerPermission(APIRegistry.IDENT_RCON, "*", true);
 	}
 
 	@SubscribeEvent(priority = EventPriority.LOWEST)
