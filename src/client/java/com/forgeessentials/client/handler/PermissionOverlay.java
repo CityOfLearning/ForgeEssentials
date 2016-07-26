@@ -13,6 +13,7 @@ import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.MovingObjectPosition.MovingObjectType;
@@ -59,17 +60,20 @@ public class PermissionOverlay extends Gui implements IMessageHandler<Packet3Pla
 			permissions.placeIds.addAll(message.placeIds);
 			permissions.breakIds.addAll(message.breakIds);
 
-			EntityPlayerSP player = Minecraft.getMinecraft().thePlayer;
-			ItemStack stack = player.getCurrentEquippedItem();
-			if (stack != null) {
-				int itemId = GameData.getItemRegistry().getId(stack.getItem());
-				for (int id : message.placeIds) {
-					if (itemId == id) {
-						player.stopUsingItem();
-						break;
+			EntityPlayer player = Minecraft.getMinecraft().thePlayer;
+			if(player != null){
+				ItemStack stack = player.getCurrentEquippedItem();
+				if (stack != null) {
+					int itemId = GameData.getItemRegistry().getId(stack.getItem());
+					for (int id : message.placeIds) {
+						if (itemId == id) {
+							player.stopUsingItem();
+							break;
+						}
 					}
 				}
 			}
+			
 		}
 		return null;
 	}
