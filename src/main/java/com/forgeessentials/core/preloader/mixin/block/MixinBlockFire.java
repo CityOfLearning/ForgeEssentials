@@ -59,12 +59,32 @@ public class MixinBlockFire {
 			locals = LocalCapture.CAPTURE_FAILEXCEPTION)
 	public void handleUpdateTick(World world, BlockPos source, IBlockState state, Random rnd, CallbackInfo ci,
 			Block block, boolean bool, int i) {
-		// System.out.println(String.format("Mixin : Fire spreading to other
-		// block from [%d,%d,%d] to [%d,%d,%d]", sourceX, sourceY, sourceZ, x,
-		// y, z));
-//		if (MinecraftForge.EVENT_BUS.post(new FireEvent.Spread(world, block, source))) {
-//			ci.cancel();
-//		}
+		if(world.getBlockState(source.east()).getBlock().equals(block)){
+			if (MinecraftForge.EVENT_BUS.post(new FireEvent.Spread(world, source.east(), source))) {
+				ci.cancel();
+			}
+		} else if(world.getBlockState(source.west()).getBlock().equals(block)){
+			if (MinecraftForge.EVENT_BUS.post(new FireEvent.Spread(world, source.west(), source))) {
+				ci.cancel();
+			}
+		} else if(world.getBlockState(source.north()).getBlock().equals(block)){
+			if (MinecraftForge.EVENT_BUS.post(new FireEvent.Spread(world, source.north(), source))) {
+				ci.cancel();
+			}
+		} else if(world.getBlockState(source.south()).getBlock().equals(block)){
+			if (MinecraftForge.EVENT_BUS.post(new FireEvent.Spread(world, source.south(), source))) {
+				ci.cancel();
+			}
+		} else if(world.getBlockState(source.up()).getBlock().equals(block)){
+			if (MinecraftForge.EVENT_BUS.post(new FireEvent.Spread(world, source.up(), source))) {
+				ci.cancel();
+			}
+		} else if(world.getBlockState(source.down()).getBlock().equals(block)){
+			if (MinecraftForge.EVENT_BUS.post(new FireEvent.Spread(world, source.down(), source))) {
+				ci.cancel();
+			}
+		}
+		
 	}
 
 }
