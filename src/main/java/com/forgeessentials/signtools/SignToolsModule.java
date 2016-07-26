@@ -60,7 +60,7 @@ public class SignToolsModule extends ConfigLoaderBase {
 		TileEntity te = event.entityPlayer.worldObj.getTileEntity(event.pos);
 		if ((te != null) && (te instanceof TileEntitySign)) {
 			if (allowSignEdit && event.entityPlayer.isSneaking()) {
-				if (event.entityPlayer.getCurrentEquippedItem().getItem() != null) {
+				if (event.entityPlayer.getCurrentEquippedItem() != null && event.entityPlayer.getCurrentEquippedItem().getItem() != null) {
 					if (event.entityPlayer.getCurrentEquippedItem().getItem().equals(Items.sign) && PermissionManager
 							.checkPermission(event.entityPlayer, "fe.protection.use.minecraft.sign")) {
 						event.entityPlayer.openEditSign((TileEntitySign) te);
