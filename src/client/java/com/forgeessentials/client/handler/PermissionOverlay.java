@@ -7,7 +7,6 @@ import com.forgeessentials.commons.network.Packet3PlayerPermissions;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.Tessellator;
@@ -61,7 +60,7 @@ public class PermissionOverlay extends Gui implements IMessageHandler<Packet3Pla
 			permissions.breakIds.addAll(message.breakIds);
 
 			EntityPlayer player = Minecraft.getMinecraft().thePlayer;
-			if(player != null){
+			if (player != null) {
 				ItemStack stack = player.getCurrentEquippedItem();
 				if (stack != null) {
 					int itemId = GameData.getItemRegistry().getId(stack.getItem());
@@ -73,7 +72,7 @@ public class PermissionOverlay extends Gui implements IMessageHandler<Packet3Pla
 					}
 				}
 			}
-			
+
 		}
 		return null;
 	}

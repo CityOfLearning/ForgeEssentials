@@ -215,7 +215,7 @@ public class ZonedPermissionHelper extends ServerEventHandler implements IPermis
 			ident = ((DoAsCommandSender) context.getSender()).getUserIdent();
 		} else if (context.getSender() instanceof CommandBlockLogic) {
 			ident = APIRegistry.IDENT_CMDBLOCK;
-		} 
+		}
 
 		if (context.getTargetLocationStart() != null) {
 			if (context.getTargetLocationEnd() != null) {

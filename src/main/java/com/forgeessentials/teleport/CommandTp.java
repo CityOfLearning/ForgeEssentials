@@ -2,6 +2,7 @@ package com.forgeessentials.teleport;
 
 import com.forgeessentials.commons.selections.WarpPoint;
 import com.forgeessentials.core.misc.TeleportHelper;
+
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
@@ -31,15 +32,15 @@ public class CommandTp extends CommandTeleport implements PermissionObject {
 			throw new WrongUsageException("commands.tp.usage", new Object[0]);
 		} else {
 			byte b0 = 0;
-			Entity entity;			
-			
+			Entity entity;
+
 			if ((args.length != 2) && (args.length != 4) && (args.length != 6)) {
 				entity = getCommandSenderAsPlayer(sender);
 			} else {
 				entity = func_175768_b(sender, args[0]);
 				b0 = 1;
 			}
-			
+
 			if ((args.length != 1) && (args.length != 2)) {
 				if (args.length < (b0 + 3)) {
 					throw new WrongUsageException("commands.tp.usage", new Object[0]);

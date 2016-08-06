@@ -68,7 +68,7 @@ public class ClassInjector {
 
 		log.info(String.format("Scanning injector class %s", classNode.name));
 
-		for (MethodNode methodNode : ((List<MethodNode>) classNode.methods)) {
+		for (MethodNode methodNode : (classNode.methods)) {
 			AnnotationNode aInject = ASMUtil.getAnnotation(methodNode.visibleAnnotations,
 					Type.getDescriptor(Inject.class));
 			if (aInject == null) {
@@ -136,7 +136,7 @@ public class ClassInjector {
 		Set<String> processedInjectors = new HashSet<>();
 
 		boolean modified = false;
-		for (MethodNode method : ((List<MethodNode>) target.methods)) {
+		for (MethodNode method : (target.methods)) {
 			Set<MethodInjector> injectors = getInjectors(method.name, method.desc);
 			if ((injectors != null) && !injectors.isEmpty()) {
 				processedInjectors.add(method.name + method.desc);
@@ -156,7 +156,7 @@ public class ClassInjector {
 			}
 			if (error) {
 				log.warn(String.format("Methods in %s", ASMUtil.javaName(target.name)));
-				for (MethodNode method : ((List<MethodNode>) target.methods)) {
+				for (MethodNode method : (target.methods)) {
 					log.warn(String.format("> %s%s", method.name, method.desc));
 				}
 			}
