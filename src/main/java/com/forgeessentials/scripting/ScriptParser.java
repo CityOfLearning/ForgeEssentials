@@ -18,6 +18,8 @@ import com.forgeessentials.util.output.LoggingHandler;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.command.PlayerSelector;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
@@ -165,7 +167,6 @@ public class ScriptParser {
 	}
 
 	public static String[] parseExpressions(String args) {
-		// System.out.println(args);
 		Matcher m = EXPRESSION_PATTERN.matcher(args);
 		while (m.find()) {
 			Double out = ExpressionParser.computeExpression(m.group(1));
@@ -187,11 +188,25 @@ public class ScriptParser {
 		Matcher matcher = ARGUMENT_PATTERN.matcher(actionArgs);
 		while (matcher.find()) {
 			String modifier = matcher.group(1).toLowerCase();
-
 			ScriptArgument argument = ScriptArguments.get(modifier);
 			if (argument != null) {
-				actionArgs = matcher.replaceFirst(Matcher.quoteReplacement(argument.process(sender)));
-				matcher.reset(actionArgs);
+				if (argument == ScriptArguments.player) {
+					if (sender.getCommandSenderEntity() instanceof EntityPlayer) {
+						actionArgs = matcher.replaceFirst(Matcher.quoteReplacement(argument.process(sender)));
+						matcher.reset(actionArgs);
+					} else {
+						List<Entity> list = PlayerSelector.<Entity> matchEntities(sender, "@p", Entity.class);
+						for (Entity entity : list) {
+							// hopefully this is a list of size 1...
+							actionArgs = matcher.replaceFirst(Matcher.quoteReplacement(argument.process(entity)));
+							matcher.reset(actionArgs);
+						}
+					}
+				} else {
+					actionArgs = matcher.replaceFirst(Matcher.quoteReplacement(argument.process(sender)));
+					matcher.reset(actionArgs);
+				}
+
 			} else if (modifier.endsWith("*")) {
 				try {
 					int idx = 0;
@@ -316,11 +331,9 @@ public class ScriptParser {
 			Map<String, String> variableMap, HashMap<String, Integer> labels, int line) throws CommandException {
 		String[] args = action.split(" ", 2);
 		String cmd = args[0].toLowerCase();
-		String arguments = args.length > 1 ? args[1] : ""; // Keep Arguments as
-															// a single unit
-															// until all
-															// processing is
-															// done
+		String arguments = args.length > 1 ? args[1] : "";
+
+		// Keep Arguments as a single unit until all processing is done
 		arguments = processArguments(sender, arguments, argumentValues);
 		arguments = processVariables(arguments, variableMap);
 		args = parseExpressions(arguments);
@@ -440,7 +453,9 @@ public class ScriptParser {
 				}
 				c = cmd.charAt(0);
 			}
+
 			ICommand mcCommand = MinecraftServer.getServer().getCommandManager().getCommands().get(cmd);
+
 			try {
 				mcCommand.processCommand(cmdSender, args);
 			} catch (CommandException e) {
@@ -469,5 +484,4 @@ public class ScriptParser {
 			}
 		}
 	}
-
 }
