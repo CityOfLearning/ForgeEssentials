@@ -10,6 +10,7 @@ import com.forgeessentials.util.output.ChatOutputHandler;
 
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.command.NumberInvalidException;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.BlockPos;
@@ -22,7 +23,7 @@ public class CommandGameMode extends FEcmdModuleCommands {
 	@Override
 	public List<String> addTabCompletionOptions(ICommandSender sender, String[] args, BlockPos pos) {
 		if (args.length == 1) {
-			return getListOfStringsMatchingLastWord(args, new String[] { "survival", "creative", "adventure" });
+			return getListOfStringsMatchingLastWord(args, new String[] { "survival", "creative", "adventure", "spectator" });
 		} else {
 			return getListOfStringsMatchingLastWord(args,
 					FMLCommonHandler.instance().getMinecraftServerInstance().getAllUsernames());
@@ -51,7 +52,7 @@ public class CommandGameMode extends FEcmdModuleCommands {
 
 	@Override
 	public String[] getDefaultAliases() {
-		return new String[] { "gm" };
+		return new String[] { };
 	}
 
 	private WorldSettings.GameType getGameTypeFromString(String string) {
@@ -64,11 +65,14 @@ public class CommandGameMode extends FEcmdModuleCommands {
 		} else if (string.equalsIgnoreCase(WorldSettings.GameType.ADVENTURE.getName()) || string.equalsIgnoreCase("a")
 				|| string.equals("2")) {
 			return WorldSettings.GameType.ADVENTURE;
+		} else if (string.equalsIgnoreCase(WorldSettings.GameType.SPECTATOR.getName()) || string.equalsIgnoreCase("sp")
+				|| string.equals("3")) {
+			return WorldSettings.GameType.SPECTATOR;
 		} else {
 			return null;
 		}
 	}
-
+	
 	@Override
 	public PermissionLevel getPermissionLevel() {
 		return PermissionLevel.OP;
