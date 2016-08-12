@@ -21,7 +21,7 @@ public abstract class MixinMobSpawnerBaseLogic {
 
 	@Inject(method = "updateSpawner", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;setLocationAndAngles(DDDFF)V"), cancellable = true, require = 1, locals = LocalCapture.CAPTURE_FAILEXCEPTION)
 	public void handleUpdateSpawner(CallbackInfo ci, BlockPos pos, double d0, boolean flag, int i1, Entity entity,
-			int i2, double d1, double d2, EntityLiving living) {
+			double d1, double d2, EntityLiving living) {
 		// System.out.println("Mixin : Spawned entity from mob spawner block");
 		// hack to work around mixin bug regarding SHIFT and lvt injection
 		entity.setLocationAndAngles(d0, d1, d2, getSpawnerWorld().rand.nextFloat() * 360.0F, 0.0F);
