@@ -31,6 +31,7 @@ import com.forgeessentials.util.output.LoggingHandler;
 import com.google.common.collect.ImmutableMap;
 
 import net.minecraft.command.CommandException;
+import net.minecraft.command.CommandHandler;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -238,6 +239,40 @@ public final class ScriptMethods {
 		@Override
 		public boolean process(ICommandSender sender, String[] args) {
 			if (getPermcheckResult(sender, args)) {
+				return true;
+			}
+			if (args.length > 2) {
+				throw new MissingPermissionException(args[0],
+						StringUtils.join(Arrays.copyOfRange(args, 2, args.length), " "));
+			} else {
+				throw new MissingPermissionException(args[0]);
+			}
+		}
+	};
+	
+	public static final ScriptMethod userpermcheck = new ScriptMethod() {
+		@Override
+		public String getHelp() {
+			return "`permcheck <user> <perm> [value] [error message...]`  \nPermission check (with error message). "
+					+ "Use `true` or `false` as value for normal permission checks (default value is `true`)."
+					+ "Other values will cause a permission-property check.";
+		}
+
+		@Override
+		public boolean process(ICommandSender sender, String[] args) {
+			
+			String user = args[0];
+			String[] astring = new String[args.length - 1];
+	        System.arraycopy(args, 1, astring, 0, args.length - 1);
+	        args =  astring;
+
+			EntityPlayerMP player = MinecraftServer.getServer().getConfigurationManager().getPlayerByUsername(user);
+			
+			if (player == null) {
+				throw new SyntaxException("Missing player argument for teleport");
+			}
+			
+			if (getPermcheckResult(player, args)) {
 				return true;
 			}
 			if (args.length > 2) {
