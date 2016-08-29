@@ -10,12 +10,10 @@ import com.forgeessentials.commons.BuildInfo;
 
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
-import net.minecraftforge.fml.common.Mod.Instance;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.network.NetworkCheckHandler;
-import net.minecraftforge.fml.relauncher.Side;
 
 @Mod(modid = ForgeEssentialsClient.MODID, name = "ForgeEssentials Client Addon", version = BuildInfo.BASE_VERSION, guiFactory = "com.forgeessentials.client.gui.forge.FEGUIFactory", useMetadata = true, dependencies = "required-after:Forge@[10.13.4.1448,)")
 public class ForgeEssentialsClient {
