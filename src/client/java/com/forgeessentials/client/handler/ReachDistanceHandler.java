@@ -4,6 +4,7 @@ import com.forgeessentials.commons.network.Packet2Reach;
 
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
+import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
 public class ReachDistanceHandler implements IMessageHandler<Packet2Reach, IMessage> {
 

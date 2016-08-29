@@ -11,7 +11,7 @@ public class FEConfigGUI extends GuiConfig {
 
 	public FEConfigGUI(GuiScreen parentScreen) {
 		super(parentScreen,
-				new ConfigElement<Object>(ClientProxy.getConfig().getCategory(Configuration.CATEGORY_GENERAL))
+				new ConfigElement(ClientProxy.getConfig().getCategory(Configuration.CATEGORY_GENERAL))
 						.getChildElements(),
 				"TestMod", false, false, "FE Client Addon Config");
 	}

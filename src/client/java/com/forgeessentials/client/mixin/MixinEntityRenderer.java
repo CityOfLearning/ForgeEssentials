@@ -13,6 +13,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItemFrame;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
 
@@ -27,7 +28,7 @@ public abstract class MixinEntityRenderer implements IResourceManagerReloadListe
 
 	@Overwrite
 	public void getMouseOver(float partialTime) {
-		if (mc.renderViewEntity != null) {
+		if (mc.getRenderViewEntity() != null) {
 			if (mc.theWorld != null) {
 				mc.pointedEntity = null;
 
@@ -47,20 +48,20 @@ public abstract class MixinEntityRenderer implements IResourceManagerReloadListe
 				// d0 = 20;
 				// d1 = 20;
 
-				Vec3 startPos = mc.renderViewEntity.getPosition(partialTime);
-				mc.objectMouseOver = mc.renderViewEntity.rayTrace(maxReach, partialTime);
+				Vec3 startPos = new Vec3(mc.getRenderViewEntity().getPosition());
+				mc.objectMouseOver = mc.getRenderViewEntity().rayTrace(maxReach, partialTime);
 				if (mc.objectMouseOver != null) {
 					blockDistance = mc.objectMouseOver.hitVec.distanceTo(startPos);
 				}
 
-				Vec3 vec31 = mc.renderViewEntity.getLook(partialTime);
+				Vec3 vec31 = mc.getRenderViewEntity().getLook(partialTime);
 				Vec3 vec32 = startPos.addVector(vec31.xCoord * maxReach, vec31.yCoord * maxReach,
 						vec31.zCoord * maxReach);
 				pointedEntity = null;
 				Vec3 vec33 = null;
 				float f1 = 1.0F;
-				List<?> list = mc.theWorld.getEntitiesWithinAABBExcludingEntity(mc.renderViewEntity,
-						mc.renderViewEntity.boundingBox
+				List<?> list = mc.theWorld.getEntitiesWithinAABBExcludingEntity(mc.getRenderViewEntity(),
+						mc.getRenderViewEntity().getEntityBoundingBox()
 								.addCoord(vec31.xCoord * maxReach, vec31.yCoord * maxReach, vec31.zCoord * maxReach)
 								.expand(f1, f1, f1));
 				double entityDistance = blockDistance;
@@ -70,7 +71,7 @@ public abstract class MixinEntityRenderer implements IResourceManagerReloadListe
 
 					if (entity.canBeCollidedWith()) {
 						float f2 = entity.getCollisionBorderSize();
-						AxisAlignedBB axisalignedbb = entity.boundingBox.expand(f2, f2, f2);
+						AxisAlignedBB axisalignedbb = entity.getEntityBoundingBox().expand(f2, f2, f2);
 						MovingObjectPosition movingobjectposition = axisalignedbb.calculateIntercept(startPos, vec32);
 
 						if (axisalignedbb.isVecInside(startPos)) {
@@ -83,7 +84,7 @@ public abstract class MixinEntityRenderer implements IResourceManagerReloadListe
 							double d3 = startPos.distanceTo(movingobjectposition.hitVec);
 
 							if ((d3 < entityDistance) || (entityDistance == 0.0D)) {
-								if ((entity == mc.renderViewEntity.ridingEntity) && !entity.canRiderInteract()) {
+								if ((entity == mc.getRenderViewEntity().ridingEntity) && !entity.canRiderInteract()) {
 									if (entityDistance == 0.0D) {
 										pointedEntity = entity;
 										vec33 = movingobjectposition.hitVec;
