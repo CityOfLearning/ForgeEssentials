@@ -89,6 +89,22 @@ public class DataManager {
 		formatsChanged = true;
 	}
 
+	public static <T> T fromJson(String src, Class<T> clazz) {
+		try {
+			return getGson().fromJson(src, clazz);
+		} finally {
+			serializationGroups = defaultSerializationGroups;
+		}
+	}
+
+	public static <T> T fromJson(String src, Type type) {
+		try {
+			return getGson().fromJson(src, type);
+		} finally {
+			serializationGroups = defaultSerializationGroups;
+		}
+	}
+
 	public static Gson getGson() {
 		if ((gson == null) || formatsChanged) {
 			GsonBuilder builder = new GsonBuilder();
@@ -195,6 +211,7 @@ public class DataManager {
 		try (FileWriter out = new FileWriter(file)) {
 			toJson(src, out);
 		} catch (Throwable e) {
+			LoggingHandler.felog.error(String.format("Error saving data to %s", file.getName()), e);
 			Throwables.propagate(e);
 		}
 	}
