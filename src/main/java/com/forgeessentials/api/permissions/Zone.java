@@ -485,7 +485,11 @@ public abstract class Zone {
 		}
 		Set<String> groups = getPlayerGroups(ident);
 		groups.remove(group);
-		setPlayerPermissionProperty(ident, FEPermissions.PLAYER_GROUPS, StringUtils.join(groups, ","));
+		if (!groups.isEmpty()) {
+			setPlayerPermissionProperty(ident, FEPermissions.PLAYER_GROUPS, StringUtils.join(groups, ","));
+		} else {
+			clearPlayerPermission(ident, FEPermissions.PLAYER_GROUPS);
+		}
 		return true;
 	}
 

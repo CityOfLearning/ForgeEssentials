@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import com.forgeessentials.util.ServerUtil;
+import com.forgeessentials.util.UserIdentUtils;
 import com.google.gson.annotations.Expose;
 import com.mojang.authlib.GameProfile;
 
@@ -112,7 +113,7 @@ public class UserIdent {
 			if ((name != null) && !name.equals(ident.username)) {
 				byUsername.remove(ident.username);
 				ident.username = name;
-				byUsername.put(ident.username, ident);
+				byUsername.put(ident.username.toLowerCase(), ident);
 			}
 		}
 		if ((ident.player == null) || (ident.player.get() != player)) {
@@ -180,6 +181,9 @@ public class UserIdent {
 		if ((uuid == null) && ((username == null) || username.isEmpty())) {
 			throw new IllegalArgumentException();
 		}
+		if ((username != null) && username.isEmpty()) {
+			username = null;
+		}
 
 		if (uuid != null) {
 			UserIdent ident = byUuid.get(uuid);
@@ -191,8 +195,9 @@ public class UserIdent {
 		if (username != null) {
 			UserIdent ident = byUsername.get(username.toLowerCase());
 			if (ident != null) {
-				if ((uuid != null) && (ident.uuid == null)) {
+				if ((uuid != null) && (ident.uuid != uuid)) {
 					ident.uuid = uuid;
+					byUuid.put(uuid, ident);
 				}
 				return ident;
 			}
@@ -263,7 +268,11 @@ public class UserIdent {
 
 		UUID _uuid = null;
 		if (uuid != null) {
-			_uuid = UUID.fromString(uuid);
+			try {
+				_uuid = UUID.fromString(uuid);
+			} catch (IllegalArgumentException e) {
+				// If UUID is invalid, lookup by username
+			}
 		}
 
 		UserIdent ident = byUuid.get(_uuid);
@@ -378,6 +387,9 @@ public class UserIdent {
 	/* ------------------------------------------------------------ */
 
 	private UserIdent(UUID identUuid, String identUsername, EntityPlayerMP identPlayer) {
+		if ((identUsername != null) && identUsername.isEmpty()) {
+			identUsername = null;
+		}
 		player = identPlayer == null ? null : new WeakReference<EntityPlayer>(identPlayer);
 		if (identPlayer != null) {
 			uuid = identPlayer.getPersistentID();
@@ -392,6 +404,12 @@ public class UserIdent {
 			}
 			if ((identUsername != null) && (identUsername.charAt(0) != '@')) {
 				byUsername.put(identUsername.toLowerCase(), this);
+			}
+
+			if ((uuid == null) && (username != null)) {
+				uuid = UserIdentUtils.resolveMissingUUID(username);
+			} else if ((uuid != null) && (username == null)) {
+				username = UserIdentUtils.resolveMissingUsername(uuid);
 			}
 		}
 	}
@@ -459,11 +477,12 @@ public class UserIdent {
 			if (!player.getGameProfile().isComplete()) {
 				return new GameProfile(getOrGenerateUuid(), player.getName());
 
-				// Safeguard against stupid mods who set UUID to null
-				// UserIdent playerIdent =
-				// UserIdent.byUsername.get(player.getName());
-				// if (playerIdent != this)
-				// return playerIdent.getGameProfile();*/
+				/*
+				 * // Safeguard against stupid mods who set UUID to null
+				 * UserIdent playerIdent =
+				 * UserIdent.byUsername.get(player.getCommandSenderName()); if
+				 * (playerIdent != this) return playerIdent.getGameProfile();
+				 */
 			} else {
 				return player.getGameProfile();
 			}
@@ -578,7 +597,7 @@ public class UserIdent {
 	}
 
 	public String toSerializeString() {
-		return "(" + (uuid == null ? "" : uuid.toString()) + "|" + username + ")";
+		return "(" + (uuid == null ? "" : uuid.toString()) + "|" + (username != null ? username : "") + ")";
 	}
 
 	@Override
