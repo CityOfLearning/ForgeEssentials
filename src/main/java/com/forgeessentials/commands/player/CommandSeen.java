@@ -4,7 +4,8 @@ import java.util.List;
 
 import com.forgeessentials.api.UserIdent;
 import com.forgeessentials.api.permissions.FEPermissions;
-import com.forgeessentials.commands.util.FEcmdModuleCommands;
+import com.forgeessentials.commands.ModuleCommands;
+import com.forgeessentials.core.commands.ForgeEssentialsCommandBase;
 import com.forgeessentials.core.misc.TranslatedCommandException;
 import com.forgeessentials.core.misc.Translator;
 import com.forgeessentials.util.CommandParserArgs;
@@ -18,7 +19,7 @@ import net.minecraft.command.PlayerNotFoundException;
 import net.minecraft.util.BlockPos;
 import net.minecraftforge.permission.PermissionLevel;
 
-public class CommandSeen extends FEcmdModuleCommands {
+public class CommandSeen extends ForgeEssentialsCommandBase {
 
 	@Override
 	public List<String> addTabCompletionOptions(ICommandSender sender, String[] args, BlockPos pos) {
@@ -38,7 +39,7 @@ public class CommandSeen extends FEcmdModuleCommands {
 
 	@Override
 	public String getCommandName() {
-		return "seen";
+		return "feseen";
 	}
 
 	@Override
@@ -47,8 +48,18 @@ public class CommandSeen extends FEcmdModuleCommands {
 	}
 
 	@Override
+	public String[] getDefaultAliases() {
+		return new String[] { "seen" };
+	}
+
+	@Override
 	public PermissionLevel getPermissionLevel() {
 		return PermissionLevel.TRUE;
+	}
+
+	@Override
+	public String getPermissionNode() {
+		return ModuleCommands.PERM + ".seen";
 	}
 
 	public void parse(CommandParserArgs arguments) throws CommandException {
@@ -66,11 +77,8 @@ public class CommandSeen extends FEcmdModuleCommands {
 		if (!player.hasUuid() || !PlayerInfo.exists(player.getUuid())) {
 			throw new PlayerNotFoundException();
 		}
-
-		PlayerInfo pi;
 		try {
-			pi = PlayerInfo.get(player.getUuid());
-
+			PlayerInfo pi = PlayerInfo.get(player.getUuid());
 			long t = (System.currentTimeMillis() - pi.getLastLogout().getTime()) / 1000;
 			arguments.confirm(Translator.format("Player %s was last seen %s ago", player.getUsernameOrUuid(),
 					ChatOutputHandler.formatTimeDurationReadable(t, false)));

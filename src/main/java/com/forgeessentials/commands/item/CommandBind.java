@@ -38,7 +38,7 @@ public class CommandBind extends ParserCommandBase {
 
 	@Override
 	public String getCommandName() {
-		return "bind";
+		return "febind";
 	}
 
 	@Override
@@ -48,7 +48,7 @@ public class CommandBind extends ParserCommandBase {
 
 	@Override
 	public String[] getDefaultAliases() {
-		return new String[] { "febind" };
+		return new String[] { "bind" };
 	}
 
 	@Override
@@ -62,7 +62,6 @@ public class CommandBind extends ParserCommandBase {
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public void parse(CommandParserArgs arguments) throws CommandException {
 		if (arguments.isEmpty()) {
 			arguments.confirm("/bind <left|right> <command...>: Bind command to an item");

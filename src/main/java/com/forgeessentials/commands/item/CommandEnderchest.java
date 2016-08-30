@@ -1,6 +1,7 @@
 package com.forgeessentials.commands.item;
 
-import com.forgeessentials.commands.util.FEcmdModuleCommands;
+import com.forgeessentials.commands.ModuleCommands;
+import com.forgeessentials.core.commands.ForgeEssentialsCommandBase;
 
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
@@ -10,10 +11,8 @@ import net.minecraftforge.permission.PermissionLevel;
 
 /**
  * Opens your enderchest.
- *
- * @author Dries007
  */
-public class CommandEnderchest extends FEcmdModuleCommands {
+public class CommandEnderchest extends ForgeEssentialsCommandBase {
 	@Override
 	public boolean canConsoleUseCommand() {
 		return false;
@@ -37,6 +36,11 @@ public class CommandEnderchest extends FEcmdModuleCommands {
 	@Override
 	public PermissionLevel getPermissionLevel() {
 		return PermissionLevel.OP;
+	}
+
+	@Override
+	public String getPermissionNode() {
+		return ModuleCommands.PERM + ".enderchest";
 	}
 
 	@Override

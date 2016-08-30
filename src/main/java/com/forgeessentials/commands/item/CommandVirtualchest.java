@@ -1,7 +1,8 @@
 package com.forgeessentials.commands.item;
 
-import com.forgeessentials.commands.util.FEcmdModuleCommands;
+import com.forgeessentials.commands.ModuleCommands;
 import com.forgeessentials.commands.util.VirtualChest;
+import com.forgeessentials.core.commands.ForgeEssentialsCommandBase;
 import com.forgeessentials.core.misc.FECommandManager.ConfigurableCommand;
 
 import net.minecraft.command.CommandException;
@@ -12,10 +13,8 @@ import net.minecraftforge.permission.PermissionLevel;
 
 /**
  * Opens a configurable virtual chest
- *
- * @author Dries007
  */
-public class CommandVirtualchest extends FEcmdModuleCommands implements ConfigurableCommand {
+public class CommandVirtualchest extends ForgeEssentialsCommandBase implements ConfigurableCommand {
 	public static int size = 54;
 	public static String name = "Vault 13";
 
@@ -42,6 +41,11 @@ public class CommandVirtualchest extends FEcmdModuleCommands implements Configur
 	@Override
 	public PermissionLevel getPermissionLevel() {
 		return PermissionLevel.OP;
+	}
+
+	@Override
+	public String getPermissionNode() {
+		return ModuleCommands.PERM + ".virtualchest";
 	}
 
 	@Override

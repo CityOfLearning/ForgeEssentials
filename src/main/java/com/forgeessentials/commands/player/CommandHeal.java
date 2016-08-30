@@ -4,7 +4,8 @@ import java.util.List;
 
 import com.forgeessentials.api.APIRegistry;
 import com.forgeessentials.api.UserIdent;
-import com.forgeessentials.commands.util.FEcmdModuleCommands;
+import com.forgeessentials.commands.ModuleCommands;
+import com.forgeessentials.core.commands.ForgeEssentialsCommandBase;
 import com.forgeessentials.core.misc.TranslatedCommandException;
 import com.forgeessentials.util.output.ChatOutputHandler;
 
@@ -17,7 +18,7 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.permission.PermissionLevel;
 import net.minecraftforge.permission.PermissionManager;
 
-public class CommandHeal extends FEcmdModuleCommands {
+public class CommandHeal extends ForgeEssentialsCommandBase {
 
 	@Override
 	public List<String> addTabCompletionOptions(ICommandSender sender, String[] args, BlockPos pos) {
@@ -36,7 +37,7 @@ public class CommandHeal extends FEcmdModuleCommands {
 
 	@Override
 	public String getCommandName() {
-		return "heal";
+		return "feheal";
 	}
 
 	@Override
@@ -49,8 +50,18 @@ public class CommandHeal extends FEcmdModuleCommands {
 	}
 
 	@Override
+	public String[] getDefaultAliases() {
+		return new String[] { "heal" };
+	}
+
+	@Override
 	public PermissionLevel getPermissionLevel() {
 		return PermissionLevel.OP;
+	}
+
+	@Override
+	public String getPermissionNode() {
+		return ModuleCommands.PERM + ".heal";
 	}
 
 	public void heal(EntityPlayer target) {

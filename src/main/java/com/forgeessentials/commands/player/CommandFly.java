@@ -1,6 +1,7 @@
 package com.forgeessentials.commands.player;
 
-import com.forgeessentials.commands.util.FEcmdModuleCommands;
+import com.forgeessentials.commands.ModuleCommands;
+import com.forgeessentials.core.commands.ForgeEssentialsCommandBase;
 import com.forgeessentials.util.WorldUtil;
 import com.forgeessentials.util.output.ChatOutputHandler;
 
@@ -8,7 +9,7 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.permission.PermissionLevel;
 
-public class CommandFly extends FEcmdModuleCommands {
+public class CommandFly extends ForgeEssentialsCommandBase {
 	@Override
 	public boolean canConsoleUseCommand() {
 		return false;
@@ -16,7 +17,7 @@ public class CommandFly extends FEcmdModuleCommands {
 
 	@Override
 	public String getCommandName() {
-		return "fly";
+		return "fefly";
 	}
 
 	@Override
@@ -25,8 +26,18 @@ public class CommandFly extends FEcmdModuleCommands {
 	}
 
 	@Override
+	public String[] getDefaultAliases() {
+		return new String[] { "fly" };
+	}
+
+	@Override
 	public PermissionLevel getPermissionLevel() {
 		return PermissionLevel.OP;
+	}
+
+	@Override
+	public String getPermissionNode() {
+		return ModuleCommands.PERM + ".fly";
 	}
 
 	@Override

@@ -6,7 +6,8 @@ import com.forgeessentials.api.APIRegistry;
 import com.forgeessentials.api.permissions.FEPermissions;
 import com.forgeessentials.api.permissions.PermissionEvent;
 import com.forgeessentials.api.permissions.Zone;
-import com.forgeessentials.commands.util.FEcmdModuleCommands;
+import com.forgeessentials.commands.ModuleCommands;
+import com.forgeessentials.core.commands.ForgeEssentialsCommandBase;
 import com.forgeessentials.protection.ModuleProtection;
 import com.forgeessentials.util.output.ChatOutputHandler;
 
@@ -17,7 +18,7 @@ import net.minecraft.util.BlockPos;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.permission.PermissionLevel;
 
-public class CommandBubble extends FEcmdModuleCommands {
+public class CommandBubble extends ForgeEssentialsCommandBase {
 
 	public static String BUBBLE_GROUP = "command_bubble";
 
@@ -61,7 +62,7 @@ public class CommandBubble extends FEcmdModuleCommands {
 
 	@Override
 	public String getCommandName() {
-		return "bubble";
+		return "febubble";
 	}
 
 	@Override
@@ -70,8 +71,18 @@ public class CommandBubble extends FEcmdModuleCommands {
 	}
 
 	@Override
+	public String[] getDefaultAliases() {
+		return new String[] { "bubble" };
+	}
+
+	@Override
 	public PermissionLevel getPermissionLevel() {
 		return PermissionLevel.OP;
+	}
+
+	@Override
+	public String getPermissionNode() {
+		return ModuleCommands.PERM + ".bubble";
 	}
 
 	@SubscribeEvent

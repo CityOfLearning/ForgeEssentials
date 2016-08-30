@@ -5,7 +5,8 @@ import java.util.List;
 
 import com.forgeessentials.api.APIRegistry;
 import com.forgeessentials.api.UserIdent;
-import com.forgeessentials.commands.util.FEcmdModuleCommands;
+import com.forgeessentials.commands.ModuleCommands;
+import com.forgeessentials.core.commands.ForgeEssentialsCommandBase;
 import com.forgeessentials.core.misc.TranslatedCommandException;
 
 import net.minecraft.command.CommandException;
@@ -17,11 +18,11 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.permission.PermissionLevel;
 import net.minecraftforge.permission.PermissionManager;
 
-public class CommandPotion extends FEcmdModuleCommands {
+public class CommandPotion extends ForgeEssentialsCommandBase {
 	public static HashMap<String, Integer> names;
 
 	static {
-		names = new HashMap<String, Integer>();
+		names = new HashMap<>();
 		names.put("speed", 1);
 		names.put("slowness", 2);
 		names.put("haste", 3);
@@ -56,10 +57,6 @@ public class CommandPotion extends FEcmdModuleCommands {
 		}
 	}
 
-	/*
-	 * Expected syntax: /potion player effect duration [ampl]
-	 */
-
 	@Override
 	public boolean canConsoleUseCommand() {
 		return true;
@@ -67,7 +64,7 @@ public class CommandPotion extends FEcmdModuleCommands {
 
 	@Override
 	public String getCommandName() {
-		return "potion";
+		return "fepotion";
 	}
 
 	@Override
@@ -76,8 +73,18 @@ public class CommandPotion extends FEcmdModuleCommands {
 	}
 
 	@Override
+	public String[] getDefaultAliases() {
+		return new String[] { "potion" };
+	}
+
+	@Override
 	public PermissionLevel getPermissionLevel() {
 		return PermissionLevel.OP;
+	}
+
+	@Override
+	public String getPermissionNode() {
+		return ModuleCommands.PERM + ".potion";
 	}
 
 	@Override

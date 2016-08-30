@@ -3,6 +3,7 @@ package com.forgeessentials.commands.player;
 import com.forgeessentials.commands.ModuleCommands;
 import com.forgeessentials.commons.network.NetworkUtils;
 import com.forgeessentials.commons.network.Packet2Reach;
+import com.forgeessentials.core.commands.ForgeEssentialsCommandBase;
 import com.forgeessentials.core.commands.ParserCommandBase;
 import com.forgeessentials.core.misc.Translator;
 import com.forgeessentials.util.CommandParserArgs;
@@ -13,7 +14,7 @@ import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraftforge.permission.PermissionLevel;
 
-public class CommandReach extends ParserCommandBase {
+public class CommandReach extends ForgeEssentialsCommandBase {
 
 	@Override
 	public boolean canConsoleUseCommand() {
@@ -22,12 +23,17 @@ public class CommandReach extends ParserCommandBase {
 
 	@Override
 	public String getCommandName() {
-		return "reach";
+		return "fereach";
 	}
 
 	@Override
 	public String getCommandUsage(ICommandSender sender) {
 		return "/reach <distance>: Set block reach distance";
+	}
+
+	@Override
+	public String[] getDefaultAliases() {
+		return new String[] { "reach" };
 	}
 
 	@Override
@@ -37,10 +43,9 @@ public class CommandReach extends ParserCommandBase {
 
 	@Override
 	public String getPermissionNode() {
-		return ModuleCommands.PERM + "." + getCommandName();
+		return ModuleCommands.PERM + ".reach";
 	}
 
-	@Override
 	public void parse(CommandParserArgs arguments) throws CommandException {
 		if (arguments.isEmpty()) {
 			arguments.confirm("/reach <distance>: Set block reach distance. Set to 0 to reset.");

@@ -1,6 +1,7 @@
 package com.forgeessentials.commands.server;
 
-import com.forgeessentials.commands.util.FEcmdModuleCommands;
+import com.forgeessentials.commands.ModuleCommands;
+import com.forgeessentials.core.commands.ForgeEssentialsCommandBase;
 import com.forgeessentials.util.output.ChatOutputHandler;
 
 import net.minecraft.command.CommandException;
@@ -9,7 +10,7 @@ import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.permission.PermissionLevel;
 
-public class CommandModlist extends FEcmdModuleCommands {
+public class CommandModlist extends ForgeEssentialsCommandBase {
 
 	@Override
 	public boolean canConsoleUseCommand() {
@@ -18,17 +19,27 @@ public class CommandModlist extends FEcmdModuleCommands {
 
 	@Override
 	public String getCommandName() {
-		return "modlist";
+		return "femodlist";
 	}
 
 	@Override
 	public String getCommandUsage(ICommandSender sender) {
-		return "/modlist Get a list of all mods running on this server.";
+		return "/modlist: Get a list of all mods running on this server.";
+	}
+
+	@Override
+	public String[] getDefaultAliases() {
+		return new String[] { "modlist" };
 	}
 
 	@Override
 	public PermissionLevel getPermissionLevel() {
 		return PermissionLevel.TRUE;
+	}
+
+	@Override
+	public String getPermissionNode() {
+		return ModuleCommands.PERM + ".modlist";
 	}
 
 	@Override

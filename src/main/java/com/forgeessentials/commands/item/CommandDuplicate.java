@@ -1,6 +1,7 @@
 package com.forgeessentials.commands.item;
 
-import com.forgeessentials.commands.util.FEcmdModuleCommands;
+import com.forgeessentials.commands.ModuleCommands;
+import com.forgeessentials.core.commands.ForgeEssentialsCommandBase;
 import com.forgeessentials.core.misc.TranslatedCommandException;
 import com.forgeessentials.util.PlayerUtil;
 
@@ -10,7 +11,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.permission.PermissionLevel;
 
-public class CommandDuplicate extends FEcmdModuleCommands {
+public class CommandDuplicate extends ForgeEssentialsCommandBase {
 
 	@Override
 	public boolean canConsoleUseCommand() {
@@ -19,7 +20,7 @@ public class CommandDuplicate extends FEcmdModuleCommands {
 
 	@Override
 	public String getCommandName() {
-		return "duplicate";
+		return "feduplicate";
 	}
 
 	@Override
@@ -28,8 +29,18 @@ public class CommandDuplicate extends FEcmdModuleCommands {
 	}
 
 	@Override
+	public String[] getDefaultAliases() {
+		return new String[] { "duplicate" };
+	}
+
+	@Override
 	public PermissionLevel getPermissionLevel() {
 		return PermissionLevel.OP;
+	}
+
+	@Override
+	public String getPermissionNode() {
+		return ModuleCommands.PERM + "." + getCommandName();
 	}
 
 	@Override

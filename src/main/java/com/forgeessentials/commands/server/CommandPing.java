@@ -1,6 +1,7 @@
 package com.forgeessentials.commands.server;
 
-import com.forgeessentials.commands.util.FEcmdModuleCommands;
+import com.forgeessentials.commands.ModuleCommands;
+import com.forgeessentials.core.commands.ForgeEssentialsCommandBase;
 import com.forgeessentials.core.misc.FECommandManager.ConfigurableCommand;
 import com.forgeessentials.util.output.ChatOutputHandler;
 
@@ -10,7 +11,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.permission.PermissionLevel;
 
-public class CommandPing extends FEcmdModuleCommands implements ConfigurableCommand {
+public class CommandPing extends ForgeEssentialsCommandBase implements ConfigurableCommand {
 	public String response = "Pong! %time";
 
 	@Override
@@ -20,7 +21,7 @@ public class CommandPing extends FEcmdModuleCommands implements ConfigurableComm
 
 	@Override
 	public String getCommandName() {
-		return "ping";
+		return "feping";
 	}
 
 	@Override
@@ -29,8 +30,18 @@ public class CommandPing extends FEcmdModuleCommands implements ConfigurableComm
 	}
 
 	@Override
+	public String[] getDefaultAliases() {
+		return new String[] { "ping" };
+	}
+
+	@Override
 	public PermissionLevel getPermissionLevel() {
 		return PermissionLevel.TRUE;
+	}
+
+	@Override
+	public String getPermissionNode() {
+		return ModuleCommands.PERM + ".ping";
 	}
 
 	@Override

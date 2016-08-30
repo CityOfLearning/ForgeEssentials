@@ -40,7 +40,7 @@ public class CommandKit extends ParserCommandBase implements ConfigurableCommand
 
 	public static String kitForNewPlayers;
 
-	public static Map<String, Kit> kits = new HashMap<String, Kit>();
+	public static Map<String, Kit> kits = new HashMap<>();
 
 	public static void addKit(Kit kit) {
 		kits.put(kit.getName(), kit);
@@ -62,7 +62,7 @@ public class CommandKit extends ParserCommandBase implements ConfigurableCommand
 	}
 
 	public List<String> getAvailableKits(CommandParserArgs arguments) {
-		List<String> availableKits = new ArrayList<String>();
+		List<String> availableKits = new ArrayList<>();
 		for (Kit kit : kits.values()) {
 			if (arguments.hasPermission(PERM + "." + kit.getName())) {
 				availableKits.add(kit.getName());
@@ -73,12 +73,17 @@ public class CommandKit extends ParserCommandBase implements ConfigurableCommand
 
 	@Override
 	public String getCommandName() {
-		return "kit";
+		return "fekit";
 	}
 
 	@Override
 	public String getCommandUsage(ICommandSender sender) {
 		return "/kit [name] [set|del] [cooldown]: Use and modify item kits";
+	}
+
+	@Override
+	public String[] getDefaultAliases() {
+		return new String[] { "kit" };
 	}
 
 	@Override

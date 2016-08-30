@@ -30,12 +30,17 @@ public class CommandDechant extends ParserCommandBase {
 
 	@Override
 	public String getCommandName() {
-		return "dechant";
+		return "fedechant";
 	}
 
 	@Override
 	public String getCommandUsage(ICommandSender sender) {
 		return "/dechant <name>: Removes an enchantment from the current item";
+	}
+
+	@Override
+	public String[] getDefaultAliases() {
+		return new String[] { "dechant" };
 	}
 
 	@Override
@@ -54,13 +59,11 @@ public class CommandDechant extends ParserCommandBase {
 		if (stack == null) {
 			throw new TranslatedCommandException("You are not holding a valid item");
 		}
-		@SuppressWarnings("unchecked")
 		Map<Integer, Integer> enchantments = EnchantmentHelper.getEnchantments(stack);
 
 		List<String> validEnchantmentNames = new ArrayList<>();
 		Map<String, Enchantment> validEnchantments = new HashMap<>();
-		// the book list seems to be a copy of the enchantment list
-		for (Enchantment enchantment : Enchantment.enchantmentsBookList) {
+		for (Enchantment enchantment : Enchantment.enchantmentsList) {
 			if ((enchantment != null) && enchantments.containsKey(enchantment.effectId)) {
 				String name = StatCollector.translateToLocal(enchantment.getName()).replaceAll(" ", "");
 				validEnchantmentNames.add(name);

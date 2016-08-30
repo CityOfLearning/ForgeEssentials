@@ -7,7 +7,8 @@ import java.util.TreeSet;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.forgeessentials.commands.util.FEcmdModuleCommands;
+import com.forgeessentials.commands.ModuleCommands;
+import com.forgeessentials.core.commands.ForgeEssentialsCommandBase;
 
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommand;
@@ -23,7 +24,7 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraftforge.permission.PermissionLevel;
 import net.minecraftforge.permission.PermissionManager;
 
-public class CommandGetCommandBook extends FEcmdModuleCommands {
+public class CommandGetCommandBook extends ForgeEssentialsCommandBase {
 
 	public static String joinAliases(Object[] par0ArrayOfObj) {
 		StringBuilder var1 = new StringBuilder();
@@ -48,22 +49,27 @@ public class CommandGetCommandBook extends FEcmdModuleCommands {
 
 	@Override
 	public String getCommandName() {
-		return "getcommandbook";
+		return "fecommandbook";
 	}
 
 	@Override
 	public String getCommandUsage(ICommandSender sender) {
-		return "/getcommandbook Get a command book listing all commands.";
+		return "/commandbook: Get a command book listing all commands.";
 	}
 
 	@Override
 	public String[] getDefaultAliases() {
-		return new String[] { "cmdb", "gcmdb" };
+		return new String[] { "bmdbook", "commandbook" };
 	}
 
 	@Override
 	public PermissionLevel getPermissionLevel() {
 		return PermissionLevel.TRUE;
+	}
+
+	@Override
+	public String getPermissionNode() {
+		return ModuleCommands.PERM + ".commandbook";
 	}
 
 	@Override
@@ -81,7 +87,7 @@ public class CommandGetCommandBook extends FEcmdModuleCommands {
 			}
 		}
 
-		Set<String> pages = new TreeSet<String>();
+		Set<String> pages = new TreeSet<>();
 		for (Object cmdObj : MinecraftServer.getServer().getCommandManager().getCommands().values()) {
 			ICommand cmd = (ICommand) cmdObj;
 			if (!PermissionManager.checkPermission(sender, cmd)) {

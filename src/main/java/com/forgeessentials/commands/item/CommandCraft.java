@@ -3,7 +3,8 @@ package com.forgeessentials.commands.item;
 import java.lang.ref.WeakReference;
 
 import com.forgeessentials.api.permissions.FEPermissions;
-import com.forgeessentials.commands.util.FEcmdModuleCommands;
+import com.forgeessentials.commands.ModuleCommands;
+import com.forgeessentials.core.commands.ForgeEssentialsCommandBase;
 import com.forgeessentials.core.misc.TranslatedCommandException;
 
 import net.minecraft.block.BlockWorkbench;
@@ -17,7 +18,7 @@ import net.minecraftforge.fml.common.eventhandler.Event.Result;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.permission.PermissionLevel;
 
-public class CommandCraft extends FEcmdModuleCommands {
+public class CommandCraft extends ForgeEssentialsCommandBase {
 
 	protected WeakReference<EntityPlayer> lastPlayer = new WeakReference<>(null);
 
@@ -32,7 +33,7 @@ public class CommandCraft extends FEcmdModuleCommands {
 
 	@Override
 	public String getCommandName() {
-		return "craft";
+		return "fecraft";
 	}
 
 	@Override
@@ -41,8 +42,18 @@ public class CommandCraft extends FEcmdModuleCommands {
 	}
 
 	@Override
+	public String[] getDefaultAliases() {
+		return new String[] { "craft" };
+	}
+
+	@Override
 	public PermissionLevel getPermissionLevel() {
 		return PermissionLevel.OP;
+	}
+
+	@Override
+	public String getPermissionNode() {
+		return ModuleCommands.PERM + ".craft";
 	}
 
 	@SubscribeEvent
@@ -61,7 +72,7 @@ public class CommandCraft extends FEcmdModuleCommands {
 	public void processCommandPlayer(EntityPlayerMP sender, String[] args) throws CommandException {
 		EntityPlayerMP player = sender;
 		player.displayGui(new BlockWorkbench.InterfaceCraftingTable(player.worldObj, player.getPosition()));
-		lastPlayer = new WeakReference<EntityPlayer>(player);
+		lastPlayer = new WeakReference<>(player);
 	}
 
 }
