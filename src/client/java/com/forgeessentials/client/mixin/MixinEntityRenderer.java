@@ -27,12 +27,17 @@ public abstract class MixinEntityRenderer implements IResourceManagerReloadListe
 
 	@Overwrite
 	public void getMouseOver(float partialTime) {
-		if (mc.getRenderViewEntity() != null) {
-			if (mc.theWorld != null) {
-				mc.pointedEntity = null;
+		Entity entity = mc.getRenderViewEntity();
 
+		if (entity != null) {
+			if (mc.theWorld != null) {
+				mc.mcProfiler.startSection("pick");
+				mc.pointedEntity = null;
 				double maxReach = mc.playerController.getBlockReachDistance();
+				mc.objectMouseOver = entity.rayTrace(maxReach, partialTime);
 				double blockDistance = maxReach;
+				Vec3 vec3 = entity.getPositionEyes(partialTime);
+
 				if (mc.playerController.extendedReach()) {
 					maxReach = 6.0D;
 					blockDistance = 6.0D;
@@ -44,67 +49,63 @@ public abstract class MixinEntityRenderer implements IResourceManagerReloadListe
 					maxReach = blockDistance;
 				}
 
-				// d0 = 20;
-				// d1 = 20;
-
-				Vec3 startPos = new Vec3(mc.getRenderViewEntity().getPosition());
-				mc.objectMouseOver = mc.getRenderViewEntity().rayTrace(maxReach, partialTime);
 				if (mc.objectMouseOver != null) {
-					blockDistance = mc.objectMouseOver.hitVec.distanceTo(startPos);
+					blockDistance = mc.objectMouseOver.hitVec.distanceTo(vec3);
 				}
 
-				Vec3 vec31 = mc.getRenderViewEntity().getLook(partialTime);
-				Vec3 vec32 = startPos.addVector(vec31.xCoord * maxReach, vec31.yCoord * maxReach,
-						vec31.zCoord * maxReach);
+				Vec3 vec31 = entity.getLook(partialTime);
+				Vec3 vec32 = vec3.addVector(vec31.xCoord * maxReach, vec31.yCoord * maxReach, vec31.zCoord * maxReach);
 				pointedEntity = null;
 				Vec3 vec33 = null;
 				float f1 = 1.0F;
-				List<?> list = mc.theWorld.getEntitiesWithinAABBExcludingEntity(mc.getRenderViewEntity(),
-						mc.getRenderViewEntity().getEntityBoundingBox()
+				List<?> list = mc.theWorld.getEntitiesWithinAABBExcludingEntity(entity,
+						entity.getEntityBoundingBox()
 								.addCoord(vec31.xCoord * maxReach, vec31.yCoord * maxReach, vec31.zCoord * maxReach)
 								.expand(f1, f1, f1));
-				double entityDistance = blockDistance;
+				double d2 = blockDistance;
 
 				for (int i = 0; i < list.size(); ++i) {
-					Entity entity = (Entity) list.get(i);
+					Entity entity1 = (Entity) list.get(i);
 
-					if (entity.canBeCollidedWith()) {
-						float f2 = entity.getCollisionBorderSize();
-						AxisAlignedBB axisalignedbb = entity.getEntityBoundingBox().expand(f2, f2, f2);
-						MovingObjectPosition movingobjectposition = axisalignedbb.calculateIntercept(startPos, vec32);
+					if (entity1.canBeCollidedWith()) {
+						float f2 = entity1.getCollisionBorderSize();
+						AxisAlignedBB axisalignedbb = entity1.getEntityBoundingBox().expand(f2, f2, f2);
+						MovingObjectPosition movingobjectposition = axisalignedbb.calculateIntercept(vec3, vec32);
 
-						if (axisalignedbb.isVecInside(startPos)) {
-							if ((0.0D < entityDistance) || (entityDistance == 0.0D)) {
-								pointedEntity = entity;
-								vec33 = movingobjectposition == null ? startPos : movingobjectposition.hitVec;
-								entityDistance = 0.0D;
+						if (axisalignedbb.isVecInside(vec3)) {
+							if ((0.0D < d2) || (d2 == 0.0D)) {
+								pointedEntity = entity1;
+								vec33 = movingobjectposition == null ? vec3 : movingobjectposition.hitVec;
+								d2 = 0.0D;
 							}
 						} else if (movingobjectposition != null) {
-							double d3 = startPos.distanceTo(movingobjectposition.hitVec);
+							double d3 = vec3.distanceTo(movingobjectposition.hitVec);
 
-							if ((d3 < entityDistance) || (entityDistance == 0.0D)) {
-								if ((entity == mc.getRenderViewEntity().ridingEntity) && !entity.canRiderInteract()) {
-									if (entityDistance == 0.0D) {
-										pointedEntity = entity;
+							if ((d3 < d2) || (d2 == 0.0D)) {
+								if ((entity1 == entity.ridingEntity) && !entity.canRiderInteract()) {
+									if (d2 == 0.0D) {
+										pointedEntity = entity1;
 										vec33 = movingobjectposition.hitVec;
 									}
 								} else {
-									pointedEntity = entity;
+									pointedEntity = entity1;
 									vec33 = movingobjectposition.hitVec;
-									entityDistance = d3;
+									d2 = d3;
 								}
 							}
 						}
 					}
 				}
 
-				if ((pointedEntity != null) && ((entityDistance < blockDistance) || (mc.objectMouseOver == null))) {
+				if ((pointedEntity != null) && ((d2 < blockDistance) || (mc.objectMouseOver == null))) {
 					mc.objectMouseOver = new MovingObjectPosition(pointedEntity, vec33);
 
 					if ((pointedEntity instanceof EntityLivingBase) || (pointedEntity instanceof EntityItemFrame)) {
 						mc.pointedEntity = pointedEntity;
 					}
 				}
+
+				mc.mcProfiler.endSection();
 			}
 		}
 	}
