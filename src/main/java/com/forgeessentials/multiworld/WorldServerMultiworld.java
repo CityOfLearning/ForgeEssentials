@@ -10,13 +10,8 @@ import net.minecraft.world.WorldServer;
 import net.minecraft.world.storage.ISaveHandler;
 import net.minecraft.world.storage.WorldInfo;
 
-/**
- *
- * @author Olee
- */
 public class WorldServerMultiworld extends WorldServer {
 
-	private Multiworld world;
 	private SimpleTeleporter worldTeleporter;
 
 	public WorldServerMultiworld(MinecraftServer mcServer, ISaveHandler saveHandler, WorldInfo info, int dimensionId,
@@ -25,16 +20,11 @@ public class WorldServerMultiworld extends WorldServer {
 		mapStorage = worldServer.getMapStorage();
 		worldScoreboard = worldServer.getScoreboard();
 		worldTeleporter = new SimpleTeleporter(this);
-		this.world = world;
 	}
 
 	@Override
 	public Teleporter getDefaultTeleporter() {
 		return worldTeleporter;
-	}
-
-	public Multiworld getMultiworld() {
-		return world;
 	}
 
 	@Override
