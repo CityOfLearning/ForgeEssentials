@@ -10,9 +10,11 @@ import com.forgeessentials.core.misc.Translator;
 import com.forgeessentials.util.events.ServerEventHandler;
 import com.forgeessentials.util.output.ChatOutputHandler;
 
+import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 
 public class Questioner extends ServerEventHandler {
 
@@ -72,7 +74,7 @@ public class Questioner extends ServerEventHandler {
 		}
 	}
 
-	public static synchronized void answer(ICommandSender target, Boolean answer) {
+	public static synchronized void answer(ICommandSender target, Boolean answer) throws CommandException {
 		QuestionData question = questions.remove(target);
 		if (question != null) {
 			question.doAnswer(answer);
@@ -81,19 +83,19 @@ public class Questioner extends ServerEventHandler {
 		}
 	}
 
-	public static void cancel(ICommandSender target) {
+	public static void cancel(ICommandSender target) throws CommandException {
 		answer(target, null);
 	}
 
-	public static void confirm(ICommandSender target) {
+	public static void confirm(ICommandSender target) throws CommandException {
 		answer(target, true);
 	}
 
-	public static void deny(ICommandSender target) {
+	public static void deny(ICommandSender target) throws CommandException {
 		answer(target, false);
 	}
 
-	public static synchronized void tick() {
+	public static synchronized void tick() throws CommandException {
 		Iterator<Entry<ICommandSender, QuestionData>> it = questions.entrySet().iterator();
 		while (it.hasNext()) {
 			Entry<ICommandSender, QuestionData> question = it.next();
@@ -111,7 +113,7 @@ public class Questioner extends ServerEventHandler {
 	}
 
 	@SubscribeEvent
-	public void tickStart(TickEvent.ServerTickEvent event) {
+	public void tickStart(TickEvent.ServerTickEvent event) throws CommandException {
 		if (event.phase == Phase.START) {
 			tick();
 		}
