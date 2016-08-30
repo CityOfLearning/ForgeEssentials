@@ -30,8 +30,18 @@ public class CommandSpeed extends ForgeEssentialsCommandBase {
 	}
 
 	@Override
+	public String[] getDefaultAliases() {
+		return new String[] { "speed" };
+	}
+
+	@Override
 	public PermissionLevel getPermissionLevel() {
 		return PermissionLevel.OP;
+	}
+
+	@Override
+	public String getPermissionNode() {
+		return ModuleCommands.PERM + ".speed";
 	}
 
 	@Override
@@ -139,15 +149,5 @@ public class CommandSpeed extends ForgeEssentialsCommandBase {
 			}
 
 		}
-	}
-
-	@Override
-	public String getPermissionNode() {
-		return ModuleCommands.PERM + ".speed";
-	}
-
-	@Override
-	public String[] getDefaultAliases() {
-		return new String[] { "speed" };
 	}
 }

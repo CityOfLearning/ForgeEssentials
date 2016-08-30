@@ -188,7 +188,7 @@ public class MultiworldManager extends ServerEventHandler implements NamedWorldH
 
 	/**
 	 * Unload world and delete it's data once onloaded
-	 * 
+	 *
 	 * @param world
 	 */
 	public void deleteWorld(Multiworld world) {
@@ -456,7 +456,7 @@ public class MultiworldManager extends ServerEventHandler implements NamedWorldH
 
 	/**
 	 * Remove dimensions and clear multiworld-data when server stopped
-	 * 
+	 *
 	 * (for integrated server)
 	 */
 	public void serverStopped() {
@@ -484,7 +484,7 @@ public class MultiworldManager extends ServerEventHandler implements NamedWorldH
 
 	/**
 	 * Unload world
-	 * 
+	 *
 	 * @param world
 	 */
 	public void unloadWorld(Multiworld world) {

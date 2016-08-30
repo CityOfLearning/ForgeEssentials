@@ -23,7 +23,8 @@ public class CommandGameMode extends ForgeEssentialsCommandBase {
 	@Override
 	public List<String> addTabCompletionOptions(ICommandSender sender, String[] args, BlockPos pos) {
 		if (args.length == 1) {
-			return getListOfStringsMatchingLastWord(args, new String[] { "survival", "creative", "adventure", "spectator" });
+			return getListOfStringsMatchingLastWord(args,
+					new String[] { "survival", "creative", "adventure", "spectator" });
 		} else {
 			return getListOfStringsMatchingLastWord(args,
 					FMLCommonHandler.instance().getMinecraftServerInstance().getAllUsernames());

@@ -57,7 +57,7 @@ public abstract class ServerUtil {
 
 	/**
 	 * Drops the first element of the array
-	 * 
+	 *
 	 * @param array
 	 * @return
 	 */
@@ -133,7 +133,7 @@ public abstract class ServerUtil {
 
 	/**
 	 * Gets a type safe player list
-	 * 
+	 *
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
@@ -145,7 +145,7 @@ public abstract class ServerUtil {
 
 	/**
 	 * Server's ticks per second
-	 * 
+	 *
 	 * @return
 	 */
 	public static double getTPS() {
@@ -163,7 +163,7 @@ public abstract class ServerUtil {
 
 	/**
 	 * Get's the directory where the world is saved
-	 * 
+	 *
 	 * @return
 	 */
 	public static File getWorldPath() {
@@ -214,7 +214,7 @@ public abstract class ServerUtil {
 
 	/**
 	 * Try to parse double or return defaultValue on failure
-	 * 
+	 *
 	 * @param value
 	 * @param defaultValue
 	 * @return parsed double or default value
@@ -232,7 +232,7 @@ public abstract class ServerUtil {
 
 	/**
 	 * Try to parse integer or return defaultValue on failure
-	 * 
+	 *
 	 * @param value
 	 * @param defaultValue
 	 * @return parsed integer or default value
@@ -250,7 +250,7 @@ public abstract class ServerUtil {
 
 	/**
 	 * Try to parse long or return defaultValue on failure
-	 * 
+	 *
 	 * @param value
 	 * @param defaultValue
 	 * @return parsed long or default value
@@ -342,7 +342,7 @@ public abstract class ServerUtil {
 
 	/**
 	 * Try to parse the string as double or return null if failed
-	 * 
+	 *
 	 * @param value
 	 * @return
 	 */
@@ -358,7 +358,7 @@ public abstract class ServerUtil {
 
 	/**
 	 * Try to parse the string as float or return null if failed
-	 * 
+	 *
 	 * @param value
 	 * @return
 	 */
@@ -372,7 +372,7 @@ public abstract class ServerUtil {
 
 	/**
 	 * Try to parse the string as integer or return null if failed
-	 * 
+	 *
 	 * @param value
 	 * @return
 	 */
@@ -386,7 +386,7 @@ public abstract class ServerUtil {
 
 	/**
 	 * Try to parse the string as long or return null if failed
-	 * 
+	 *
 	 * @param value
 	 * @return
 	 */

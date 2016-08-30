@@ -133,7 +133,7 @@ public class ModuleProtection {
 	private static final DamageSource[] damageByTypes = new DamageSource[] { DamageSource.anvil, DamageSource.cactus,
 			DamageSource.drown, DamageSource.fall, DamageSource.fallingBlock, DamageSource.generic, DamageSource.inFire,
 			DamageSource.inWall, DamageSource.lava, DamageSource.magic, DamageSource.onFire, DamageSource.outOfWorld,
-			DamageSource.starve, DamageSource.wither};
+			DamageSource.starve, DamageSource.wither };
 
 	public static Map<UUID, String> debugModePlayers = new HashMap<>();
 

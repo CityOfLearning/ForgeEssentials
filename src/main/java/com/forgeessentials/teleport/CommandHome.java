@@ -93,7 +93,6 @@ public class CommandHome extends ForgeEssentialsCommandBase {
 					throw new TranslatedCommandException("You don't have the permission to set your home location.");
 				}
 
-				
 				WarpPoint p = new WarpPoint(sender);
 				try {
 					PlayerInfo info = PlayerInfo.get(player.getPersistentID());
