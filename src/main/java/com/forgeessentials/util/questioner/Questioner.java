@@ -1,6 +1,7 @@
 package com.forgeessentials.util.questioner;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -9,11 +10,9 @@ import com.forgeessentials.core.misc.Translator;
 import com.forgeessentials.util.events.ServerEventHandler;
 import com.forgeessentials.util.output.ChatOutputHandler;
 
-import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 
 public class Questioner extends ServerEventHandler {
 
@@ -73,7 +72,7 @@ public class Questioner extends ServerEventHandler {
 		}
 	}
 
-	public static synchronized void answer(ICommandSender target, Boolean answer) throws CommandException {
+	public static synchronized void answer(ICommandSender target, Boolean answer) {
 		QuestionData question = questions.remove(target);
 		if (question != null) {
 			question.doAnswer(answer);
@@ -82,26 +81,25 @@ public class Questioner extends ServerEventHandler {
 		}
 	}
 
-	public static void cancel(ICommandSender target) throws CommandException {
+	public static void cancel(ICommandSender target) {
 		answer(target, null);
 	}
 
-	public static void confirm(ICommandSender target) throws CommandException {
+	public static void confirm(ICommandSender target) {
 		answer(target, true);
 	}
 
-	public static void deny(ICommandSender target) throws CommandException {
+	public static void deny(ICommandSender target) {
 		answer(target, false);
 	}
 
 	public static synchronized void tick() {
-		for (Entry<ICommandSender, QuestionData> question : questions.entrySet()) {
+		Iterator<Entry<ICommandSender, QuestionData>> it = questions.entrySet().iterator();
+		while (it.hasNext()) {
+			Entry<ICommandSender, QuestionData> question = it.next();
 			if (question.getValue().isTimeout()) {
-				try {
-					cancel(question.getKey());
-				} catch (CommandException e) {
-					e.printStackTrace();
-				}
+				it.remove();
+				question.getValue().doAnswer(null);
 			}
 		}
 	}

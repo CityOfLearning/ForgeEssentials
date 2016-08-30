@@ -8,6 +8,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +32,7 @@ import net.minecraft.command.NumberInvalidException;
 import net.minecraft.command.server.CommandMessage;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.WorldServer;
@@ -39,6 +41,18 @@ import net.minecraftforge.fml.common.registry.GameData;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
 public abstract class ServerUtil {
+	
+	public static void copyNbt(NBTTagCompound nbt, NBTTagCompound data) {
+		// Clear old data
+		for (String key : new HashSet<String>(nbt.getKeySet())) {
+			nbt.removeTag(key);
+		}
+
+		// Write new data
+		for (String key : (Set<String>) data.getKeySet()) {
+			nbt.setTag(key, data.getTag(key));
+		}
+	}
 
 	/**
 	 * Drops the first element of the array
@@ -113,7 +127,6 @@ public abstract class ServerUtil {
 	 *
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
 	public static List<EntityPlayerMP> getPlayerList() {
 		MinecraftServer mc = MinecraftServer.getServer();
 		return (mc == null) || (mc.getConfigurationManager() == null) ? new ArrayList<>()
