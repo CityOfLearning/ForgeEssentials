@@ -11,17 +11,17 @@ public class EntityPortalEvent extends EntityEvent {
 
 	public final World world;
 
-	public final BlockPos startPos;
+	public final BlockPos pos;
+
+	public final BlockPos target;
 
 	public final int targetDimension;
 
-	public final BlockPos targetPos;
-
-	public EntityPortalEvent(Entity entity, World world, BlockPos start, int targetDimension, BlockPos target) {
+	public EntityPortalEvent(Entity entity, World world, BlockPos pos, int targetDimension, BlockPos target) {
 		super(entity);
 		this.world = world;
-		this.startPos = start;
+		this.pos = pos;
+		this.target = target;
 		this.targetDimension = targetDimension;
-		this.targetPos = target;
 	}
 }
