@@ -15,7 +15,7 @@ public enum WorldBorderEffects {
 			EffectKnockback.class), MESSAGE(EffectMessage.class), POTION(
 					EffectPotion.class), SMITE(EffectSmite.class), BLOCK(EffectBlock.class);
 
-	public Class clazz;
+	public Class<?> clazz;
 
 	WorldBorderEffects(Class<?> clazz) {
 		this.clazz = clazz;
