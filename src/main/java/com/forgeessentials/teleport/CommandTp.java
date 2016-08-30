@@ -9,6 +9,7 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.command.WrongUsageException;
 import net.minecraft.command.server.CommandTeleport;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.MathHelper;
 import net.minecraftforge.permission.PermissionLevel;
@@ -37,7 +38,7 @@ public class CommandTp extends CommandTeleport implements PermissionObject {
 			if ((args.length != 2) && (args.length != 4) && (args.length != 6)) {
 				entity = getCommandSenderAsPlayer(sender);
 			} else {
-				entity = getEntity(sender, args[0]);
+				entity = getEntity(sender, args[0], Entity.class);
 				b0 = 1;
 			}
 
@@ -106,7 +107,7 @@ public class CommandTp extends CommandTeleport implements PermissionObject {
 									Double.valueOf(argY.func_179628_a()), Double.valueOf(argZ.func_179628_a()) });
 				}
 			} else {
-				Entity targetEntity = getEntity(sender, args[args.length - 1]);
+				Entity targetEntity = getEntity(sender, args[args.length - 1], Entity.class);
 				if (targetEntity instanceof EntityPlayerMP) {
 					WarpPoint pos = new WarpPoint(targetEntity.worldObj.provider.getDimensionId(), targetEntity.posX,
 							targetEntity.posY, targetEntity.posZ, targetEntity.rotationPitch, targetEntity.rotationYaw);
