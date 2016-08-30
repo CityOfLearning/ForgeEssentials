@@ -51,7 +51,7 @@ public class DataManager {
 
 	private static boolean formatsChanged;
 
-	private static Set<String> defaultSerializationGroups = new HashSet<String>(Arrays.asList(DEFAULT_GROUP));
+	private static Set<String> defaultSerializationGroups = new HashSet<>(Arrays.asList(DEFAULT_GROUP));
 
 	private static Set<String> serializationGroups = defaultSerializationGroups;
 
@@ -229,7 +229,7 @@ public class DataManager {
 	public static void toJson(Object src, Appendable writer, String... groups) throws JsonIOException {
 		try {
 			if (groups.length > 0) {
-				serializationGroups = new HashSet<String>(Arrays.asList(groups));
+				serializationGroups = new HashSet<>(Arrays.asList(groups));
 			}
 			getGson().toJson(src, writer);
 		} finally {
@@ -240,7 +240,7 @@ public class DataManager {
 	public static String toJson(Object src, String... groups) {
 		try {
 			if (groups.length > 0) {
-				serializationGroups = new HashSet<String>(Arrays.asList(groups));
+				serializationGroups = new HashSet<>(Arrays.asList(groups));
 			}
 			return getGson().toJson(src);
 		} finally {
