@@ -1,5 +1,8 @@
 package com.forgeessentials.commons.selections;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import com.google.gson.annotations.Expose;
 
 import net.minecraft.entity.Entity;
@@ -9,6 +12,28 @@ import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
 
 public class WarpPoint {
+
+	private static final Pattern fromStringPattern = Pattern.compile(
+			"\\s*\\[\\s*(-?\\d+)\\s*,\\s*(-?\\d+)\\s*,\\s*(-?\\d+)\\s*,\\s*dim\\s*=\\s*(-?\\d+)\\s*,\\s*pitch\\s*=\\s*(-?\\d+)\\s*,\\s*yaw\\s*=\\s*(-?\\d+)\\s*\\]\\s*");
+
+	public static WarpPoint fromString(String value) {
+		Matcher m = fromStringPattern.matcher(value);
+		if (m.matches()) {
+			try {
+				return new WarpPoint(Integer.parseInt(m.group(4)), Integer.parseInt(m.group(1)),
+						Integer.parseInt(m.group(2)), Integer.parseInt(m.group(3)), Integer.parseInt(m.group(5)),
+						Integer.parseInt(m.group(6)));
+			} catch (NumberFormatException e) {
+				return null;
+			}
+		} else {
+			WorldPoint worldPoint = WorldPoint.fromString(value);
+			if (worldPoint == null) {
+				return null;
+			}
+			return new WarpPoint(worldPoint);
+		}
+	}
 
 	protected int dim;
 
@@ -20,12 +45,12 @@ public class WarpPoint {
 
 	protected double yd;
 
+	// ------------------------------------------------------------
+
 	protected double zd;
 
 	@Expose(serialize = false)
 	protected WorldServer world;
-
-	// ------------------------------------------------------------
 
 	public WarpPoint(Entity entity) {
 		this(entity.worldObj instanceof WorldServer ? (WorldServer) entity.worldObj : null, entity.posX, entity.posY,
@@ -57,6 +82,8 @@ public class WarpPoint {
 		this(point, 0, 0);
 	}
 
+	// ------------------------------------------------------------
+
 	public WarpPoint(WorldPoint point, float pitch, float yaw) {
 		this(point.getDimension(), point.getX() + 0.5, point.getY(), point.getZ() + 0.5, pitch, yaw);
 	}
@@ -70,8 +97,6 @@ public class WarpPoint {
 		pitch = playerPitch;
 		yaw = playerYaw;
 	}
-
-	// ------------------------------------------------------------
 
 	/**
 	 * Returns the distance to another entity
@@ -164,6 +189,8 @@ public class WarpPoint {
 		return h;
 	}
 
+	// ------------------------------------------------------------
+
 	/**
 	 * Returns the length of this vector
 	 */
@@ -174,8 +201,6 @@ public class WarpPoint {
 	public void setDimension(int dim) {
 		this.dim = dim;
 	}
-
-	// ------------------------------------------------------------
 
 	public void setPitch(float value) {
 		pitch = value;
@@ -193,6 +218,8 @@ public class WarpPoint {
 		yaw = value;
 	}
 
+	// ------------------------------------------------------------
+
 	public void setZ(double value) {
 		zd = value;
 	}
@@ -200,8 +227,6 @@ public class WarpPoint {
 	public String toReadableString() {
 		return String.format("%.0f %.0f %.0f dim=%d", xd, yd, zd, dim);
 	}
-
-	// ------------------------------------------------------------
 
 	@Override
 	public String toString() {
