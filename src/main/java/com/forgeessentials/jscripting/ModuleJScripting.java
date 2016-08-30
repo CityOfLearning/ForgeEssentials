@@ -137,7 +137,7 @@ public class ModuleJScripting extends ServerEventHandler implements ScriptHandle
 
 	private void deregisterCommands() {
 		for (ParserCommandBase command : commands) {
-			FECommandManager.deegisterCommand(command.getCommandName());
+			FECommandManager.deregisterCommand(command.getCommandName());
 		}
 		commands.clear();
 	}
