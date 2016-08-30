@@ -2,103 +2,84 @@ package com.forgeessentials.jscripting.wrapper;
 
 import java.util.UUID;
 
-import net.minecraft.world.WorldServer;
-
 import com.forgeessentials.api.UserIdent;
 
-public class JsUserIdent extends JsWrapper<UserIdent>
-{
+import net.minecraft.world.WorldServer;
 
-    public JsUserIdent(UserIdent that)
-    {
-        super(that);
-    }
+public class JsUserIdent extends JsWrapper<UserIdent> {
 
-    public boolean hasUsername()
-    {
-        return that.hasUsername();
-    }
+	public JsUserIdent(UserIdent that) {
+		super(that);
+	}
 
-    public boolean hasUuid()
-    {
-        return that.hasUuid();
-    }
+	public boolean checkPermission(String permissionNode) {
+		return that.checkPermission(permissionNode);
+	}
 
-    public boolean hasPlayer()
-    {
-        return that.hasPlayer();
-    }
+	public JsEntityPlayer getFakePlayer() {
+		return new JsEntityPlayer(that.getFakePlayer());
+	}
 
-    public boolean isFakePlayer()
-    {
-        return that.isFakePlayer();
-    }
+	public JsEntityPlayer getFakePlayer(WorldServer world) {
+		return new JsEntityPlayer(that.getFakePlayer(world));
+	}
 
-    public boolean isPlayer()
-    {
-        return that.isPlayer();
-    }
+	public String getPermissionProperty(String permissionNode) {
+		return that.getPermissionProperty(permissionNode);
+	}
 
-    public boolean isNpc()
-    {
-        return that.isNpc();
-    }
+	public JsEntityPlayer getPlayer() {
+		return new JsEntityPlayer(that.getPlayer());
+	}
 
-    public UUID getUuid()
-    {
-        return that.getUuid();
-    }
+	public String getUsername() {
+		return that.getUsername();
+	}
 
-    public String getUsername()
-    {
-        return that.getUsername();
-    }
+	public String getUsernameOrUuid() {
+		return that.getUsernameOrUuid();
+	}
 
-    public String getUsernameOrUuid()
-    {
-        return that.getUsernameOrUuid();
-    }
+	public UUID getUuid() {
+		return that.getUuid();
+	}
 
-    public JsEntityPlayer getPlayer()
-    {
-        return new JsEntityPlayer(that.getPlayer());
-    }
+	@Override
+	public int hashCode() {
+		return that.hashCode();
+	}
 
-    public JsEntityPlayer getFakePlayer()
-    {
-        return new JsEntityPlayer(that.getFakePlayer());
-    }
+	public boolean hasPlayer() {
+		return that.hasPlayer();
+	}
 
-    public JsEntityPlayer getFakePlayer(WorldServer world)
-    {
-        return new JsEntityPlayer(that.getFakePlayer(world));
-    }
+	public boolean hasUsername() {
+		return that.hasUsername();
+	}
 
-    public String toSerializeString()
-    {
-        return that.toSerializeString();
-    }
+	public boolean hasUuid() {
+		return that.hasUuid();
+	}
 
-    @Override
-    public String toString()
-    {
-        return that.toString();
-    }
+	public boolean isFakePlayer() {
+		return that.isFakePlayer();
+	}
 
-    @Override
-    public int hashCode()
-    {
-        return that.hashCode();
-    }
+	public boolean isNpc() {
+		return that.isNpc();
+	}
 
-    public boolean checkPermission(String permissionNode)
-    {
-        return that.checkPermission(permissionNode);
-    }
+	public boolean isPlayer() {
+		return that.isPlayer();
+	}
 
-    public String getPermissionProperty(String permissionNode)
-    {
-        return that.getPermissionProperty(permissionNode);
-    }
+	public String toSerializeString() {
+		return that.toSerializeString();
+	}
+
+	@Override
+	public String toString() {
+		return that.toString();
+	}
 
 }

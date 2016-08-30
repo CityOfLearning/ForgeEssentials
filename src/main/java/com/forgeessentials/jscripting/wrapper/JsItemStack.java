@@ -1,115 +1,97 @@
 package com.forgeessentials.jscripting.wrapper;
 
+import com.forgeessentials.data.v2.DataManager;
+
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-
-import com.forgeessentials.data.v2.DataManager;
 
 public class JsItemStack extends JsWrapper<ItemStack> // ItemStack is final
 {
 
-    protected JsItem item;
+	protected JsItem item;
 
-    public JsItemStack(ItemStack that)
-    {
-        super(that);
-        this.item = JsItem.get(that.getItem());
-    }
+	public JsItemStack(ItemStack that) {
+		super(that);
+		item = JsItem.get(that.getItem());
+	}
 
-    public JsItem getItem()
-    {
-        return item;
-    }
+	public String _getNbt() // tsgen ignore
+	{
+		return that.getTagCompound() == null ? null : DataManager.toJson(that.getTagCompound());
+	}
 
-    public int getStackSize()
-    {
-        return that.stackSize;
-    }
+	public void _setNbt(String value) // tsgen ignore
+	{
+		that.setTagCompound(value == null ? null : DataManager.fromJson(value, NBTTagCompound.class));
+	}
 
-    public void setStackSize(int size)
-    {
-        that.stackSize = size;
-    }
+	@Override
+	public boolean equals(Object obj) {
+		return obj instanceof JsItemStack ? that.isItemEqual(((JsItemStack) obj).getThat()) : false;
+	}
 
-    public int getMaxStackSize()
-    {
-        return that.getMaxStackSize();
-    }
+	public int getDamage() {
+		return that.getItemDamage();
+	}
 
-    public boolean isStackable()
-    {
-        return that.isStackable();
-    }
+	public String getDisplayName() {
+		return that.getDisplayName();
+	}
 
-    public boolean isDamageable()
-    {
-        return that.isItemStackDamageable();
-    }
+	public JsItem getItem() {
+		return item;
+	}
 
-    public boolean isDamaged()
-    {
-        return that.isItemDamaged();
-    }
+	public int getMaxDamage() {
+		return that.getMaxDamage();
+	}
 
-    public int getDamage()
-    {
-        return that.getItemDamage();
-    }
+	public int getMaxStackSize() {
+		return that.getMaxStackSize();
+	}
 
-    public void setDamage(int damage)
-    {
-        that.setItemDamage(damage);
-    }
+	public int getRepairCost() {
+		return that.getRepairCost();
+	}
 
-    public int getMaxDamage()
-    {
-        return that.getMaxDamage();
-    }
+	public int getStackSize() {
+		return that.stackSize;
+	}
 
-    public String getDisplayName()
-    {
-        return that.getDisplayName();
-    }
+	public boolean hasDisplayName() {
+		return that.hasDisplayName();
+	}
 
-    public void setDisplayName(String name)
-    {
-        that.setStackDisplayName(name);
-    }
+	public boolean isDamageable() {
+		return that.isItemStackDamageable();
+	}
 
-    public boolean hasDisplayName()
-    {
-        return that.hasDisplayName();
-    }
+	public boolean isDamaged() {
+		return that.isItemDamaged();
+	}
 
-    public boolean isItemEnchanted()
-    {
-        return that.isItemEnchanted();
-    }
+	public boolean isItemEnchanted() {
+		return that.isItemEnchanted();
+	}
 
-    public int getRepairCost()
-    {
-        return that.getRepairCost();
-    }
+	public boolean isStackable() {
+		return that.isStackable();
+	}
 
-    public void setRepairCost(int cost)
-    {
-        that.setRepairCost(cost);
-    }
+	public void setDamage(int damage) {
+		that.setItemDamage(damage);
+	}
 
-    @Override
-    public boolean equals(Object obj)
-    {
-        return obj instanceof JsItemStack ? that.isItemEqual(((JsItemStack) obj).getThat()) : false;
-    }
+	public void setDisplayName(String name) {
+		that.setStackDisplayName(name);
+	}
 
-    public String _getNbt() // tsgen ignore
-    {
-        return that.getTagCompound() == null ? null : DataManager.toJson(that.getTagCompound());
-    }
+	public void setRepairCost(int cost) {
+		that.setRepairCost(cost);
+	}
 
-    public void _setNbt(String value) // tsgen ignore
-    {
-        that.setTagCompound(value == null ? null : DataManager.fromJson(value, NBTTagCompound.class));
-    }
+	public void setStackSize(int size) {
+		that.stackSize = size;
+	}
 
 }

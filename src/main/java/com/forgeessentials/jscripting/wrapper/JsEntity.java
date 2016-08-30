@@ -2,146 +2,126 @@ package com.forgeessentials.jscripting.wrapper;
 
 import java.util.UUID;
 
+import com.forgeessentials.data.v2.DataManager;
+import com.forgeessentials.util.ServerUtil;
+
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 
-import com.forgeessentials.data.v2.DataManager;
-import com.forgeessentials.util.ServerUtil;
+public class JsEntity<T extends Entity> extends JsWrapper<T> {
 
-public class JsEntity<T extends Entity> extends JsWrapper<T>
-{
+	private JsWorld<World> world;
 
-    private JsWorld<World> world;
+	private JsEntity<Entity> ridingEntity;
 
-    private JsEntity<Entity> ridingEntity;
+	private JsEntity<Entity> riddenByEntity;
 
-    private JsEntity<Entity> riddenByEntity;
+	public JsEntity(T that) {
+		super(that);
+	}
 
-    public JsEntity(T that)
-    {
-        super(that);
-    }
+	public String _getNbt() // tsgen ignore
+	{
+		return DataManager.toJson(that.getEntityData());
+	}
 
-    public String getName()
-    {
-        return that.getCommandSenderName();
-    }
+	public void _setNbt(String value) // tsgen ignore
+	{
+		ServerUtil.copyNbt(that.getEntityData(), DataManager.fromJson(value, NBTTagCompound.class));
+	}
 
-    public String getId()
-    {
-        return that.getPersistentID().toString();
-    }
+	public int getChunkCoordX() {
+		return that.chunkCoordX;
+	}
 
-    public UUID getUuid()
-    {
-        return that.getPersistentID();
-    }
+	public int getChunkCoordY() {
+		return that.chunkCoordY;
+	}
 
-    public int getEntityId()
-    {
-        return that.getEntityId();
-    }
+	public int getChunkCoordZ() {
+		return that.chunkCoordZ;
+	}
 
-    public int getDimension()
-    {
-        return that.dimension;
-    }
+	public int getDimension() {
+		return that.dimension;
+	}
 
-    public double getX()
-    {
-        return that.posX;
-    }
+	public int getEntityId() {
+		return that.getEntityId();
+	}
 
-    public double getY()
-    {
-        return that.posY;
-    }
+	public float getHeight() {
+		return that.height;
+	}
 
-    public double getZ()
-    {
-        return that.posZ;
-    }
+	public String getId() {
+		return that.getPersistentID().toString();
+	}
 
-    public double getMotionX()
-    {
-        return that.motionX;
-    }
+	public double getMotionX() {
+		return that.motionX;
+	}
 
-    public double getMotionY()
-    {
-        return that.motionY;
-    }
+	public double getMotionY() {
+		return that.motionY;
+	}
 
-    public double getMotionZ()
-    {
-        return that.motionZ;
-    }
+	public double getMotionZ() {
+		return that.motionZ;
+	}
 
-    public int getChunkCoordX()
-    {
-        return that.chunkCoordX;
-    }
+	public String getName() {
+		return that.getCommandSenderName();
+	}
 
-    public int getChunkCoordY()
-    {
-        return that.chunkCoordY;
-    }
+	public JsEntity<Entity> getRiddenByEntity() {
+		if (riddenByEntity == null) {
+			riddenByEntity = new JsEntity<>(that.riddenByEntity);
+		}
+		return riddenByEntity;
+	}
 
-    public int getChunkCoordZ()
-    {
-        return that.chunkCoordZ;
-    }
+	public JsEntity<Entity> getRidingEntity() {
+		if (ridingEntity == null) {
+			ridingEntity = new JsEntity<>(that.ridingEntity);
+		}
+		return ridingEntity;
+	}
 
-    public float getWidth()
-    {
-        return that.width;
-    }
+	public float getStepHeight() {
+		return that.stepHeight;
+	}
 
-    public float getHeight()
-    {
-        return that.height;
-    }
+	public UUID getUuid() {
+		return that.getPersistentID();
+	}
 
-    public float getStepHeight()
-    {
-        return that.stepHeight;
-    }
+	public float getWidth() {
+		return that.width;
+	}
 
-    public boolean isOnGround()
-    {
-        return that.onGround;
-    }
+	public JsWorld<World> getWorld() {
+		if (world == null) {
+			world = new JsWorld<>(that.worldObj);
+		}
+		return world;
+	}
 
-    public JsEntity<Entity> getRidingEntity()
-    {
-        if (ridingEntity == null)
-            ridingEntity = new JsEntity<>(that.ridingEntity);
-        return ridingEntity;
-    }
+	public double getX() {
+		return that.posX;
+	}
 
-    public JsEntity<Entity> getRiddenByEntity()
-    {
-        if (riddenByEntity == null)
-            riddenByEntity = new JsEntity<>(that.riddenByEntity);
-        return riddenByEntity;
-    }
+	public double getY() {
+		return that.posY;
+	}
 
-    public JsWorld<World> getWorld()
-    {
-        if (world == null)
-            world = new JsWorld<>(that.worldObj);
-        return world;
-    }
+	public double getZ() {
+		return that.posZ;
+	}
 
-    public String _getNbt() // tsgen ignore
-    {
-        return DataManager.toJson(that.getEntityData());
-    }
-
-    public void _setNbt(String value) // tsgen ignore
-    {
-        ServerUtil.copyNbt(that.getEntityData(), DataManager.fromJson(value, NBTTagCompound.class));
-    }
+	public boolean isOnGround() {
+		return that.onGround;
+	}
 
 }

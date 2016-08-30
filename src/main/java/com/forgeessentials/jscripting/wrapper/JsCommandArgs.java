@@ -2,213 +2,177 @@ package com.forgeessentials.jscripting.wrapper;
 
 import java.util.Collection;
 
+import com.forgeessentials.api.UserIdent;
+import com.forgeessentials.api.permissions.WorldZone;
+import com.forgeessentials.commons.selections.WorldPoint;
+import com.forgeessentials.util.CommandParserArgs;
+
 import net.minecraft.block.Block;
 import net.minecraft.command.CommandException;
 import net.minecraft.item.Item;
 import net.minecraft.util.IChatComponent;
 import net.minecraft.world.WorldServer;
 
-import com.forgeessentials.api.UserIdent;
-import com.forgeessentials.api.permissions.WorldZone;
-import com.forgeessentials.commons.selections.WorldPoint;
-import com.forgeessentials.util.CommandParserArgs;
+public class JsCommandArgs {
 
-public class JsCommandArgs
-{
+	private CommandParserArgs that;
 
-    private CommandParserArgs that;
+	public final JsCommandSender sender;
 
-    public final JsCommandSender sender;
+	public final JsEntityPlayer player;
 
-    public final JsEntityPlayer player;
+	public final JsUserIdent ident;
 
-    public final JsUserIdent ident;
+	public final boolean isTabCompletion;
 
-    public final boolean isTabCompletion;
+	public JsCommandArgs(CommandParserArgs args) {
+		that = args;
+		sender = new JsCommandSender(args.sender);
+		player = args.senderPlayer == null ? null : new JsEntityPlayer(args.senderPlayer);
+		ident = args.ident == null ? null : new JsUserIdent(args.ident);
+		isTabCompletion = args.isTabCompletion;
+	}
 
-    public JsCommandArgs(CommandParserArgs args)
-    {
-        this.that = args;
-        this.sender = new JsCommandSender(args.sender);
-        this.player = args.senderPlayer == null ? null : new JsEntityPlayer(args.senderPlayer);
-        this.ident = args.ident == null ? null : new JsUserIdent(args.ident);
-        this.isTabCompletion = args.isTabCompletion;
-    }
+	public void checkPermission(String perm) {
+		that.checkPermission(perm);
+	}
 
-    public String[] toArray()
-    {
-        return that.toArray();
-    }
+	public void checkTabCompletion() {
+		that.checkTabCompletion();
+	}
 
-    @Override
-    public String toString()
-    {
-        return that.toString();
-    }
+	public void confirm(String message, Object... args) {
+		that.confirm(message, args);
+	}
 
-    public void sendMessage(IChatComponent message)
-    {
-        that.sendMessage(message);
-    }
+	public void error(String message, Object... args) {
+		that.error(message, args);
+	}
 
-    public void confirm(String message, Object... args)
-    {
-        that.confirm(message, args);
-    }
+	public WorldPoint getSenderPoint() {
+		return that.getSenderPoint();
+	}
 
-    public void notify(String message, Object... args)
-    {
-        that.notify(message, args);
-    }
+	public WorldZone getWorldZone() {
+		return that.getWorldZone();
+	}
 
-    public void warn(String message, Object... args)
-    {
-        that.warn(message, args);
-    }
+	public boolean hasPermission(String perm) {
+		return that.hasPermission(perm);
+	}
 
-    public void error(String message, Object... args)
-    {
-        that.error(message, args);
-    }
+	public boolean hasPlayer() {
+		return that.hasPlayer();
+	}
 
-    public int size()
-    {
-        return that.size();
-    }
+	public boolean isEmpty() {
+		return that.isEmpty();
+	}
 
-    public String remove()
-    {
-        return that.remove();
-    }
+	public void needsPlayer() {
+		that.needsPlayer();
+	}
 
-    public String peek()
-    {
-        return that.peek();
-    }
+	public void notify(String message, Object... args) {
+		that.notify(message, args);
+	}
 
-    public boolean isEmpty()
-    {
-        return that.isEmpty();
-    }
+	public Block parseBlock() {
+		return that.parseBlock();
+	}
 
-    public boolean hasPlayer()
-    {
-        return that.hasPlayer();
-    }
+	public boolean parseBoolean() {
+		return that.parseBoolean();
+	}
 
-    public UserIdent parsePlayer()
-    {
-        return that.parsePlayer(true, false);
-    }
+	public double parseDouble() {
+		return that.parseDouble();
+	}
 
-    public UserIdent parsePlayer(boolean mustExist)
-    {
-        return that.parsePlayer(mustExist, false);
-    }
+	public int parseInt() {
+		return that.parseInt();
+	}
 
-    public UserIdent parsePlayer(boolean mustExist, boolean mustBeOnline)
-    {
-        return that.parsePlayer(mustExist, mustBeOnline);
-    }
+	public int parseInt(int min, int max) throws CommandException {
+		return that.parseInt(min, max);
+	}
 
-    public Item parseItem()
-    {
-        return that.parseItem();
-    }
+	public Item parseItem() {
+		return that.parseItem();
+	}
 
-    public Block parseBlock()
-    {
-        return that.parseBlock();
-    }
+	public long parseLong() {
+		return that.parseLong();
+	}
 
-    public String parsePermission()
-    {
-        return that.parsePermission();
-    }
+	public String parsePermission() {
+		return that.parsePermission();
+	}
 
-    public void checkPermission(String perm)
-    {
-        that.checkPermission(perm);
-    }
+	public UserIdent parsePlayer() {
+		return that.parsePlayer(true, false);
+	}
 
-    public boolean hasPermission(String perm)
-    {
-        return that.hasPermission(perm);
-    }
+	public UserIdent parsePlayer(boolean mustExist) {
+		return that.parsePlayer(mustExist, false);
+	}
 
-    public void tabComplete(String... completionList)
-    {
-        that.tabComplete(completionList);
-    }
+	public UserIdent parsePlayer(boolean mustExist, boolean mustBeOnline) {
+		return that.parsePlayer(mustExist, mustBeOnline);
+	}
 
-    public void tabComplete(Collection<String> completionList) // tsgen ignore
-    {
-        that.tabComplete(completionList);
-    }
+	public long parseTimeReadable() {
+		return that.parseTimeReadable();
+	}
 
-    public void tabCompleteWord(String completion)
-    {
-        that.tabCompleteWord(completion);
-    }
+	public WorldServer parseWorld() {
+		return that.parseWorld();
+	}
 
-    public WorldServer parseWorld()
-    {
-        return that.parseWorld();
-    }
+	public String peek() {
+		return that.peek();
+	}
 
-    public int parseInt()
-    {
-        return that.parseInt();
-    }
+	public String remove() {
+		return that.remove();
+	}
 
-    public int parseInt(int min, int max) throws CommandException
-    {
-        return that.parseInt(min, max);
-    }
+	public void requirePlayer() {
+		that.requirePlayer();
+	}
 
-    public long parseLong()
-    {
-        return that.parseLong();
-    }
+	public void sendMessage(IChatComponent message) {
+		that.sendMessage(message);
+	}
 
-    public double parseDouble()
-    {
-        return that.parseDouble();
-    }
+	public int size() {
+		return that.size();
+	}
 
-    public boolean parseBoolean()
-    {
-        return that.parseBoolean();
-    }
+	public void tabComplete(Collection<String> completionList) // tsgen ignore
+	{
+		that.tabComplete(completionList);
+	}
 
-    public long parseTimeReadable()
-    {
-        return that.parseTimeReadable();
-    }
+	public void tabComplete(String... completionList) {
+		that.tabComplete(completionList);
+	}
 
-    public void checkTabCompletion()
-    {
-        that.checkTabCompletion();
-    }
+	public void tabCompleteWord(String completion) {
+		that.tabCompleteWord(completion);
+	}
 
-    public void requirePlayer()
-    {
-        that.requirePlayer();
-    }
+	public String[] toArray() {
+		return that.toArray();
+	}
 
-    public WorldPoint getSenderPoint()
-    {
-        return that.getSenderPoint();
-    }
+	@Override
+	public String toString() {
+		return that.toString();
+	}
 
-    public WorldZone getWorldZone()
-    {
-        return that.getWorldZone();
-    }
-
-    public void needsPlayer()
-    {
-        that.needsPlayer();
-    }
+	public void warn(String message, Object... args) {
+		that.warn(message, args);
+	}
 
 }

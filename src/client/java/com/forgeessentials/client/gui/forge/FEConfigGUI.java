@@ -10,10 +10,8 @@ import net.minecraftforge.fml.client.config.GuiConfig;
 public class FEConfigGUI extends GuiConfig {
 
 	public FEConfigGUI(GuiScreen parentScreen) {
-		super(parentScreen,
-				new ConfigElement(ClientProxy.getConfig().getCategory(Configuration.CATEGORY_GENERAL))
-						.getChildElements(),
-				"TestMod", false, false, "FE Client Addon Config");
+		super(parentScreen, new ConfigElement(ClientProxy.getConfig().getCategory(Configuration.CATEGORY_GENERAL))
+				.getChildElements(), "TestMod", false, false, "FE Client Addon Config");
 	}
 
 }

@@ -13,8 +13,6 @@ import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 
-import net.minecraft.command.CommandException;
-
 import com.forgeessentials.core.misc.TranslatedCommandException;
 import com.forgeessentials.jscripting.wrapper.JsBlockStatic;
 import com.forgeessentials.jscripting.wrapper.JsCommandArgs;
@@ -23,146 +21,116 @@ import com.forgeessentials.jscripting.wrapper.JsServerStatic;
 import com.forgeessentials.jscripting.wrapper.JsWorldStatic;
 import com.forgeessentials.util.CommandParserArgs;
 
-public class ScriptInstance
-{
+import net.minecraft.command.CommandException;
 
-    private File file;
+public class ScriptInstance {
 
-    private long lastModified;
+	private File file;
 
-    private CompiledScript script;
+	private long lastModified;
 
-    private Invocable invocable;
+	private CompiledScript script;
 
-    private Set<String> illegalFunctions = new HashSet<>();
+	private Invocable invocable;
 
-    public ScriptInstance(File file) throws IOException, ScriptException
-    {
-        if (!file.exists())
-            throw new IllegalArgumentException("file");
+	private Set<String> illegalFunctions = new HashSet<>();
 
-        this.file = file;
-        compileScript();
-    }
+	public ScriptInstance(File file) throws IOException, ScriptException {
+		if (!file.exists()) {
+			throw new IllegalArgumentException("file");
+		}
 
-    protected void compileScript() throws IOException, FileNotFoundException, ScriptException
-    {
-        try (BufferedReader reader = new BufferedReader(new FileReader(file)))
-        {
-            // Load and compile script
-            script = ModuleJScripting.getCompilable().compile(reader);
+		this.file = file;
+		compileScript();
+	}
 
-            // Initialization of module environment
-            script.getEngine().put("Server", new JsServerStatic(this));
-            script.getEngine().put("Block", new JsBlockStatic());
-            script.getEngine().put("Item", new JsItemStatic());
-            script.getEngine().put("World", new JsWorldStatic());
-            script.getEngine().eval("" +
-                    "var exports = {};" +
-                    // NBT constants
-                    "var NBT_BYTE = 'b:';" +
-                    "var NBT_SHORT = 's:';" +
-                    "var NBT_INT = 'i:';" +
-                    "var NBT_LONG = 'l:';" +
-                    "var NBT_FLOAT = 'f:';" +
-                    "var NBT_DOUBLE = 'd:';" +
-                    "var NBT_BYTE_ARRAY = 'B:';" +
-                    "var NBT_STRING = 'S:';" +
-                    "var NBT_COMPOUND = 'c:';" +
-                    "var NBT_INT_ARRAY = 'I:';" +
-                    // timeouts
-                    "function setTimeout(fn, t, args) { return Server.setTimeout(fn, t, args); };" +
-                    "function setInterval(fn, t, args) { return Server.setInterval(fn, t, args); };" +
-                    "function clearTimeout(id) { return Server.clearTimeout(id); };" +
-                    "function clearInterval(id) { return Server.clearInterval(id); };" +
-                    // NBT handling
-                    "function getNbt(e) { return JSON.parse(e._getNbt()); }" +
-                    "function setNbt(e, d) { e._setNbt(JSON.stringify(d)); }" +
-                    "" +
-                    "");
+	public Object call(String fn, Object... args) throws NoSuchMethodException, ScriptException {
+		try {
+			return invocable.invokeFunction(fn, args);
+		} catch (Exception e) {
+			illegalFunctions.add(fn);
+			throw e;
+		}
+	}
 
-            // Start script
-            script.eval();
-            // script.getEngine().get("exports")
+	public void checkIfModified() throws IOException, FileNotFoundException, ScriptException {
+		if (file.exists() && (file.lastModified() != lastModified)) {
+			compileScript();
+		}
+	}
 
-            invocable = (Invocable) script.getEngine();
-            illegalFunctions.clear();
-            lastModified = file.lastModified();
-        }
-    }
+	protected void compileScript() throws IOException, FileNotFoundException, ScriptException {
+		try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+			// Load and compile script
+			script = ModuleJScripting.getCompilable().compile(reader);
 
-    public Object call(String fn, Object... args) throws NoSuchMethodException, ScriptException
-    {
-        try
-        {
-            return this.invocable.invokeFunction(fn, args);
-        }
-        catch (Exception e)
-        {
-            illegalFunctions.add(fn);
-            throw e;
-        }
-    }
+			// Initialization of module environment
+			script.getEngine().put("Server", new JsServerStatic(this));
+			script.getEngine().put("Block", new JsBlockStatic());
+			script.getEngine().put("Item", new JsItemStatic());
+			script.getEngine().put("World", new JsWorldStatic());
+			script.getEngine().eval("" + "var exports = {};" +
+			// NBT constants
+					"var NBT_BYTE = 'b:';" + "var NBT_SHORT = 's:';" + "var NBT_INT = 'i:';" + "var NBT_LONG = 'l:';"
+					+ "var NBT_FLOAT = 'f:';" + "var NBT_DOUBLE = 'd:';" + "var NBT_BYTE_ARRAY = 'B:';"
+					+ "var NBT_STRING = 'S:';" + "var NBT_COMPOUND = 'c:';" + "var NBT_INT_ARRAY = 'I:';" +
+					// timeouts
+					"function setTimeout(fn, t, args) { return Server.setTimeout(fn, t, args); };"
+					+ "function setInterval(fn, t, args) { return Server.setInterval(fn, t, args); };"
+					+ "function clearTimeout(id) { return Server.clearTimeout(id); };"
+					+ "function clearInterval(id) { return Server.clearInterval(id); };" +
+					// NBT handling
+					"function getNbt(e) { return JSON.parse(e._getNbt()); }"
+					+ "function setNbt(e, d) { e._setNbt(JSON.stringify(d)); }" + "" + "");
 
-    public Object tryCall(String fn, Object... args) throws ScriptException
-    {
-        try
-        {
-            return this.invocable.invokeFunction(fn, args);
-        }
-        catch (NoSuchMethodException e)
-        {
-            illegalFunctions.add(fn);
-            return null;
-        }
-    }
+			// Start script
+			script.eval();
+			// script.getEngine().get("exports")
 
-    public boolean illegalFunction(String fnName)
-    {
-        return illegalFunctions.contains(fnName);
-    }
+			invocable = (Invocable) script.getEngine();
+			illegalFunctions.clear();
+			lastModified = file.lastModified();
+		}
+	}
 
-    public void checkIfModified() throws IOException, FileNotFoundException, ScriptException
-    {
-        if (file.exists() && file.lastModified() != lastModified)
-            compileScript();
-    }
+	public ScriptEngine getEngine() {
+		return script.getEngine();
+	}
 
-    public File getFile()
-    {
-        return file;
-    }
+	public File getFile() {
+		return file;
+	}
 
-    public ScriptEngine getEngine()
-    {
-        return script.getEngine();
-    }
+	public Invocable getInvocable() {
+		return (Invocable) script.getEngine();
+	}
 
-    public Invocable getInvocable()
-    {
-        return (Invocable) script.getEngine();
-    }
+	public boolean illegalFunction(String fnName) {
+		return illegalFunctions.contains(fnName);
+	}
 
-    public void runCommand(CommandParserArgs arguments) throws CommandException
-    {
-        try
-        {
-            call(arguments.isTabCompletion ? "tabComplete" : "processCommand", new JsCommandArgs(arguments));
-        }
-        catch (CommandException e)
-        {
-            throw e;
-        }
-        catch (NoSuchMethodException e)
-        {
-            if (!arguments.isTabCompletion)
-                throw new TranslatedCommandException("Script missing processCommand function.");
-        }
-        catch (ScriptException e)
-        {
-            e.printStackTrace();
-            throw new TranslatedCommandException("Error in script: %s", e.getMessage());
-        }
-    }
+	public void runCommand(CommandParserArgs arguments) throws CommandException {
+		try {
+			call(arguments.isTabCompletion ? "tabComplete" : "processCommand", new JsCommandArgs(arguments));
+		} catch (CommandException e) {
+			throw e;
+		} catch (NoSuchMethodException e) {
+			if (!arguments.isTabCompletion) {
+				throw new TranslatedCommandException("Script missing processCommand function.");
+			}
+		} catch (ScriptException e) {
+			e.printStackTrace();
+			throw new TranslatedCommandException("Error in script: %s", e.getMessage());
+		}
+	}
+
+	public Object tryCall(String fn, Object... args) throws ScriptException {
+		try {
+			return invocable.invokeFunction(fn, args);
+		} catch (NoSuchMethodException e) {
+			illegalFunctions.add(fn);
+			return null;
+		}
+	}
 
 }

@@ -13,8 +13,6 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
-import net.minecraft.command.ICommandSender;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -36,202 +34,172 @@ import com.forgeessentials.util.events.FEModuleEvent.FEModuleServerStoppedEvent;
 import com.forgeessentials.util.events.ServerEventHandler;
 import com.forgeessentials.util.output.LoggingHandler;
 
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import net.minecraft.command.ICommandSender;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 @FEModule(name = "JScripting", parentMod = ForgeEssentials.class, isCore = false, canDisable = false)
-public class ModuleJScripting extends ServerEventHandler implements ScriptHandler
-{
+public class ModuleJScripting extends ServerEventHandler implements ScriptHandler {
 
-    public static final long CRON_CHECK_INTERVAL = 1000;
+	public static final long CRON_CHECK_INTERVAL = 1000;
 
-    public static final String COMMANDS_DIR = "commands/";
+	public static final String COMMANDS_DIR = "commands/";
 
-    public static final String PERM = "fe.jscript";
+	public static final String PERM = "fe.jscript";
 
-    private static final ScriptEngineManager SEM = new ScriptEngineManager(null);
+	private static final ScriptEngineManager SEM = new ScriptEngineManager(null);
 
-    @FEModule.ModuleDir
-    private static File moduleDir;
+	@FEModule.ModuleDir
+	private static File moduleDir;
 
-    private static File commandsDir;
+	private static File commandsDir;
 
-    public static boolean isNashorn;
+	public static boolean isNashorn;
 
-    public static boolean isRhino;
+	public static boolean isRhino;
 
-    /**
-     * Script cache
-     */
-    protected static Map<File, ScriptInstance> scripts = new HashMap<>();
+	/**
+	 * Script cache
+	 */
+	protected static Map<File, ScriptInstance> scripts = new HashMap<>();
 
-    protected static List<CommandJScriptCommand> commands = new ArrayList<>();
+	protected static List<CommandJScriptCommand> commands = new ArrayList<>();
 
-    /* ------------------------------------------------------------ */
+	/* ------------------------------------------------------------ */
 
-    @Preconditions
-    public boolean canLoad()
-    {
-        System.setProperty("nashorn.args", "-strict --no-java --no-syntax-extensions");
-        ScriptEngine engine = SEM.getEngineByName("JavaScript");
-        isNashorn = engine.getFactory().getEngineName().toLowerCase().contains("nashorn");
-        isRhino = engine.getFactory().getEngineName().toLowerCase().contains("rhino");
-        return engine != null;
-    }
+	public static File getCommandsDir() {
+		return commandsDir;
+	}
 
-    @SubscribeEvent
-    public void preLoad(FEModulePreInitEvent event)
-    {
-        APIRegistry.scripts = this;
-    }
+	public static Compilable getCompilable() {
+		return (Compilable) getEngine();
+	}
 
-    @SubscribeEvent
-    public void load(FEModuleInitEvent event)
-    {
-        FECommandManager.registerCommand(new CommandJScript());
-        commandsDir = new File(moduleDir, COMMANDS_DIR);
-        commandsDir.mkdirs();
-    }
+	public static ScriptEngine getEngine() {
+		return SEM.getEngineByName("JavaScript");
+	}
 
-    @SubscribeEvent
-    public void serverStarted(FEModuleServerPostInitEvent event)
-    {
-        loadScripts();
-    }
+	public static synchronized ScriptInstance getScript(File file) throws IOException, ScriptException {
+		ScriptInstance result = scripts.get(file);
+		if (result == null) {
+			result = new ScriptInstance(file);
+			scripts.put(file, result);
+		} else {
+			try {
+				result.checkIfModified();
+			} catch (IOException | ScriptException e) {
+				result = scripts.remove(file);
+				for (Iterator<CommandJScriptCommand> it = commands.iterator(); it.hasNext();) {
+					CommandJScriptCommand command = it.next();
+					if (command.script == result) {
+						it.remove();
+					}
+				}
+				throw e;
+			}
+		}
+		return result;
+	}
 
-    @Override
-    @SubscribeEvent
-    public void serverStopped(FEModuleServerStoppedEvent e)
-    {
-        deregisterCommands();
-        scripts.clear();
-    }
+	public static ScriptInstance getScript(String uri) throws IOException, ScriptException {
+		File f = new File(moduleDir, uri);
+		if (!f.exists()) {
+			return null;
+		}
+		return getScript(f);
+	}
 
-    @SubscribeEvent
-    public void reload(ConfigReloadEvent event)
-    {
-        deregisterCommands();
-        scripts.clear();
-        loadScripts();
-    }
+	public static void registerScriptCommand(CommandJScriptCommand command) {
+		commands.add(command);
+		FECommandManager.registerCommand(command, true);
+	}
 
-    private void deregisterCommands()
-    {
-        for (ParserCommandBase command : commands)
-            FECommandManager.deegisterCommand(command.getCommandName());
-        commands.clear();
-    }
+	@Override
+	public void addScriptType(String key) {
+		String fnName = "on" + StringUtils.capitalize(key);
+		try {
+			new File(moduleDir, fnName + ".txt").createNewFile();
+		} catch (IOException e) {
+			/* nothing */
+		}
+	}
 
-    private void loadScripts()
-    {
-        for (Iterator<File> it = FileUtils.iterateFiles(moduleDir, new String[] { "js" }, true); it.hasNext();)
-        {
-            File file = it.next();
-            try
-            {
-                getScript(file);
-            }
-            catch (IOException | ScriptException e)
-            {
-                LoggingHandler.felog.error("FE Script error: " + e.getMessage());
-            }
-        }
-    }
+	@Preconditions
+	public boolean canLoad() {
+		System.setProperty("nashorn.args", "-strict --no-java --no-syntax-extensions");
+		ScriptEngine engine = SEM.getEngineByName("JavaScript");
+		isNashorn = engine.getFactory().getEngineName().toLowerCase().contains("nashorn");
+		isRhino = engine.getFactory().getEngineName().toLowerCase().contains("rhino");
+		return engine != null;
+	}
 
-    /* ------------------------------------------------------------ */
-    /* Script handling OLD */
+	/* ------------------------------------------------------------ */
+	/* Script handling OLD */
 
-    public static ScriptEngine getEngine()
-    {
-        return SEM.getEngineByName("JavaScript");
-    }
+	private void deregisterCommands() {
+		for (ParserCommandBase command : commands) {
+			FECommandManager.deegisterCommand(command.getCommandName());
+		}
+		commands.clear();
+	}
 
-    public static Compilable getCompilable()
-    {
-        return (Compilable) getEngine();
-    }
+	@SubscribeEvent
+	public void load(FEModuleInitEvent event) {
+		FECommandManager.registerCommand(new CommandJScript());
+		commandsDir = new File(moduleDir, COMMANDS_DIR);
+		commandsDir.mkdirs();
+	}
 
-    public static synchronized ScriptInstance getScript(File file) throws IOException, ScriptException
-    {
-        ScriptInstance result = scripts.get(file);
-        if (result == null)
-        {
-            result = new ScriptInstance(file);
-            scripts.put(file, result);
-        }
-        else
-        {
-            try
-            {
-                result.checkIfModified();
-            }
-            catch (IOException | ScriptException e)
-            {
-                result = scripts.remove(file);
-                for (Iterator<CommandJScriptCommand> it = commands.iterator(); it.hasNext();)
-                {
-                    CommandJScriptCommand command = it.next();
-                    if (command.script == result)
-                        it.remove();
-                }
-                throw e;
-            }
-        }
-        return result;
-    }
+	private void loadScripts() {
+		for (Iterator<File> it = FileUtils.iterateFiles(moduleDir, new String[] { "js" }, true); it.hasNext();) {
+			File file = it.next();
+			try {
+				getScript(file);
+			} catch (IOException | ScriptException e) {
+				LoggingHandler.felog.error("FE Script error: " + e.getMessage());
+			}
+		}
+	}
 
-    public static ScriptInstance getScript(String uri) throws IOException, ScriptException
-    {
-        File f = new File(moduleDir, uri);
-        if (!f.exists())
-            return null;
-        return getScript(f);
-    }
+	@SubscribeEvent
+	public void preLoad(FEModulePreInitEvent event) {
+		APIRegistry.scripts = this;
+	}
 
-    public static File getCommandsDir()
-    {
-        return commandsDir;
-    }
+	@SubscribeEvent
+	public void reload(ConfigReloadEvent event) {
+		deregisterCommands();
+		scripts.clear();
+		loadScripts();
+	}
 
-    public static void registerScriptCommand(CommandJScriptCommand command)
-    {
-        commands.add(command);
-        FECommandManager.registerCommand(command, true);
-    }
+	@Override
+	public synchronized void runEventScripts(String key, ICommandSender sender) {
+		JsCommandSender jsSender = sender == null ? null : new JsCommandSender(sender);
+		String fnName = "on" + StringUtils.capitalize(key);
+		for (ScriptInstance script : scripts.values()) {
+			try {
+				if (!script.illegalFunction(fnName)) {
+					script.tryCall(fnName, jsSender);
+				}
+			} catch (ScriptException e) {
+				e.printStackTrace();
+			}
+		}
+	}
 
-    /* ------------------------------------------------------------ */
-    /* Script handling API */
+	/* ------------------------------------------------------------ */
+	/* Script handling API */
 
-    @Override
-    public void addScriptType(String key)
-    {
-        String fnName = "on" + StringUtils.capitalize(key);
-        try
-        {
-            new File(moduleDir, fnName + ".txt").createNewFile();
-        }
-        catch (IOException e)
-        {
-            /* nothing */
-        }
-    }
+	@SubscribeEvent
+	public void serverStarted(FEModuleServerPostInitEvent event) {
+		loadScripts();
+	}
 
-    @Override
-    public synchronized void runEventScripts(String key, ICommandSender sender)
-    {
-        JsCommandSender jsSender = sender == null ? null : new JsCommandSender(sender);
-        String fnName = "on" + StringUtils.capitalize(key);
-        for (ScriptInstance script : scripts.values())
-        {
-            try
-            {
-                if (!script.illegalFunction(fnName))
-                    script.tryCall(fnName, jsSender);
-            }
-            catch (ScriptException e)
-            {
-                e.printStackTrace();
-            }
-        }
-    }
+	@Override
+	@SubscribeEvent
+	public void serverStopped(FEModuleServerStoppedEvent e) {
+		deregisterCommands();
+		scripts.clear();
+	}
 
 }

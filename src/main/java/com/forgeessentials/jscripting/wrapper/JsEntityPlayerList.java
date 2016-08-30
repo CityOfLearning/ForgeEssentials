@@ -2,28 +2,24 @@ package com.forgeessentials.jscripting.wrapper;
 
 import java.util.List;
 
-import net.minecraft.entity.player.EntityPlayer;
-
 import com.forgeessentials.util.MappedList;
 
-public class JsEntityPlayerList extends MappedList<EntityPlayer, JsEntityPlayer>
-{
+import net.minecraft.entity.player.EntityPlayer;
 
-    public JsEntityPlayerList(List<EntityPlayer> list)
-    {
-        super(list);
-    }
+public class JsEntityPlayerList extends MappedList<EntityPlayer, JsEntityPlayer> {
 
-    @Override
-    protected JsEntityPlayer map(EntityPlayer in)
-    {
-        return new JsEntityPlayer(in);
-    }
+	public JsEntityPlayerList(List<EntityPlayer> list) {
+		super(list);
+	}
 
-    @Override
-    protected EntityPlayer unmap(JsEntityPlayer in)
-    {
-        return in.getThat();
-    }
+	@Override
+	protected JsEntityPlayer map(EntityPlayer in) {
+		return new JsEntityPlayer(in);
+	}
+
+	@Override
+	protected EntityPlayer unmap(JsEntityPlayer in) {
+		return in.getThat();
+	}
 
 }

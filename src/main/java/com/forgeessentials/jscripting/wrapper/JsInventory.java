@@ -2,47 +2,38 @@ package com.forgeessentials.jscripting.wrapper;
 
 import net.minecraft.inventory.IInventory;
 
-public class JsInventory<T extends IInventory> extends JsWrapper<T>
-{
+public class JsInventory<T extends IInventory> extends JsWrapper<T> {
 
-    public JsInventory(T that)
-    {
-        super(that);
-    }
+	public JsInventory(T that) {
+		super(that);
+	}
 
-    public JsItemStack getStackInSlot(int slot)
-    {
-        return new JsItemStack(that.getStackInSlot(slot));
-    }
+	public String getName() {
+		return that.getInventoryName();
+	}
 
-    public void setStackInSlot(int slot, JsItemStack stack)
-    {
-        that.setInventorySlotContents(slot, stack.getThat());
-    }
+	public int getSize() {
+		return that.getSizeInventory();
+	}
 
-    public boolean isStackValidForSlot(int slot, JsItemStack stack)
-    {
-        return that.isItemValidForSlot(slot, stack.getThat());
-    }
+	public JsItemStack getStackInSlot(int slot) {
+		return new JsItemStack(that.getStackInSlot(slot));
+	}
 
-    public int getSize()
-    {
-        return that.getSizeInventory();
-    }
+	public int getStackLimit() {
+		return that.getInventoryStackLimit();
+	}
 
-    public int getStackLimit()
-    {
-        return that.getInventoryStackLimit();
-    }
+	public boolean hasCustomName() {
+		return that.hasCustomInventoryName();
+	}
 
-    public String getName()
-    {
-        return that.getInventoryName();
-    }
+	public boolean isStackValidForSlot(int slot, JsItemStack stack) {
+		return that.isItemValidForSlot(slot, stack.getThat());
+	}
 
-    public boolean hasCustomName()
-    {
-        return that.hasCustomInventoryName();
-    }
+	public void setStackInSlot(int slot, JsItemStack stack) {
+		that.setInventorySlotContents(slot, stack.getThat());
+	}
 
 }
