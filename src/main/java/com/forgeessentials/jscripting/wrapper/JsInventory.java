@@ -9,7 +9,7 @@ public class JsInventory<T extends IInventory> extends JsWrapper<T> {
 	}
 
 	public String getName() {
-		return that.getInventoryName();
+		return that.getName();
 	}
 
 	public int getSize() {
@@ -25,7 +25,7 @@ public class JsInventory<T extends IInventory> extends JsWrapper<T> {
 	}
 
 	public boolean hasCustomName() {
-		return that.hasCustomInventoryName();
+		return that.hasCustomName();
 	}
 
 	public boolean isStackValidForSlot(int slot, JsItemStack stack) {

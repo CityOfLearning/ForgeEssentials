@@ -3,6 +3,7 @@ package com.forgeessentials.jscripting.wrapper;
 import com.forgeessentials.util.MappedList;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 
 public class JsWorld<T extends World> extends JsWrapper<T> {
@@ -12,19 +13,19 @@ public class JsWorld<T extends World> extends JsWrapper<T> {
 	}
 
 	public boolean blockExists(int x, int y, int z) {
-		return that.blockExists(x, y, z);
+		return !that.isBlockLoaded(new BlockPos(x, y, z));
 	}
 
 	public JsBlock getBlock(int x, int y, int z) {
-		return JsBlock.get(that.getBlock(x, y, z));
+		return JsBlock.get(that.getBlockState(new BlockPos(x, y, z)).getBlock());
 	}
 
 	public int getDifficulty() {
-		return that.difficultySetting.ordinal();
+		return that.getDifficulty().ordinal();
 	}
 
 	public int getDimension() {
-		return that.provider.dimensionId;
+		return that.provider.getDimensionId();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -33,11 +34,11 @@ public class JsWorld<T extends World> extends JsWrapper<T> {
 	}
 
 	public void setBlock(int x, int y, int z, JsBlock block) {
-		that.setBlock(x, y, z, block.getThat());
+		that.setBlockState(new BlockPos(x, y, z), block.getThat().getDefaultState());
 	}
 
 	public void setBlock(int x, int y, int z, JsBlock block, int meta) {
-		that.setBlock(x, y, z, block.getThat(), meta, 3);
+		that.setBlockState(new BlockPos(x, y, z), block.getThat().getStateFromMeta(meta));
 	}
 
 	// public void get() // tsgen ignore

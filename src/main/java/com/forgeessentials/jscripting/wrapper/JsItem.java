@@ -22,7 +22,7 @@ public class JsItem extends JsWrapper<Item> {
 	}
 
 	public String getName() {
-		return GameData.getItemRegistry().getNameForObject(that);
+		return GameData.getItemRegistry().getNameForObject(that).toString();
 	}
 
 }

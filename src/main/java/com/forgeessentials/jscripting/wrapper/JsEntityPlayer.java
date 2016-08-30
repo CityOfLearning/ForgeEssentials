@@ -4,6 +4,7 @@ import com.forgeessentials.commons.selections.WorldPoint;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.util.BlockPos;
 
 public class JsEntityPlayer extends JsEntityLivingBase<EntityPlayer> {
 	protected JsInventoryPlayer<?> inventory;
@@ -20,9 +21,8 @@ public class JsEntityPlayer extends JsEntityLivingBase<EntityPlayer> {
 	}
 
 	public JsPoint<?> getBedLocation(int dimension) {
-		ChunkCoordinates coord = EntityPlayer.verifyRespawnCoordinates(that.worldObj, that.getBedLocation(dimension),
-				false);
-		return coord != null ? new JsWorldPoint<>(new WorldPoint(coord.posX, coord.posY, coord.posZ, dimension)) : null;
+		BlockPos coord = EntityPlayer.getBedSpawnLocation(that.worldObj, that.getBedLocation(dimension), false);
+		return coord != null ? new JsWorldPoint<>(new WorldPoint(dimension, coord)) : null;
 	}
 
 	public JsCommandSender getCommandSender() {

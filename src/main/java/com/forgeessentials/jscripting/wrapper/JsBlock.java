@@ -25,7 +25,7 @@ public class JsBlock extends JsWrapper<Block> {
 	}
 
 	public String getName() {
-		return GameData.getBlockRegistry().getNameForObject(that);
+		return GameData.getBlockRegistry().getNameForObject(that).toString();
 	}
 
 }

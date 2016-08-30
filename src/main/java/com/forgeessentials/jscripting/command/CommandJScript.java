@@ -11,6 +11,7 @@ import com.forgeessentials.jscripting.ScriptInstance;
 import com.forgeessentials.util.CommandParserArgs;
 import com.google.common.io.PatternFilenameFilter;
 
+import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraftforge.permission.PermissionLevel;
 
@@ -47,7 +48,7 @@ public class CommandJScript extends ParserCommandBase {
 	}
 
 	@Override
-	public void parse(CommandParserArgs arguments) {
+	public void parse(CommandParserArgs arguments) throws CommandException {
 		if (arguments.isEmpty()) {
 			arguments.confirm(getCommandUsage(null));
 			return;

@@ -44,7 +44,7 @@ public class ScriptInstance {
 		compileScript();
 	}
 
-	public Object call(String fn, Object... args) throws NoSuchMethodException, ScriptException {
+	public Object call(String fn, Object... args) throws NoSuchMethodException, ScriptException, CommandException {
 		try {
 			return invocable.invokeFunction(fn, args);
 		} catch (Exception e) {
