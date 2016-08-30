@@ -73,7 +73,7 @@ public final class ChatOutputHandler extends ConfigLoaderBase {
 
 	/**
 	 * Apply a set of {@link EnumChatFormatting} to a {@link ChatStyle}
-	 *
+	 * 
 	 * @param chatStyle
 	 * @param formattings
 	 */
@@ -87,7 +87,7 @@ public final class ChatOutputHandler extends ConfigLoaderBase {
 
 	/**
 	 * Apply an {@link EnumChatFormatting} to a {@link ChatStyle}
-	 *
+	 * 
 	 * @param chatStyle
 	 * @param formatting
 	 */
@@ -165,7 +165,7 @@ public final class ChatOutputHandler extends ConfigLoaderBase {
 
 	/**
 	 * outputs a notification message to the chat box of the given sender.
-	 *
+	 * 
 	 * @param sender
 	 *            CommandSender to chat to.
 	 * @param msg
@@ -193,7 +193,7 @@ public final class ChatOutputHandler extends ConfigLoaderBase {
 	/**
 	 * Take a string of chat format codes (without \u00a7) and return them as
 	 * {@link EnumChatFormatting} collection
-	 *
+	 * 
 	 * @param textFormats
 	 * @return
 	 */
@@ -310,6 +310,7 @@ public final class ChatOutputHandler extends ConfigLoaderBase {
 	 * Gets a nice string with only needed elements. Max time is weeks
 	 *
 	 * @param time
+	 *            in seconds
 	 * @return Time in string format
 	 */
 	public static String formatTimeDurationReadable(long time, boolean showSeconds) {
@@ -356,6 +357,17 @@ public final class ChatOutputHandler extends ConfigLoaderBase {
 		return sb.toString();
 	}
 
+	/**
+	 * Gets a nice string with only needed elements. Max time is weeks
+	 *
+	 * @param time
+	 *            in milliseconds
+	 * @return Time in string format
+	 */
+	public static String formatTimeDurationReadableMilli(long time, boolean showSeconds) {
+		return formatTimeDurationReadable(time / 1000, showSeconds);
+	}
+
 	public static String getFormattedMessage(IChatComponent message) {
 		StringBuilder sb = new StringBuilder();
 		for (Object msg : message) {
@@ -372,12 +384,12 @@ public final class ChatOutputHandler extends ConfigLoaderBase {
 		return sb.toString();
 	}
 
+	/* ------------------------------------------------------------ */
+
 	public static boolean isStyleEmpty(ChatStyle style) {
 		return !style.getBold() && !style.getItalic() && !style.getObfuscated() && !style.getStrikethrough()
 				&& !style.getUnderlined() && (style.getColor() == null);
 	}
-
-	/* ------------------------------------------------------------ */
 
 	public static IChatComponent notification(String message) {
 		return setChatColor(new ChatComponentText(formatColors(message)), chatNotificationColor);
@@ -386,7 +398,7 @@ public final class ChatOutputHandler extends ConfigLoaderBase {
 	/**
 	 * Sends a message to a {@link ICommandSender} and performs some security
 	 * checks
-	 *
+	 * 
 	 * @param recipient
 	 * @param message
 	 */
@@ -445,14 +457,14 @@ public final class ChatOutputHandler extends ConfigLoaderBase {
 		return message;
 	}
 
+	/* ------------------------------------------------------------ */
+
 	public static void setConfirmationColor(String color) {
 		chatConfirmationColor = EnumChatFormatting.getValueByName(color);
 		if (chatConfirmationColor == null) {
 			chatConfirmationColor = EnumChatFormatting.GREEN;
 		}
 	}
-
-	/* ------------------------------------------------------------ */
 
 	public static void setErrorColor(String color) {
 		chatErrorColor = EnumChatFormatting.getValueByName(color);
@@ -479,7 +491,7 @@ public final class ChatOutputHandler extends ConfigLoaderBase {
 
 	/**
 	 * Strips any minecraft formatting codes
-	 *
+	 * 
 	 * @param message
 	 * @return
 	 */

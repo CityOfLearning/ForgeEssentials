@@ -95,13 +95,17 @@ public class Questioner extends ServerEventHandler {
 		answer(target, false);
 	}
 
-	public static synchronized void tick() throws CommandException {
+	public static synchronized void tick() {
 		Iterator<Entry<ICommandSender, QuestionData>> it = questions.entrySet().iterator();
 		while (it.hasNext()) {
 			Entry<ICommandSender, QuestionData> question = it.next();
 			if (question.getValue().isTimeout()) {
 				it.remove();
-				question.getValue().doAnswer(null);
+				try {
+					question.getValue().doAnswer(null);
+				} catch (CommandException e) {
+				}
+
 			}
 		}
 	}
@@ -113,7 +117,7 @@ public class Questioner extends ServerEventHandler {
 	}
 
 	@SubscribeEvent
-	public void tickStart(TickEvent.ServerTickEvent event) throws CommandException {
+	public void tickStart(TickEvent.ServerTickEvent event) {
 		if (event.phase == Phase.START) {
 			tick();
 		}

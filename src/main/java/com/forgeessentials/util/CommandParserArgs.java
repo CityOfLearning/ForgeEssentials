@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -48,6 +50,8 @@ public class CommandParserArgs {
 
 	}
 
+	public static final Pattern timeFormatPattern = Pattern.compile("(\\d+)(\\D+)?");
+
 	public static List<String> completePlayer(String arg) {
 		Set<String> result = new TreeSet<String>();
 		for (UserIdent knownPlayerIdent : APIRegistry.perms.getServerZone().getKnownPlayers()) {
@@ -67,6 +71,7 @@ public class CommandParserArgs {
 	public final Queue<String> args;
 	public final ICommandSender sender;
 	public final EntityPlayerMP senderPlayer;
+
 	public final UserIdent ident;
 
 	public final boolean isTabCompletion;
@@ -313,6 +318,62 @@ public class CommandParserArgs {
 				return ident;
 			}
 		}
+	}
+
+	public long parseTimeReadable() throws CommandException {
+		checkTabCompletion();
+		String value = remove();
+		Matcher m = timeFormatPattern.matcher(value);
+		if (!m.find()) {
+			throw new TranslatedCommandException("Invalid time format: %s", value);
+		}
+
+		long result = 0;
+
+		do {
+			long resultPart = Long.parseLong(m.group(1));
+
+			String unit = m.group(2);
+			if (unit != null) {
+				switch (unit) {
+				case "s":
+				case "second":
+				case "seconds":
+					resultPart *= 1000;
+					break;
+				case "m":
+				case "minute":
+				case "minutes":
+					resultPart *= 1000 * 60;
+					break;
+				case "h":
+				case "hour":
+				case "hours":
+					resultPart *= 1000 * 60 * 60;
+					break;
+				case "d":
+				case "day":
+				case "days":
+					resultPart *= 1000 * 60 * 60 * 24;
+					break;
+				case "w":
+				case "week":
+				case "weeks":
+					resultPart *= 1000 * 60 * 60 * 24 * 7;
+					break;
+				case "month":
+				case "months":
+					resultPart *= 1000 * 60 * 60 * 24 * 30;
+					break;
+				default:
+					throw new TranslatedCommandException("Invalid time format: %s", value);
+				}
+			}
+
+			result += resultPart;
+		} while (m.find());
+
+		return result;
 	}
 
 	public WorldServer parseWorld() throws CommandException {

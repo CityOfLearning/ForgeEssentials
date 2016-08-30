@@ -41,7 +41,8 @@ import net.minecraftforge.fml.common.registry.GameData;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
 public abstract class ServerUtil {
-	
+
+	@SuppressWarnings("unchecked")
 	public static void copyNbt(NBTTagCompound nbt, NBTTagCompound data) {
 		// Clear old data
 		for (String key : new HashSet<String>(nbt.getKeySet())) {
@@ -49,14 +50,14 @@ public abstract class ServerUtil {
 		}
 
 		// Write new data
-		for (String key : (Set<String>) data.getKeySet()) {
+		for (String key : data.getKeySet()) {
 			nbt.setTag(key, data.getTag(key));
 		}
 	}
 
 	/**
 	 * Drops the first element of the array
-	 *
+	 * 
 	 * @param array
 	 * @return
 	 */
@@ -78,7 +79,13 @@ public abstract class ServerUtil {
 	}
 
 	public static String getBlockName(Block block) {
-		return GameData.getBlockRegistry().getNameForObject(block).toString();
+		Object o = GameData.getBlockRegistry().getNameForObject(block);
+		if (o instanceof ResourceLocation) {
+			ResourceLocation rl = (ResourceLocation) o;
+			return rl.getResourcePath();
+		} else {
+			return (String) o;
+		}
 	}
 
 	public static String getBlockPermission(Block block) {
@@ -116,6 +123,8 @@ public abstract class ServerUtil {
 		return MinecraftServer.getServer().worldServers[0];
 	}
 
+	/* ------------------------------------------------------------ */
+
 	public static long getOverworldTime() {
 		return MinecraftServer.getServer().worldServers[0].getWorldInfo().getWorldTime();
 	}
@@ -124,20 +133,19 @@ public abstract class ServerUtil {
 
 	/**
 	 * Gets a type safe player list
-	 *
+	 * 
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	public static List<EntityPlayerMP> getPlayerList() {
 		MinecraftServer mc = MinecraftServer.getServer();
 		return (mc == null) || (mc.getConfigurationManager() == null) ? new ArrayList<>()
 				: mc.getConfigurationManager().playerEntityList;
 	}
 
-	/* ------------------------------------------------------------ */
-
 	/**
 	 * Server's ticks per second
-	 *
+	 * 
 	 * @return
 	 */
 	public static double getTPS() {
@@ -151,9 +159,11 @@ public abstract class ServerUtil {
 		return tps; // tps > 20 ? 20 : tps;
 	}
 
+	/* ------------------------------------------------------------ */
+
 	/**
 	 * Get's the directory where the world is saved
-	 *
+	 * 
 	 * @return
 	 */
 	public static File getWorldPath() {
@@ -163,8 +173,6 @@ public abstract class ServerUtil {
 			return MinecraftServer.getServer().getFile(MinecraftServer.getServer().getFolderName());
 		}
 	}
-
-	/* ------------------------------------------------------------ */
 
 	/**
 	 * Get tps per world.
@@ -206,7 +214,7 @@ public abstract class ServerUtil {
 
 	/**
 	 * Try to parse double or return defaultValue on failure
-	 *
+	 * 
 	 * @param value
 	 * @param defaultValue
 	 * @return parsed double or default value
@@ -224,7 +232,7 @@ public abstract class ServerUtil {
 
 	/**
 	 * Try to parse integer or return defaultValue on failure
-	 *
+	 * 
 	 * @param value
 	 * @param defaultValue
 	 * @return parsed integer or default value
@@ -242,7 +250,7 @@ public abstract class ServerUtil {
 
 	/**
 	 * Try to parse long or return defaultValue on failure
-	 *
+	 * 
 	 * @param value
 	 * @param defaultValue
 	 * @return parsed long or default value
@@ -334,7 +342,7 @@ public abstract class ServerUtil {
 
 	/**
 	 * Try to parse the string as double or return null if failed
-	 *
+	 * 
 	 * @param value
 	 * @return
 	 */
@@ -350,7 +358,7 @@ public abstract class ServerUtil {
 
 	/**
 	 * Try to parse the string as float or return null if failed
-	 *
+	 * 
 	 * @param value
 	 * @return
 	 */
@@ -364,7 +372,7 @@ public abstract class ServerUtil {
 
 	/**
 	 * Try to parse the string as integer or return null if failed
-	 *
+	 * 
 	 * @param value
 	 * @return
 	 */
@@ -378,7 +386,7 @@ public abstract class ServerUtil {
 
 	/**
 	 * Try to parse the string as long or return null if failed
-	 *
+	 * 
 	 * @param value
 	 * @return
 	 */
