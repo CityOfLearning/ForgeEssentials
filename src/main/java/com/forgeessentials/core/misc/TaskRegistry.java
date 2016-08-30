@@ -16,6 +16,21 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 public class TaskRegistry extends ServerEventHandler {
 
+	public static class RunLaterTimerTask extends TimerTask {
+
+		private Runnable task;
+
+		public RunLaterTimerTask(Runnable task) {
+			this.task = task;
+		}
+
+		@Override
+		public void run() {
+			TaskRegistry.runLater(task);
+		}
+
+	}
+
 	public static interface TickTask {
 
 		public boolean editsBlocks();

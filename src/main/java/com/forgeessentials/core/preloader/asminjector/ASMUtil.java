@@ -2,6 +2,7 @@ package com.forgeessentials.core.preloader.asminjector;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URLClassLoader;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,26 +28,22 @@ public final class ASMUtil {
 
 	public static class ClassInfo {
 
-		public static ClassInfo forName(String className) {
-			try {
-				ClassNode cn = loadClassNode(className);
-				if (cn == null) {
-					return null;
-				}
-				return new ClassInfo(cn);
-			} catch (IOException e) {
-				throw Throwables.propagate(e);
+		public static ClassInfo forName(String className) throws ClassNotFoundException {
+			ClassNode cn = getClassNode(className);
+			if (cn == null) {
+				return null;
 			}
+			return new ClassInfo(cn);
 		}
 
 		public static ClassInfo forType(Type type) {
 			try {
-				ClassNode cn = loadClassNode(type.getClassName());
+				ClassNode cn = getClassNode(type.getClassName());
 				if (cn == null) {
 					return null;
 				}
 				return new ClassInfo(cn);
-			} catch (IOException e) {
+			} catch (ClassNotFoundException e) {
 				throw Throwables.propagate(e);
 			}
 		}
@@ -81,12 +78,12 @@ public final class ASMUtil {
 				return null;
 			}
 			try {
-				ClassNode cn = loadClassNode(classNode.superName);
+				ClassNode cn = getClassNode(classNode.superName);
 				if (cn == null) {
 					return null;
 				}
 				return new ClassInfo(cn);
-			} catch (IOException e) {
+			} catch (ClassNotFoundException e) {
 				throw Throwables.propagate(e);
 			}
 		}
@@ -146,12 +143,14 @@ public final class ASMUtil {
 
 	public static Map<String, ClassNode> classCache = new HashMap<>();
 
+	private static IClassNameTransformer classNameTransformer;
+
 	public static int boolInt(boolean b) {
 		return b ? 1 : 0;
 	}
 
 	public static FieldNode findField(ClassNode classNode, String name) {
-		for (FieldNode f : (classNode.fields)) {
+		for (FieldNode f : classNode.fields) {
 			if (f.name.equals(name)) {
 				return f;
 			}
@@ -160,7 +159,7 @@ public final class ASMUtil {
 	}
 
 	public static MethodNode findMethod(ClassNode classNode, String name) {
-		for (MethodNode method : (classNode.methods)) {
+		for (MethodNode method : classNode.methods) {
 			if (method.name.equals(name)) {
 				return method;
 			}
@@ -169,7 +168,7 @@ public final class ASMUtil {
 	}
 
 	public static MethodNode findMethod(ClassNode classNode, String name, String desc) {
-		for (MethodNode method : (classNode.methods)) {
+		for (MethodNode method : classNode.methods) {
 			if (method.name.equals(name) && method.desc.equals(desc)) {
 				return method;
 			}
@@ -203,17 +202,24 @@ public final class ASMUtil {
 	}
 
 	public static IClassNameTransformer getClassNameTransformer() {
-		return FluentIterable.from(Launch.classLoader.getTransformers()).filter(IClassNameTransformer.class).first()
-				.orNull();
+		if (classNameTransformer == null) {
+			classNameTransformer = FluentIterable.from(Launch.classLoader.getTransformers())
+					.filter(IClassNameTransformer.class).first().orNull();
+		}
+		return classNameTransformer;
 	}
 
-	public static InputStream getClassResourceStream(String name) {
-		InputStream is = ASMUtil.class.getResourceAsStream("/" + resourceName(name) + ".class");
-		return is;
+	public static ClassNode getClassNode(String className) throws ClassNotFoundException {
+		ClassNode classNode = classCache.get(className);
+		if (classNode == null) {
+			classNode = loadClassNode(className, classNode);
+			// Transform class names from obfuscated to non-obfusctated ones
+			classNode.name = className;
+			classNode.superName = classNode.superName == null ? null : resourceName(transformName(classNode.superName));
+			classCache.put(className, classNode);
+		}
+		return classNode;
 	}
-
-	/* ------------------------------------------------------------ */
-	/* Node utilities */
 
 	public static int getReturnOpcodeFromType(Type type) {
 		switch (type.getSort()) {
@@ -238,6 +244,9 @@ public final class ASMUtil {
 			throw new RuntimeException("Unknown type");
 		}
 	}
+
+	/* ------------------------------------------------------------ */
+	/* Node utilities */
 
 	public static TypeAnnotationNode getTypeAnnotation(List<TypeAnnotationNode> annotations, String type) {
 		if (annotations == null) {
@@ -300,9 +309,6 @@ public final class ASMUtil {
 		return classNode;
 	}
 
-	/* ------------------------------------------------------------ */
-	/* Class loading utilities */
-
 	public static ClassNode loadClassNode(InputStream is) throws IOException {
 		ClassReader cr = new ClassReader(is);
 		ClassNode classNode = new ClassNode();
@@ -310,24 +316,30 @@ public final class ASMUtil {
 		return classNode;
 	}
 
-	public static ClassNode loadClassNode(String className) throws IOException {
-		ClassNode classNode = classCache.get(className);
-		if (classNode == null) {
-			try (InputStream is = getClassResourceStream(className)) {
-				if (is == null) {
-					return null;
-				}
-				classNode = loadClassNode(is);
+	/* ------------------------------------------------------------ */
+	/* Class loading utilities */
+
+	private static ClassNode loadClassNode(String className, ClassNode classNode) throws ClassNotFoundException {
+		try {
+			String untransformedName = untransformName(className);
+
+			byte[] classBytes = Launch.classLoader.getClassBytes(untransformedName);
+			if (classBytes != null) {
+				return loadClassNode(classBytes);
 			}
-			if (classNode != null) {
-				classCache.put(className, classNode);
+
+			URLClassLoader appClassLoader = (URLClassLoader) Launch.class.getClassLoader();
+			String resourcePath = untransformedName.replace('.', '/').concat(".class");
+			try (InputStream is = appClassLoader.getResourceAsStream(resourcePath)) {
+				return loadClassNode(is);
 			}
+		} catch (IOException e) {
+			throw new ClassNotFoundException(className);
 		}
-		return classNode;
 	}
 
-	public static ClassNode loadSuperClassNode(ClassNode c) throws IOException {
-		return c.superName == null ? null : loadClassNode(c.superName);
+	public static ClassNode loadSuperClassNode(ClassNode c) throws ClassNotFoundException {
+		return c.superName == null ? null : getClassNode(c.superName);
 	}
 
 	public static String resourceName(String javaName) {
@@ -340,6 +352,11 @@ public final class ASMUtil {
 			return value;
 		}
 		return value.substring(idx + 1);
+	}
+
+	public static String transformName(String untransformedName) {
+		IClassNameTransformer t = getClassNameTransformer();
+		return t == null ? untransformedName : t.remapClassName(resourceName(untransformedName));
 	}
 
 	public static String[] typesToClassNames(Type[] injectorArguments2) {

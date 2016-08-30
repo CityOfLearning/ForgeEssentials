@@ -13,17 +13,25 @@ import java.lang.annotation.Target;
 public @interface Mixin {
 
 	/**
-	 * Target class name(es) for this injector class
+	 * Target class name(es) for this injector class (for use with classes which
+	 * are not in project dependencies like mods)
 	 *
 	 * @return target classes for this injector class
 	 */
-	public String[] targets() default {};
+	public String[] classNames() default {};
+
+	/**
+	 * Exclude these classes from patching
+	 *
+	 * @return excluded classes for this injector class
+	 */
+	public Class<?>[] exclude() default {};
 
 	/**
 	 * Target class(es) for this injector class
 	 *
 	 * @return target classes for this injector class
 	 */
-	public Class<?>[] value();
+	public Class<?>[] value() default {};
 
 }

@@ -1,6 +1,5 @@
 package com.forgeessentials.core.preloader.asminjector;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -29,16 +28,18 @@ public class ClassInjector {
 
 	public static ClassInjector create(String className, boolean useAliases) {
 		try {
-			ClassNode classNode = ASMUtil.loadClassNode(ASMUtil.getClassResourceStream(className));
+			ClassNode classNode = ASMUtil.getClassNode(className);
 			return new ClassInjector(classNode, useAliases);
-		} catch (IOException e) {
+		} catch (ClassNotFoundException e) {
 			throw Throwables.propagate(e);
 		}
 	}
 
 	protected ClassNode injectorClass;
 
-	protected List<String> classes;
+	protected List<String> classes = new ArrayList<>();
+
+	protected List<String> excludedClasses = new ArrayList<>();
 
 	/* ------------------------------------------------------------ */
 
@@ -53,7 +54,7 @@ public class ClassInjector {
 		}
 
 		// Initialize class filter
-		classes = ASMUtil.getAnnotationValue(aMain, "targets");
+		classes = ASMUtil.getAnnotationValue(aMain, "classNames");
 		if (classes == null) {
 			classes = new ArrayList<>();
 		}
@@ -66,9 +67,17 @@ public class ClassInjector {
 			}
 		}
 
+		// Initialize exclude filter
+		List<Type> excludedClassTypes = ASMUtil.getAnnotationValue(aMain, "exclude");
+		if (excludedClassTypes != null) {
+			for (Type type : excludedClassTypes) {
+				excludedClasses.add(type.getClassName());
+			}
+		}
+
 		log.info(String.format("Scanning injector class %s", classNode.name));
 
-		for (MethodNode methodNode : (classNode.methods)) {
+		for (MethodNode methodNode : classNode.methods) {
 			AnnotationNode aInject = ASMUtil.getAnnotation(methodNode.visibleAnnotations,
 					Type.getDescriptor(Inject.class));
 			if (aInject == null) {
@@ -89,7 +98,7 @@ public class ClassInjector {
 			if (useAliases) {
 				aliases = ASMUtil.keyValueListToMap(ASMUtil.<List<String>> getAnnotationValue(aInject, "aliases"));
 			} else {
-				aliases = new HashMap<String, String>();
+				aliases = new HashMap<>();
 			}
 			if (useAliases) {
 				injectTarget = replaceAliases(injectTarget, aliases);
@@ -110,10 +119,13 @@ public class ClassInjector {
 
 	public boolean handles(String className) {
 		String normalizedName = ASMUtil.javaName(className);
+		if (excludedClasses.contains(normalizedName)) {
+			return false;
+		}
+		if (classes.size() == 0) {
+			return true;
+		}
 		for (String cls : classes) {
-			if (cls.equals("*")) {
-				return true;
-			}
 			if (normalizedName.equals(cls)) {
 				return true;
 			}
@@ -128,7 +140,7 @@ public class ClassInjector {
 			return false;
 		}
 
-		boolean genericInject = classes.contains("*");
+		boolean genericInject = classes.isEmpty();
 		if (!genericInject) {
 			log.info(String.format("Starting injection into %s", ASMUtil.javaName(target.name)));
 		}
@@ -136,7 +148,7 @@ public class ClassInjector {
 		Set<String> processedInjectors = new HashSet<>();
 
 		boolean modified = false;
-		for (MethodNode method : (target.methods)) {
+		for (MethodNode method : target.methods) {
 			Set<MethodInjector> injectors = getInjectors(method.name, method.desc);
 			if ((injectors != null) && !injectors.isEmpty()) {
 				processedInjectors.add(method.name + method.desc);
@@ -156,7 +168,7 @@ public class ClassInjector {
 			}
 			if (error) {
 				log.warn(String.format("Methods in %s", ASMUtil.javaName(target.name)));
-				for (MethodNode method : (target.methods)) {
+				for (MethodNode method : target.methods) {
 					log.warn(String.format("> %s%s", method.name, method.desc));
 				}
 			}

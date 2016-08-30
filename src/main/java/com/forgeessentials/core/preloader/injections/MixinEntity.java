@@ -11,7 +11,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fe.event.entity.EntityAttackedEvent;
 
-@Mixin(value = {}, targets = "*")
+@Mixin(exclude = { Entity.class })
 public abstract class MixinEntity extends Entity {
 
 	public MixinEntity(World world) {

@@ -49,35 +49,16 @@ public class MixinBlockFire {
 		}
 	}
 
-	@Inject(method = "updateTick(Lnet/minecraft/world/World;Lnet/minecraft/util/BlockPos;Lnet/minecraft/block/state/IBlockState;Ljava/util/Random;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;setBlockState(Lnet/minecraft/util/BlockPos;Lnet/minecraft/block/state/IBlockState;I)Z"), cancellable = true, locals = LocalCapture.CAPTURE_FAILEXCEPTION)
-	public void handleUpdateTick(World world, BlockPos source, IBlockState state, Random rnd, CallbackInfo ci,
-			Block block, boolean bool, int i) {
-		if (world.getBlockState(source.east()).getBlock().equals(block)) {
-			if (MinecraftForge.EVENT_BUS.post(new FireEvent.Spread(world, source.east(), source))) {
-				ci.cancel();
-			}
-		} else if (world.getBlockState(source.west()).getBlock().equals(block)) {
-			if (MinecraftForge.EVENT_BUS.post(new FireEvent.Spread(world, source.west(), source))) {
-				ci.cancel();
-			}
-		} else if (world.getBlockState(source.north()).getBlock().equals(block)) {
-			if (MinecraftForge.EVENT_BUS.post(new FireEvent.Spread(world, source.north(), source))) {
-				ci.cancel();
-			}
-		} else if (world.getBlockState(source.south()).getBlock().equals(block)) {
-			if (MinecraftForge.EVENT_BUS.post(new FireEvent.Spread(world, source.south(), source))) {
-				ci.cancel();
-			}
-		} else if (world.getBlockState(source.up()).getBlock().equals(block)) {
-			if (MinecraftForge.EVENT_BUS.post(new FireEvent.Spread(world, source.up(), source))) {
-				ci.cancel();
-			}
-		} else if (world.getBlockState(source.down()).getBlock().equals(block)) {
-			if (MinecraftForge.EVENT_BUS.post(new FireEvent.Spread(world, source.down(), source))) {
-				ci.cancel();
-			}
+	@Inject(method = "Lnet/minecraft/block/BlockFire;updateTick(Lnet/minecraft/world/World;Lnet/minecraft/util/BlockPos;Lnet/minecraft/block/state/IBlockState;Ljava/util/Random;)V", at = @At(ordinal = 1, value = "INVOKE", target = "Lnet/minecraft/world/World;setBlockState(Lnet/minecraft/util/BlockPos;Lnet/minecraft/block/state/IBlockState;I)Z"), cancellable = true, locals = LocalCapture.CAPTURE_FAILEXCEPTION)
+	public void updateTick(World world, BlockPos source, IBlockState state, Random rnd, CallbackInfo ci, Block block,
+			boolean isFireSource, int age, boolean isHighHumidity, int something, int x, int z, int y, int something2,
+			BlockPos pos, int neighborEncouragement, int difficultyScaling, int ageIncrement) {
+		// System.out.println(String.format("Mixin : Fire spreading to other
+		// block from [%d,%d,%d] to [%d,%d,%d]", source.getX(), source.getY(),
+		// source.getZ(), pos.getX(), pos.getY(), pos.getZ()));
+		if (MinecraftForge.EVENT_BUS.post(new FireEvent.Spread(world, pos, source))) {
+			ci.cancel();
 		}
-
 	}
 
 }
