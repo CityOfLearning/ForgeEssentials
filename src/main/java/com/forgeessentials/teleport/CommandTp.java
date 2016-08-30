@@ -37,7 +37,7 @@ public class CommandTp extends CommandTeleport implements PermissionObject {
 			if ((args.length != 2) && (args.length != 4) && (args.length != 6)) {
 				entity = getCommandSenderAsPlayer(sender);
 			} else {
-				entity = func_175768_b(sender, args[0]);
+				entity = getEntity(sender, args[0]);
 				b0 = 1;
 			}
 
@@ -106,7 +106,7 @@ public class CommandTp extends CommandTeleport implements PermissionObject {
 									Double.valueOf(argY.func_179628_a()), Double.valueOf(argZ.func_179628_a()) });
 				}
 			} else {
-				Entity targetEntity = func_175768_b(sender, args[args.length - 1]);
+				Entity targetEntity = getEntity(sender, args[args.length - 1]);
 				if (targetEntity instanceof EntityPlayerMP) {
 					WarpPoint pos = new WarpPoint(targetEntity.worldObj.provider.getDimensionId(), targetEntity.posX,
 							targetEntity.posY, targetEntity.posZ, targetEntity.rotationPitch, targetEntity.rotationYaw);
@@ -118,11 +118,11 @@ public class CommandTp extends CommandTeleport implements PermissionObject {
 
 					if (entity instanceof EntityPlayerMP) {
 						((EntityPlayerMP) entity).playerNetServerHandler.setPlayerLocation(targetEntity.posX,
-								targetEntity.posY, targetEntity.posZ, targetEntity.rotationYaw,
-								targetEntity.rotationPitch);
+								targetEntity.posY, targetEntity.posZ, targetEntity.rotationPitch,
+								targetEntity.rotationYaw);
 					} else {
 						entity.setLocationAndAngles(targetEntity.posX, targetEntity.posY, targetEntity.posZ,
-								targetEntity.rotationYaw, targetEntity.rotationPitch);
+								targetEntity.rotationPitch, targetEntity.rotationYaw);
 					}
 
 					notifyOperators(sender, this, "commands.tp.success",

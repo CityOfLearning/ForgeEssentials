@@ -36,13 +36,17 @@ public class CommandTop extends ForgeEssentialsCommandBase {
 
 	@Override
 	public String getCommandName() {
-		return "top";
+		return "fetop";
 	}
 
 	@Override
 	public String getCommandUsage(ICommandSender sender) {
-
 		return "/top <player> Teleport you or another player to the top of the world.";
+	}
+
+	@Override
+	public String[] getDefaultAliases() {
+		return new String[] { "top" };
 	}
 
 	@Override

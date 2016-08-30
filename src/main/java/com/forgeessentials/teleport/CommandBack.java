@@ -22,12 +22,17 @@ public class CommandBack extends ForgeEssentialsCommandBase {
 
 	@Override
 	public String getCommandName() {
-		return "back";
+		return "feback";
 	}
 
 	@Override
 	public String getCommandUsage(ICommandSender sender) {
 		return "/back: Teleport you to your last death or teleport location.";
+	}
+
+	@Override
+	public String[] getDefaultAliases() {
+		return new String[] { "back" };
 	}
 
 	@Override
@@ -42,9 +47,8 @@ public class CommandBack extends ForgeEssentialsCommandBase {
 
 	@Override
 	public void processCommandPlayer(EntityPlayerMP sender, String[] args) throws CommandException {
-		PlayerInfo pi;
 		try {
-			pi = PlayerInfo.get(sender.getPersistentID());
+			PlayerInfo pi = PlayerInfo.get(sender.getPersistentID());
 
 			WarpPoint point = null;
 			if (PermissionManager.checkPermission(sender, TeleportModule.PERM_BACK_ONDEATH)) {
