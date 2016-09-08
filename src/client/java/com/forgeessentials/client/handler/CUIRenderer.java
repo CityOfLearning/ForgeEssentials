@@ -23,7 +23,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(value = Side.CLIENT)
-public class CUIRenderrer implements IMessageHandler<Packet1SelectionUpdate, IMessage> {
+public class CUIRenderer implements IMessageHandler<Packet1SelectionUpdate, IMessage> {
 
 	private static final float ALPHA = .25f;
 
