@@ -32,8 +32,10 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.WorldManager;
 import net.minecraft.world.WorldProvider;
 import net.minecraft.world.WorldServer;
+import net.minecraft.world.WorldSettings;
 import net.minecraft.world.WorldType;
 import net.minecraft.world.storage.ISaveHandler;
+import net.minecraft.world.storage.WorldInfo;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.network.ForgeMessage.DimensionRegisterMessage;
@@ -333,11 +335,19 @@ public class MultiworldManager extends ServerEventHandler implements NamedWorldH
 			ISaveHandler savehandler = new MultiworldSaveHandler(overworld.getSaveHandler(), world);
 
 			// Create WorldServer with settings
-			WorldServer worldServer = new WorldServerMultiworld(mcServer, savehandler, overworld.getWorldInfo(), //
-					world.dimensionId, overworld, mcServer.theProfiler, world);
+			WorldSettings settings = new WorldSettings(world.seed, mcServer.getGameType(),
+					mcServer.canStructuresSpawn(), mcServer.isHardcore(), WorldType.parseWorldType(world.worldType));
+			WorldInfo info = new WorldInfo(settings, world.name);
+
+			WorldServer worldServer = new WorldServerMultiworld(mcServer, savehandler, info, world.dimensionId,
+					overworld, mcServer.theProfiler, world);
+
+//			WorldServer worldServer = new WorldServerMultiworld(mcServer, savehandler, overworld.getWorldInfo(), //
+//					world.dimensionId, overworld, mcServer.theProfiler, world);
 			// Overwrite dimensionId because WorldProviderEnd for example just
 			// hardcodes the dimId
 			worldServer.provider.setDimension(world.dimensionId);
+			worldServer.init();
 			worldServer.addWorldAccess(new WorldManager(mcServer, worldServer));
 
 			mcServer.setDifficultyForAllWorlds(mcServer.getDifficulty());
