@@ -15,6 +15,7 @@ import java.util.TreeMap;
 
 import org.apache.commons.io.FileUtils;
 
+import com.forgeessentials.api.APIRegistry;
 import com.forgeessentials.api.ScriptHandler;
 import com.forgeessentials.core.ForgeEssentials;
 import com.forgeessentials.core.moduleLauncher.FEModule;
@@ -120,7 +121,6 @@ public class ModuleScripting extends ServerEventHandler implements ScriptHandler
 
 	@SubscribeEvent
 	public void load(FEModuleInitEvent event) {
-		new ScriptEventHandler();
 
 		commandsDir = new File(moduleDir, "commands");
 		commandsDir.mkdirs();
@@ -153,7 +153,8 @@ public class ModuleScripting extends ServerEventHandler implements ScriptHandler
 
 	@SubscribeEvent
 	public void preLoad(FEModulePreInitEvent event) {
-		// APIRegistry.scripts = this;
+		APIRegistry.scripts = this;
+		new ScriptEventHandler();
 	}
 
 	/* ------------------------------------------------------------ */
