@@ -76,10 +76,10 @@ public class CommandTp extends CommandTeleport implements PermissionObject {
 							pos.setX(pos.getX() + entity.posX);
 						}
 						if (argY.func_179630_c()) {
-							pos.setX(pos.getY() + entity.posY);
+							pos.setY(pos.getY() + entity.posY);
 						}
 						if (argZ.func_179630_c()) {
-							pos.setX(pos.getZ() + entity.posZ);
+							pos.setZ(pos.getZ() + entity.posZ);
 						}
 						if (argPitch.func_179630_c()) {
 							pos.setPitch(pos.getPitch() + entity.rotationPitch);
