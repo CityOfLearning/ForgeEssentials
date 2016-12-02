@@ -6,7 +6,7 @@ import com.amazonaws.auth.policy.resources.S3BucketResource
 import com.amazonaws.auth.policy.resources.S3ObjectResource
 import com.amazonaws.services.s3.model.ObjectMetadata
 
-import jp.classmethod.aws.gradle.s3.AmazonS3FileUploadTask
+import jp.classmethod.aws.gradle.s3.SyncTask
 
 // Build repositories
 buildscript {
@@ -315,50 +315,27 @@ reobfClientJar.doLast {
 }
 
 //
-task publish(dependsOn:['build', 'uploadServerJar', 'uploadClientJar', 'uploadServerHash', 'uploadClientHash']) {
-
+build.doLast {
+	File serverjarFile = file(tasks.jar.archivePath)
+	File servermd5File = file('./build/libs/'+archivesBaseName +'-' + minecraft.version +'-' +version+'-server.jar.MD5')
+	File clientjarFile = file(tasks.clientJar.archivePath)
+	File clientmd5File = file('./build/libs/'+archivesBaseName +'-' + minecraft.version +'-' +version+'-client.jar.MD5')
+	serverjarFile.renameTo(file('./build/libs/' + archivesBaseName + '-server.jar'))
+	servermd5File.renameTo(file('./build/libs/' + archivesBaseName + '-server.MD5'))
+	clientjarFile.renameTo(file('./build/libs/' + archivesBaseName + '-client.jar'))
+	clientmd5File.renameTo(file('./build/libs/' + archivesBaseName + '-client.MD5'))
 }
 
-task uploadServerJar(type: AmazonS3FileUploadTask) {
-	file tasks.jar.archivePath
+task publish(type: SyncTask, dependsOn: build) {
+	source file('./build/libs/') //must be a directory
 	bucketName myBucketName
-	key archivesBaseName + '-server.jar'
-	overwrite true
 	
-	def m = new ObjectMetadata()
-	m.setCacheControl("no-cache, no-store")
-	objectMetadata = m
-}
-
-task uploadServerHash(type: AmazonS3FileUploadTask) {
-	file file('./build/libs/'+archivesBaseName +'-' + minecraft.version +'-' +version+'-server.jar.MD5') // must be a file
-	bucketName myBucketName
-	key archivesBaseName + '-server.MD5'
-	overwrite true
+	metadataProvider { bucket, key, file ->
 	
-	def m = new ObjectMetadata()
-	m.setCacheControl("no-cache, no-store")
-	objectMetadata = m
-}
-
-task uploadClientJar(type: AmazonS3FileUploadTask) {
-	file tasks.clientJar.archivePath
-	bucketName myBucketName
-	key archivesBaseName + '-client.jar'
-	overwrite true
+		ObjectMetadata m = new ObjectMetadata()
+		m.setCacheControl("no-cache, no-store")
+		return m
+	}
 	
-	def m = new ObjectMetadata()
-	m.setCacheControl("no-cache, no-store")
-	objectMetadata = m
-}
-
-task uploadClientHash(type: AmazonS3FileUploadTask) {
-	file file('./build/libs/'+archivesBaseName +'-' +minecraft.version +'-' +version+'-client.jar.MD5') // must be a file
-	bucketName myBucketName
-	key archivesBaseName + '-client.MD5'
-	overwrite true
-	
-	def m = new ObjectMetadata()
-	m.setCacheControl("no-cache, no-store")
-	objectMetadata = m
+	setAcl 'PublicRead'
 }
