@@ -9,6 +9,7 @@ import net.minecraft.world.Teleporter;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.storage.ISaveHandler;
 import net.minecraft.world.storage.WorldInfo;
+import net.minecraftforge.common.DimensionManager;
 
 public class WorldServerMultiworld extends WorldServer {
 
@@ -31,6 +32,10 @@ public class WorldServerMultiworld extends WorldServer {
 	protected void saveLevel() throws MinecraftException {
 		perWorldStorage.saveAllData();
 		saveHandler.saveWorldInfo(worldInfo);
+	}
+	
+	public void syncScoreboard(){
+		this.worldScoreboard = DimensionManager.getWorld(0).getScoreboard();
 	}
 
 }

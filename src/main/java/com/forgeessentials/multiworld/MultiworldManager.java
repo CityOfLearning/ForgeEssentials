@@ -28,6 +28,8 @@ import com.forgeessentials.util.output.LoggingHandler;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
 
+import net.minecraft.command.server.CommandScoreboard;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.WorldManager;
 import net.minecraft.world.WorldProvider;
@@ -39,6 +41,8 @@ import net.minecraft.world.storage.WorldInfo;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.network.ForgeMessage.DimensionRegisterMessage;
+import net.minecraftforge.event.CommandEvent;
+import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fe.DimensionManagerHelper;
 import net.minecraftforge.fe.event.world.WorldPreLoadEvent;
@@ -514,7 +518,7 @@ public class MultiworldManager extends ServerEventHandler implements NamedWorldH
 		for (Iterator<WorldServer> it = worldsToRemove.iterator(); it.hasNext();) {
 			WorldServer world = it.next();
 			// Check with DimensionManager, whether the world is still loaded
-			if (DimensionManager.getWorld(world.provider.getDimensionId()) == null) {
+			if (world != null && DimensionManager.getWorld(world.provider.getDimensionId()) == null) {
 				if (DimensionManager.isDimensionRegistered(world.provider.getDimensionId())) {
 					DimensionManager.unregisterDimension(world.provider.getDimensionId());
 				}
@@ -551,4 +555,12 @@ public class MultiworldManager extends ServerEventHandler implements NamedWorldH
 		}
 	}
 
+	@SubscribeEvent
+	public void scoreboardAltered(CommandEvent event){
+		if(event.command instanceof CommandScoreboard){
+			for(Multiworld world : worlds.values()){
+				((WorldServerMultiworld) world.getWorldServer()).syncScoreboard();
+			}
+		}
+	}
 }
