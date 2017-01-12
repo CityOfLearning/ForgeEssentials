@@ -41,7 +41,7 @@ public class CommandSpawn extends ForgeEssentialsCommandBase {
 
 	@Override
 	public String getCommandName() {
-		return "spawn";
+		return "fespawn";
 	}
 
 	@Override
@@ -51,6 +51,11 @@ public class CommandSpawn extends ForgeEssentialsCommandBase {
 		} else {
 			return "/spawn <player> Teleport a player to their spawn point.";
 		}
+	}
+
+	@Override
+	public String[] getDefaultAliases() {
+		return new String[] { "spawn" };
 	}
 
 	@Override
@@ -108,7 +113,6 @@ public class CommandSpawn extends ForgeEssentialsCommandBase {
 			if (point == null) {
 				throw new TranslatedCommandException("There is no spawnpoint set for that player.");
 			}
-
 			try {
 				PlayerInfo.get(player.getPersistentID()).setLastTeleportOrigin(new WarpPoint(player));
 			} catch (Exception e) {
@@ -118,4 +122,5 @@ public class CommandSpawn extends ForgeEssentialsCommandBase {
 			TeleportHelper.teleport(player, point);
 		}
 	}
+
 }

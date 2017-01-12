@@ -1,7 +1,8 @@
 package com.forgeessentials.commands.world;
 
 import com.forgeessentials.api.UserIdent;
-import com.forgeessentials.commands.util.FEcmdModuleCommands;
+import com.forgeessentials.commands.ModuleCommands;
+import com.forgeessentials.core.commands.ForgeEssentialsCommandBase;
 import com.forgeessentials.core.misc.TranslatedCommandException;
 import com.forgeessentials.util.output.ChatOutputHandler;
 
@@ -21,7 +22,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 import net.minecraftforge.permission.PermissionLevel;
 
-public class CommandPush extends FEcmdModuleCommands {
+public class CommandPush extends ForgeEssentialsCommandBase {
 
 	@Override
 	public boolean canConsoleUseCommand() {
@@ -69,17 +70,27 @@ public class CommandPush extends FEcmdModuleCommands {
 
 	@Override
 	public String getCommandName() {
-		return "push";
+		return "fepush";
 	}
 
 	@Override
 	public String getCommandUsage(ICommandSender par1ICommandSender) {
-		return "/push <X> <Y> <Z>";
+		return "/push <X> <Y> <Z>: Push a button or pressureplate somewhere";
+	}
+
+	@Override
+	public String[] getDefaultAliases() {
+		return new String[] { "push" };
 	}
 
 	@Override
 	public PermissionLevel getPermissionLevel() {
 		return PermissionLevel.TRUE;
+	}
+
+	@Override
+	public String getPermissionNode() {
+		return ModuleCommands.PERM + ".push";
 	}
 
 	@Override

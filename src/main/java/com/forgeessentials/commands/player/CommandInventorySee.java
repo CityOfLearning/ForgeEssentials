@@ -3,8 +3,9 @@ package com.forgeessentials.commands.player;
 import java.util.List;
 
 import com.forgeessentials.api.UserIdent;
-import com.forgeessentials.commands.util.FEcmdModuleCommands;
+import com.forgeessentials.commands.ModuleCommands;
 import com.forgeessentials.commands.util.PlayerInvChest;
+import com.forgeessentials.core.commands.ForgeEssentialsCommandBase;
 import com.forgeessentials.core.misc.TranslatedCommandException;
 
 import net.minecraft.command.CommandException;
@@ -16,10 +17,8 @@ import net.minecraftforge.permission.PermissionLevel;
 
 /**
  * Opens other player inventory.
- *
- * @author Dries007
  */
-public class CommandInventorySee extends FEcmdModuleCommands {
+public class CommandInventorySee extends ForgeEssentialsCommandBase {
 
 	public CommandInventorySee() {
 	}
@@ -41,7 +40,7 @@ public class CommandInventorySee extends FEcmdModuleCommands {
 
 	@Override
 	public String getCommandName() {
-		return "invsee";
+		return "feinvsee";
 	}
 
 	@Override
@@ -50,8 +49,18 @@ public class CommandInventorySee extends FEcmdModuleCommands {
 	}
 
 	@Override
+	public String[] getDefaultAliases() {
+		return new String[] { "invsee" };
+	}
+
+	@Override
 	public PermissionLevel getPermissionLevel() {
 		return PermissionLevel.OP;
+	}
+
+	@Override
+	public String getPermissionNode() {
+		return ModuleCommands.PERM + ".invsee";
 	}
 
 	@Override

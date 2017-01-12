@@ -15,7 +15,7 @@ import com.google.inject.Inject;
  *
  * Watch this space, more to come.
  */
-@Plugin(id = "com.forgeessentials", name = "FESpongeCompatibility", version = BuildInfo.BASE_VERSION, description = "Adding sponge compatibility to foregeessentials")
+@Plugin(id = "forgeessentials", name = "FESpongeCompat", version = BuildInfo.BASE_VERSION)
 public class FESpongeCompat {
 
 	@Inject

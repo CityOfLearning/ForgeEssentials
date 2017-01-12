@@ -81,6 +81,7 @@ import net.minecraftforge.event.world.BlockEvent.BreakEvent;
 import net.minecraftforge.event.world.BlockEvent.HarvestDropsEvent;
 import net.minecraftforge.event.world.ExplosionEvent;
 import net.minecraftforge.fe.event.entity.EntityAttackedEvent;
+import net.minecraftforge.fe.event.entity.FallOnBlockEvent;
 import net.minecraftforge.fe.event.world.FireEvent;
 import net.minecraftforge.fe.event.world.PressurePlateEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
@@ -171,9 +172,8 @@ public class ProtectionEventHandler extends ServerEventHandler {
 	/* Block permissions */
 
 	private static void sendZoneDeniedMessage(EntityPlayer player) {
-		PlayerInfo pi;
 		try {
-			pi = PlayerInfo.get(player);
+			PlayerInfo pi = PlayerInfo.get(player);
 			if (pi.checkTimeout("zone_denied_message")) {
 				ChatOutputHandler.chatError(player, ModuleProtection.MSG_ZONE_DENIED);
 				pi.startTimeout("zone_denied_message", 4000);
@@ -206,21 +206,25 @@ public class ProtectionEventHandler extends ServerEventHandler {
 	}
 
 	public static void updateBrokenTileEntity(final EntityPlayerMP player, final TileEntity te) {
-		if (player == null) {
+		if ((player == null) || (player.playerNetServerHandler == null)) {
 			return;
 		}
-		final Packet packet = te.getDescriptionPacket();
+		final Packet<?> packet = te.getDescriptionPacket();
 		if (packet == null) {
 			return;
 		}
-		TaskRegistry.runLater(() -> player.playerNetServerHandler.sendPacket(packet));
+		TaskRegistry.runLater(() -> {
+			if (player.playerNetServerHandler != null) {
+				player.playerNetServerHandler.sendPacket(packet);
+			}
+		});
 	}
 
 	private boolean checkMajoritySleep;
 
-	/* ------------------------------------------------------------ */
-
 	private Set<Entity> attackedEntities = new HashSet<>();
+
+	/* ------------------------------------------------------------ */
 
 	private HashMap<UUID, List<ZoneEffect>> zoneEffects = new HashMap<>();
 
@@ -251,7 +255,7 @@ public class ProtectionEventHandler extends ServerEventHandler {
 		handleDamageToEntityEvent(event, event.target, sourceIdent);
 	}
 
-	@SubscribeEvent(priority = EventPriority.NORMAL)
+	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public void breakEvent(BreakEvent event) {
 		if (FMLCommonHandler.instance().getEffectiveSide().isClient()) {
 			return;
@@ -259,9 +263,10 @@ public class ProtectionEventHandler extends ServerEventHandler {
 
 		UserIdent ident = UserIdent.get(event.getPlayer());
 		IBlockState blockState = event.world.getBlockState(event.pos);
+		WorldPoint point = new WorldPoint(event);
+
 		String permission = ModuleProtection.getBlockBreakPermission(blockState);
 		ModuleProtection.debugPermission(event.getPlayer(), permission);
-		WorldPoint point = new WorldPoint(event);
 		if (!APIRegistry.perms.checkUserPermission(ident, point, permission)) {
 			event.setCanceled(true);
 			TileEntity te = event.world.getTileEntity(event.pos);
@@ -271,18 +276,17 @@ public class ProtectionEventHandler extends ServerEventHandler {
 			try {
 				if (PlayerInfo.get(ident).getHasFEClient()) {
 					int blockId = GameData.getBlockRegistry().getId(blockState.getBlock());
-					Set<Integer> ids = new HashSet<Integer>();
+					Set<Integer> ids = new HashSet<>();
 					ids.add(blockId);
 					NetworkUtils.netHandler.sendTo(new Packet3PlayerPermissions(false, null, ids), ident.getPlayerMP());
 				}
+
 			} catch (Exception e) {
 				LoggingHandler.felog.error("Error getting player Info");
 			}
 			return;
 		}
 	}
-
-	/* ------------------------------------------------------------ */
 
 	private void checkMajoritySleep() {
 		if (!checkMajoritySleep) {
@@ -320,7 +324,9 @@ public class ProtectionEventHandler extends ServerEventHandler {
 		}
 	}
 
-	@SubscribeEvent(priority = EventPriority.NORMAL)
+	/* ------------------------------------------------------------ */
+
+	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public void checkSpawnEvent(CheckSpawn event) {
 		if (FMLCommonHandler.instance().getEffectiveSide().isClient()) {
 			return;
@@ -342,8 +348,6 @@ public class ProtectionEventHandler extends ServerEventHandler {
 		}
 	}
 
-	/* ------------------------------------------------------------ */
-
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public void entityAttackedEvent(EntityAttackedEvent event) {
 		if (FMLCommonHandler.instance().getEffectiveSide().isClient() || (event.source.getEntity() == null)) {
@@ -358,6 +362,8 @@ public class ProtectionEventHandler extends ServerEventHandler {
 		handleDamageToEntityEvent(event, event.entity, ident);
 	}
 
+	/* ------------------------------------------------------------ */
+
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public void entityInteractEvent(EntityInteractEvent event) {
 		if (FMLCommonHandler.instance().getEffectiveSide().isClient()) {
@@ -366,6 +372,7 @@ public class ProtectionEventHandler extends ServerEventHandler {
 
 		UserIdent ident = UserIdent.get(event.entityPlayer);
 		WorldPoint point = new WorldPoint(event.target);
+
 		String permission = ModuleProtection.PERM_INTERACT_ENTITY + "." + EntityList.getEntityString(event.target);
 		ModuleProtection.debugPermission(event.entityPlayer, permission);
 		if (!APIRegistry.perms.checkUserPermission(ident, point, permission)) {
@@ -373,9 +380,6 @@ public class ProtectionEventHandler extends ServerEventHandler {
 			return;
 		}
 	}
-
-	/* ------------------------------------------------------------ */
-	/* inventory / item permissions */
 
 	@SubscribeEvent(priority = EventPriority.LOWEST)
 	public void entityJoinWorldEvent(EntityJoinWorldEvent event) {
@@ -398,8 +402,10 @@ public class ProtectionEventHandler extends ServerEventHandler {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
-	@SubscribeEvent(priority = EventPriority.NORMAL)
+	/* ------------------------------------------------------------ */
+	/* inventory / item permissions */
+
+	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public void explosionDetonateEvent(ExplosionEvent.Detonate event) {
 		if (FMLCommonHandler.instance().getEffectiveSide().isClient()) {
 			return;
@@ -424,7 +430,7 @@ public class ProtectionEventHandler extends ServerEventHandler {
 		}
 	}
 
-	@SubscribeEvent(priority = EventPriority.NORMAL)
+	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public void explosionStartEvent(ExplosionEvent.Start event) {
 		if (FMLCommonHandler.instance().getEffectiveSide().isClient()) {
 			return;
@@ -473,7 +479,28 @@ public class ProtectionEventHandler extends ServerEventHandler {
 		}
 	}
 
-	@SubscribeEvent(priority = EventPriority.HIGH)
+	@SubscribeEvent(priority = EventPriority.HIGHEST)
+	public void fallOnBlockEvent(FallOnBlockEvent event) {
+		if (FMLCommonHandler.instance().getEffectiveSide().isClient()) {
+			return;
+		}
+		if (event.fallHeight < 0.5) {
+			return;
+		}
+
+		EntityPlayerMP player = (event.entity instanceof EntityPlayerMP) ? (EntityPlayerMP) event.entity : null;
+		UserIdent ident = player == null ? null : UserIdent.get(player);
+		WorldPoint point = new WorldPoint(event.world, event.pos);
+
+		String permission = ModuleProtection.getBlockTramplePermission(event.world.getBlockState(event.pos));
+		ModuleProtection.debugPermission(player, permission);
+		if (!APIRegistry.perms.checkUserPermission(ident, point, permission)) {
+			event.setCanceled(true);
+			return;
+		}
+	}
+
+	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public void fireEvent(FireEvent event) {
 		if (FMLCommonHandler.instance().getEffectiveSide().isClient()) {
 			return;
@@ -600,7 +627,8 @@ public class ProtectionEventHandler extends ServerEventHandler {
 			// living -> player (fall-damage, mob, dispenser, lava)
 			EntityPlayer target = (EntityPlayer) event.entityLiving;
 			{
-				String permission = ModuleProtection.PERM_DAMAGE_BY + "." + event.source.damageType;
+				String permission = event.source.isExplosion() ? ModuleProtection.PERM_DAMAGE_BY + ".explosion"
+						: ModuleProtection.PERM_DAMAGE_BY + "." + event.source.damageType;
 				ModuleProtection.debugPermission(target, permission);
 				if (!APIRegistry.perms.checkUserPermission(UserIdent.get(target), permission)) {
 					event.setCanceled(true);
@@ -676,9 +704,10 @@ public class ProtectionEventHandler extends ServerEventHandler {
 
 		UserIdent ident = UserIdent.get(event.player);
 		IBlockState blockState = event.world.getBlockState(event.pos);
+		WorldPoint point = new WorldPoint(event.player.dimension, event.pos);
+
 		String permission = ModuleProtection.getBlockPlacePermission(blockState);
 		ModuleProtection.debugPermission(event.player, permission);
-		WorldPoint point = new WorldPoint(event.player.dimension, event.pos);
 		if (!APIRegistry.perms.checkUserPermission(ident, point, permission)) {
 			event.setCanceled(true);
 		}
@@ -742,13 +771,10 @@ public class ProtectionEventHandler extends ServerEventHandler {
 		}
 
 		// Apply inventory-group
-		PlayerInfo pi;
 		try {
-			pi = PlayerInfo.get(player);
-
+			PlayerInfo pi = PlayerInfo.get(player);
 			pi.setInventoryGroup(inventoryGroup);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			LoggingHandler.felog.error("Error getting player Info");
 		}
 		checkPlayerInventory(player);
@@ -854,7 +880,7 @@ public class ProtectionEventHandler extends ServerEventHandler {
 			try {
 				if (!allow && PlayerInfo.get(ident).getHasFEClient()) {
 					int itemId = GameData.getItemRegistry().getId(stack.getItem());
-					Set<Integer> ids = new HashSet<Integer>();
+					Set<Integer> ids = new HashSet<>();
 					ids.add(itemId);
 					NetworkUtils.netHandler.sendTo(new Packet3PlayerPermissions(false, ids, null), ident.getPlayerMP());
 				}
@@ -940,10 +966,9 @@ public class ProtectionEventHandler extends ServerEventHandler {
 			}
 		} catch (Exception e) {
 			LoggingHandler.felog.error("Error getting player Info");
-			return;
 		}
 
-		Set<Integer> placeIds = new HashSet<Integer>();
+		Set<Integer> placeIds = new HashSet<>();
 
 		ModulePermissions.permissionHelper.disableDebugMode(true);
 
@@ -992,7 +1017,7 @@ public class ProtectionEventHandler extends ServerEventHandler {
 		}
 	}
 
-	@SubscribeEvent(priority = EventPriority.NORMAL)
+	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public void specialSpawnEvent(SpecialSpawn event) {
 		if (FMLCommonHandler.instance().getEffectiveSide().isClient()) {
 			return;

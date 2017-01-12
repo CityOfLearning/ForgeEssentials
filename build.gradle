@@ -1,3 +1,13 @@
+import com.amazonaws.auth.policy.Policy
+import com.amazonaws.auth.policy.Principal
+import com.amazonaws.auth.policy.Statement
+import com.amazonaws.auth.policy.actions.S3Actions
+import com.amazonaws.auth.policy.resources.S3BucketResource
+import com.amazonaws.auth.policy.resources.S3ObjectResource
+import com.amazonaws.services.s3.model.ObjectMetadata
+
+import jp.classmethod.aws.gradle.s3.SyncTask
+
 // Build repositories
 buildscript {
 	repositories {
@@ -17,6 +27,7 @@ buildscript {
 	dependencies {
 		classpath "net.minecraftforge.gradle:ForgeGradle:2.1-SNAPSHOT"
         classpath 'org.spongepowered:mixingradle:0.4-SNAPSHOT'
+		classpath "jp.classmethod.aws:gradle-aws-plugin:0.+"
 	}
 
 }
@@ -37,6 +48,14 @@ apply plugin: 'net.minecraftforge.gradle.forge'
 apply plugin: 'org.spongepowered.mixin'
 //we have to do this for jitpack
 apply plugin: 'maven'
+apply plugin: "jp.classmethod.aws.s3"
+
+aws {
+	profileName = "minecraft"
+	region = "us-east-1"
+}
+
+def myBucketName = 'broad-participation'
 
 /************************************************************
  * General configuration
@@ -59,10 +78,10 @@ targetCompatibility = 1.8
 
 // Set up forge options
 minecraft {
-	version = "1.8.9-11.15.1.1855"
+	version = "1.8.9-11.15.1.1902-1.8.9"
 	runDir = "rundir"
 	
-	mappings = "stable_20"
+	mappings = "stable_22"
 	makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
 
 
@@ -293,4 +312,30 @@ reobfJar.doLast {
 
 reobfClientJar.doLast {
     ant.checksum file: tasks.clientJar.archivePath
+}
+
+//
+build.doLast {
+	File serverjarFile = file(tasks.jar.archivePath)
+	File servermd5File = file('./build/libs/'+archivesBaseName +'-' + minecraft.version +'-' +version+'-server.jar.MD5')
+	File clientjarFile = file(tasks.clientJar.archivePath)
+	File clientmd5File = file('./build/libs/'+archivesBaseName +'-' + minecraft.version +'-' +version+'-client.jar.MD5')
+	serverjarFile.renameTo(file('./build/libs/' + archivesBaseName + '-server.jar'))
+	servermd5File.renameTo(file('./build/libs/' + archivesBaseName + '-server.MD5'))
+	clientjarFile.renameTo(file('./build/libs/' + archivesBaseName + '-client.jar'))
+	clientmd5File.renameTo(file('./build/libs/' + archivesBaseName + '-client.MD5'))
+}
+
+task publish(type: SyncTask, dependsOn: build) {
+	source file('./build/libs/') //must be a directory
+	bucketName myBucketName
+	
+	metadataProvider { bucket, key, file ->
+	
+		ObjectMetadata m = new ObjectMetadata()
+		m.setCacheControl("no-cache, no-store")
+		return m
+	}
+	
+	setAcl 'PublicRead'
 }

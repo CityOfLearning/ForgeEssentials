@@ -31,7 +31,6 @@ import com.forgeessentials.util.output.LoggingHandler;
 import com.google.common.collect.ImmutableMap;
 
 import net.minecraft.command.CommandException;
-import net.minecraft.command.CommandHandler;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -249,7 +248,7 @@ public final class ScriptMethods {
 			}
 		}
 	};
-	
+
 	public static final ScriptMethod userpermcheck = new ScriptMethod() {
 		@Override
 		public String getHelp() {
@@ -260,18 +259,18 @@ public final class ScriptMethods {
 
 		@Override
 		public boolean process(ICommandSender sender, String[] args) {
-			
+
 			String user = args[0];
 			String[] astring = new String[args.length - 1];
-	        System.arraycopy(args, 1, astring, 0, args.length - 1);
-	        args =  astring;
+			System.arraycopy(args, 1, astring, 0, args.length - 1);
+			args = astring;
 
 			EntityPlayerMP player = MinecraftServer.getServer().getConfigurationManager().getPlayerByUsername(user);
-			
+
 			if (player == null) {
 				throw new SyntaxException("Missing player argument for teleport");
 			}
-			
+
 			if (getPermcheckResult(player, args)) {
 				return true;
 			}

@@ -45,13 +45,18 @@ public class CommandBed extends ForgeEssentialsCommandBase {
 
 	@Override
 	public String getCommandName() {
-		return "bed";
+		return "febed";
 	}
 
 	@Override
 	public String getCommandUsage(ICommandSender sender) {
 
-		return "/bed [player] Teleport you or another player to the bed last used.";
+		return "/bed [player]: Teleport you or another player to the bed last used.";
+	}
+
+	@Override
+	public String[] getDefaultAliases() {
+		return new String[] { "bed" };
 	}
 
 	@Override
@@ -109,14 +114,15 @@ public class CommandBed extends ForgeEssentialsCommandBase {
 		if (spawn == null) {
 			throw new TranslatedCommandException("Your bed has been obstructed.");
 		}
-
 		try {
 			PlayerInfo.get(player.getPersistentID()).setLastTeleportOrigin(new WarpPoint(player));
 		} catch (Exception e) {
 			LoggingHandler.felog.error("Error getting player Info");
 		}
+
 		WarpPoint spawnPoint = new WarpPoint(world.provider.getDimensionId(), spawn, player.rotationPitch,
 				player.rotationYaw);
 		TeleportHelper.teleport(player, spawnPoint);
 	}
+
 }

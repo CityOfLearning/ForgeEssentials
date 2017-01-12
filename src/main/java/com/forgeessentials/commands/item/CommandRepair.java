@@ -4,7 +4,8 @@ import java.util.List;
 
 import com.forgeessentials.api.APIRegistry;
 import com.forgeessentials.api.UserIdent;
-import com.forgeessentials.commands.util.FEcmdModuleCommands;
+import com.forgeessentials.commands.ModuleCommands;
+import com.forgeessentials.core.commands.ForgeEssentialsCommandBase;
 import com.forgeessentials.core.misc.TranslatedCommandException;
 
 import net.minecraft.command.CommandException;
@@ -17,7 +18,8 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.permission.PermissionLevel;
 import net.minecraftforge.permission.PermissionManager;
 
-public class CommandRepair extends FEcmdModuleCommands {
+public class CommandRepair extends ForgeEssentialsCommandBase {
+
 	@Override
 	public List<String> addTabCompletionOptions(ICommandSender sender, String[] args, BlockPos pos) {
 		if (args.length == 1) {
@@ -35,7 +37,7 @@ public class CommandRepair extends FEcmdModuleCommands {
 
 	@Override
 	public String getCommandName() {
-		return "repair";
+		return "ferepair";
 	}
 
 	@Override
@@ -49,8 +51,18 @@ public class CommandRepair extends FEcmdModuleCommands {
 	}
 
 	@Override
+	public String[] getDefaultAliases() {
+		return new String[] { "repair" };
+	}
+
+	@Override
 	public PermissionLevel getPermissionLevel() {
 		return PermissionLevel.OP;
+	}
+
+	@Override
+	public String getPermissionNode() {
+		return ModuleCommands.PERM + ".repair";
 	}
 
 	@Override

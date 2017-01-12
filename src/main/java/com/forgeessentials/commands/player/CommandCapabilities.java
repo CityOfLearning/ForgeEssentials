@@ -7,7 +7,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.forgeessentials.api.APIRegistry;
 import com.forgeessentials.api.UserIdent;
-import com.forgeessentials.commands.util.FEcmdModuleCommands;
+import com.forgeessentials.commands.ModuleCommands;
+import com.forgeessentials.core.commands.ForgeEssentialsCommandBase;
 import com.forgeessentials.core.misc.TranslatedCommandException;
 import com.forgeessentials.core.misc.Translator;
 import com.forgeessentials.util.output.ChatOutputHandler;
@@ -23,15 +24,13 @@ import net.minecraftforge.permission.PermissionManager;
 
 /**
  * Allows you to modify a bunch of interesting stuff...
- *
- * @author Dries007
  */
 
-public class CommandCapabilities extends FEcmdModuleCommands {
+public class CommandCapabilities extends ForgeEssentialsCommandBase {
 	public static ArrayList<String> names;
 
 	static {
-		names = new ArrayList<String>();
+		names = new ArrayList<>();
 		names.add("disabledamage");
 		names.add("isflying");
 		names.add("allowflying");
@@ -60,7 +59,7 @@ public class CommandCapabilities extends FEcmdModuleCommands {
 
 	@Override
 	public String getCommandName() {
-		return "capabilities";
+		return "fecapabilities";
 	}
 
 	@Override
@@ -69,8 +68,18 @@ public class CommandCapabilities extends FEcmdModuleCommands {
 	}
 
 	@Override
+	public String[] getDefaultAliases() {
+		return new String[] { "capabilities" };
+	}
+
+	@Override
 	public PermissionLevel getPermissionLevel() {
 		return PermissionLevel.OP;
+	}
+
+	@Override
+	public String getPermissionNode() {
+		return ModuleCommands.PERM + ".capabilities";
 	}
 
 	@Override

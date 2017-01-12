@@ -15,8 +15,9 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import com.forgeessentials.api.APIRegistry;
-import com.forgeessentials.commands.util.FEcmdModuleCommands;
+import com.forgeessentials.commands.ModuleCommands;
 import com.forgeessentials.core.ForgeEssentials;
+import com.forgeessentials.core.commands.ForgeEssentialsCommandBase;
 import com.forgeessentials.core.misc.FECommandManager.ConfigurableCommand;
 import com.forgeessentials.core.misc.TranslatedCommandException;
 import com.forgeessentials.core.misc.Translator;
@@ -38,7 +39,7 @@ import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.permission.PermissionLevel;
 import net.minecraftforge.permission.PermissionManager;
 
-public class CommandRules extends FEcmdModuleCommands implements ConfigurableCommand {
+public class CommandRules extends ForgeEssentialsCommandBase implements ConfigurableCommand {
 
 	public static final String[] autocomargs = { "add", "remove", "move", "change", "book" };
 	public static ArrayList<String> rules;
@@ -49,13 +50,13 @@ public class CommandRules extends FEcmdModuleCommands implements ConfigurableCom
 		if (args.length == 1) {
 			return getListOfStringsMatchingLastWord(args, autocomargs);
 		} else if (args.length == 2) {
-			List<String> opt = new ArrayList<String>();
+			List<String> opt = new ArrayList<>();
 			for (int i = 1; i < (rules.size() + 1); i++) {
 				opt.add(i + "");
 			}
 			return opt;
 		} else if ((args.length == 3) && args[0].equalsIgnoreCase("move")) {
-			List<String> opt = new ArrayList<String>();
+			List<String> opt = new ArrayList<>();
 			for (int i = 1; i < (rules.size() + 2); i++) {
 				opt.add(i + "");
 			}
@@ -72,7 +73,7 @@ public class CommandRules extends FEcmdModuleCommands implements ConfigurableCom
 
 	@Override
 	public String getCommandName() {
-		return "rules";
+		return "ferules";
 	}
 
 	@Override
@@ -86,8 +87,18 @@ public class CommandRules extends FEcmdModuleCommands implements ConfigurableCom
 	}
 
 	@Override
+	public String[] getDefaultAliases() {
+		return new String[] { "rules" };
+	}
+
+	@Override
 	public PermissionLevel getPermissionLevel() {
 		return PermissionLevel.TRUE;
+	}
+
+	@Override
+	public String getPermissionNode() {
+		return ModuleCommands.PERM + ".rules";
 	}
 
 	@Override
@@ -103,7 +114,7 @@ public class CommandRules extends FEcmdModuleCommands implements ConfigurableCom
 	}
 
 	public ArrayList<String> loadRules() {
-		ArrayList<String> rules = new ArrayList<String>();
+		ArrayList<String> rules = new ArrayList<>();
 
 		if (!rulesFile.exists()) {
 			LoggingHandler.felog.info("No rules file found. Generating with default rules..");
@@ -220,14 +231,14 @@ public class CommandRules extends FEcmdModuleCommands implements ConfigurableCom
 			NBTTagCompound tag = new NBTTagCompound();
 			NBTTagList pages = new NBTTagList();
 
-			HashMap<String, String> map = new HashMap<String, String>();
+			HashMap<String, String> map = new HashMap<>();
 
 			for (int i = 0; i < rules.size(); i++) {
 				map.put(EnumChatFormatting.UNDERLINE + "Rule #" + (i + 1) + "\n\n",
 						EnumChatFormatting.RESET + ChatOutputHandler.formatColors(rules.get(i)));
 			}
 
-			SortedSet<String> keys = new TreeSet<String>(map.keySet());
+			SortedSet<String> keys = new TreeSet<>(map.keySet());
 			for (String name : keys) {
 				pages.appendTag(new NBTTagString(name + map.get(name)));
 			}

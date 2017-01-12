@@ -37,7 +37,7 @@ public class CommandHome extends ForgeEssentialsCommandBase {
 
 	@Override
 	public String getCommandName() {
-		return "home";
+		return "fehome";
 	}
 
 	@Override
@@ -47,6 +47,11 @@ public class CommandHome extends ForgeEssentialsCommandBase {
 		} else {
 			return null;
 		}
+	}
+
+	@Override
+	public String[] getDefaultAliases() {
+		return new String[] { "home" };
 	}
 
 	@Override
@@ -62,9 +67,8 @@ public class CommandHome extends ForgeEssentialsCommandBase {
 	@Override
 	public void processCommandPlayer(EntityPlayerMP sender, String[] args) throws CommandException {
 		if (args.length == 0) {
-			WarpPoint home;
 			try {
-				home = PlayerInfo.get(sender.getPersistentID()).getHome();
+				WarpPoint home = PlayerInfo.get(sender.getPersistentID()).getHome();
 
 				if (home == null) {
 					throw new TranslatedCommandException("No home set. Use \"/home set\" first.");
@@ -90,9 +94,8 @@ public class CommandHome extends ForgeEssentialsCommandBase {
 				}
 
 				WarpPoint p = new WarpPoint(sender);
-				PlayerInfo info;
 				try {
-					info = PlayerInfo.get(player.getPersistentID());
+					PlayerInfo info = PlayerInfo.get(player.getPersistentID());
 
 					info.setHome(p);
 					info.save();

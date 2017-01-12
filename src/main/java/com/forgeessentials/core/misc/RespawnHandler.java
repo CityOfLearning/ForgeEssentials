@@ -67,9 +67,15 @@ public class RespawnHandler {
 		String spawnProperty = APIRegistry.perms.getPermission(ident, location == null ? null : location.toWorldPoint(),
 				null, GroupEntry.toList(APIRegistry.perms.getPlayerGroups(ident)), FEPermissions.SPAWN_LOC, true);
 		if (spawnProperty != null) {
-			WorldPoint point = WorldPoint.fromString(spawnProperty);
+			WarpPoint point = WarpPoint.fromString(spawnProperty);
+			if (point == null) {
+				WorldPoint worldPoint = WorldPoint.fromString(spawnProperty);
+				if (worldPoint != null) {
+					point = new WarpPoint(worldPoint, player.cameraYaw, player.cameraPitch);
+				}
+			}
 			if (point != null) {
-				return new WarpPoint(point, player.cameraYaw, player.cameraPitch);
+				return point;
 			}
 		}
 		return new WarpPoint(0, player.worldObj.getSpawnPoint(), player.cameraYaw, player.cameraPitch);
@@ -101,10 +107,8 @@ public class RespawnHandler {
 		EntityPlayerMP player = (EntityPlayerMP) event.player;
 		player.playerNetServerHandler.playerEntity = player;
 
-		WarpPoint lastDeathLocation;
 		try {
-			lastDeathLocation = PlayerInfo.get(player.getPersistentID()).getLastDeathLocation();
-
+			WarpPoint lastDeathLocation = PlayerInfo.get(player.getPersistentID()).getLastDeathLocation();
 			if (lastDeathLocation == null) {
 				lastDeathLocation = new WarpPoint(player);
 			}
@@ -122,12 +126,11 @@ public class RespawnHandler {
 	public void onPlayerDeath(LivingDeathEvent e) {
 		if (e.entityLiving instanceof EntityPlayerMP) {
 			EntityPlayerMP player = (EntityPlayerMP) e.entityLiving;
-			PlayerInfo pi;
 			try {
-				pi = PlayerInfo.get(player.getPersistentID());
+				PlayerInfo pi = PlayerInfo.get(player.getPersistentID());
 				pi.setLastDeathLocation(new WarpPoint(player));
 				pi.setLastTeleportOrigin(pi.getLastDeathLocation());
-			} catch (Exception e1) {
+			} catch (Exception ex) {
 				LoggingHandler.felog.error("Error getting player Info");
 			}
 		}

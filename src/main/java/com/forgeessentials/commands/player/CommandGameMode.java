@@ -4,13 +4,13 @@ import java.util.List;
 
 import com.forgeessentials.api.APIRegistry;
 import com.forgeessentials.api.UserIdent;
-import com.forgeessentials.commands.util.FEcmdModuleCommands;
+import com.forgeessentials.commands.ModuleCommands;
+import com.forgeessentials.core.commands.ForgeEssentialsCommandBase;
 import com.forgeessentials.core.misc.Translator;
 import com.forgeessentials.util.output.ChatOutputHandler;
 
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
-import net.minecraft.command.NumberInvalidException;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.BlockPos;
@@ -19,11 +19,12 @@ import net.minecraft.world.WorldSettings;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.permission.PermissionLevel;
 
-public class CommandGameMode extends FEcmdModuleCommands {
+public class CommandGameMode extends ForgeEssentialsCommandBase {
 	@Override
 	public List<String> addTabCompletionOptions(ICommandSender sender, String[] args, BlockPos pos) {
 		if (args.length == 1) {
-			return getListOfStringsMatchingLastWord(args, new String[] { "survival", "creative", "adventure", "spectator" });
+			return getListOfStringsMatchingLastWord(args,
+					new String[] { "survival", "creative", "adventure", "spectator" });
 		} else {
 			return getListOfStringsMatchingLastWord(args,
 					FMLCommonHandler.instance().getMinecraftServerInstance().getAllUsernames());
@@ -52,7 +53,7 @@ public class CommandGameMode extends FEcmdModuleCommands {
 
 	@Override
 	public String[] getDefaultAliases() {
-		return new String[] { };
+		return new String[] { "gm" };
 	}
 
 	private WorldSettings.GameType getGameTypeFromString(String string) {
@@ -72,10 +73,15 @@ public class CommandGameMode extends FEcmdModuleCommands {
 			return null;
 		}
 	}
-	
+
 	@Override
 	public PermissionLevel getPermissionLevel() {
 		return PermissionLevel.OP;
+	}
+
+	@Override
+	public String getPermissionNode() {
+		return ModuleCommands.PERM + "." + getCommandName();
 	}
 
 	@Override

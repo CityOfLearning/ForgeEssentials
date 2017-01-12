@@ -5,9 +5,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
+import com.forgeessentials.commands.ModuleCommands;
 import com.forgeessentials.commands.util.CommandButcherTickTask;
 import com.forgeessentials.commands.util.CommandButcherTickTask.ButcherMobType;
-import com.forgeessentials.commands.util.FEcmdModuleCommands;
+import com.forgeessentials.core.commands.ForgeEssentialsCommandBase;
 import com.forgeessentials.core.misc.TranslatedCommandException;
 
 import net.minecraft.command.CommandException;
@@ -20,7 +21,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.permission.PermissionLevel;
 
-public class CommandButcher extends FEcmdModuleCommands {
+public class CommandButcher extends ForgeEssentialsCommandBase {
 
 	public static List<String> typeList = ButcherMobType.getNames();
 
@@ -60,6 +61,11 @@ public class CommandButcher extends FEcmdModuleCommands {
 	}
 
 	@Override
+	public String getPermissionNode() {
+		return ModuleCommands.PERM + ".butcher";
+	}
+
+	@Override
 	public void processCommandConsole(ICommandSender sender, String[] args) throws CommandException {
 		int radius = -1;
 		double x = 0;
@@ -68,7 +74,7 @@ public class CommandButcher extends FEcmdModuleCommands {
 		World world = DimensionManager.getWorld(0);
 		String mobType = ButcherMobType.HOSTILE.toString();
 
-		Queue<String> argsStack = new LinkedList<String>(Arrays.asList(args));
+		Queue<String> argsStack = new LinkedList<>(Arrays.asList(args));
 
 		if (!argsStack.isEmpty()) {
 			String radiusValue = argsStack.remove();
@@ -123,7 +129,7 @@ public class CommandButcher extends FEcmdModuleCommands {
 		World world = sender.worldObj;
 		String mobType = ButcherMobType.HOSTILE.toString();
 
-		Queue<String> argsStack = new LinkedList<String>(Arrays.asList(args));
+		Queue<String> argsStack = new LinkedList<>(Arrays.asList(args));
 		if (!argsStack.isEmpty()) {
 			String radiusValue = argsStack.remove();
 			if (radiusValue.equalsIgnoreCase("world")) {

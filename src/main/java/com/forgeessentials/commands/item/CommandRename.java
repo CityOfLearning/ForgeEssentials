@@ -1,6 +1,7 @@
 package com.forgeessentials.commands.item;
 
-import com.forgeessentials.commands.util.FEcmdModuleCommands;
+import com.forgeessentials.commands.ModuleCommands;
+import com.forgeessentials.core.commands.ForgeEssentialsCommandBase;
 import com.forgeessentials.core.misc.TranslatedCommandException;
 
 import net.minecraft.command.CommandException;
@@ -9,7 +10,8 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.permission.PermissionLevel;
 
-public class CommandRename extends FEcmdModuleCommands {
+public class CommandRename extends ForgeEssentialsCommandBase {
+
 	@Override
 	public boolean canConsoleUseCommand() {
 		return false;
@@ -17,7 +19,7 @@ public class CommandRename extends FEcmdModuleCommands {
 
 	@Override
 	public String getCommandName() {
-		return "rename";
+		return "ferename";
 	}
 
 	@Override
@@ -26,8 +28,18 @@ public class CommandRename extends FEcmdModuleCommands {
 	}
 
 	@Override
+	public String[] getDefaultAliases() {
+		return new String[] { "rename" };
+	}
+
+	@Override
 	public PermissionLevel getPermissionLevel() {
 		return PermissionLevel.OP;
+	}
+
+	@Override
+	public String getPermissionNode() {
+		return ModuleCommands.PERM + ".rename";
 	}
 
 	@Override
@@ -47,4 +59,5 @@ public class CommandRename extends FEcmdModuleCommands {
 		}
 		is.setStackDisplayName(sb.toString().trim());
 	}
+
 }

@@ -121,6 +121,7 @@ public class ModuleScripting extends ServerEventHandler implements ScriptHandler
 
 	@SubscribeEvent
 	public void load(FEModuleInitEvent event) {
+
 		commandsDir = new File(moduleDir, "commands");
 		commandsDir.mkdirs();
 
@@ -154,7 +155,6 @@ public class ModuleScripting extends ServerEventHandler implements ScriptHandler
 	public void preLoad(FEModulePreInitEvent event) {
 		APIRegistry.scripts = this;
 		new ScriptEventHandler();
-
 	}
 
 	/* ------------------------------------------------------------ */
@@ -205,7 +205,11 @@ public class ModuleScripting extends ServerEventHandler implements ScriptHandler
 	public void runCronScripts() {
 		if ((System.currentTimeMillis() - lastCronCheck) >= CRON_CHECK_INTERVAL) {
 			lastCronCheck = System.currentTimeMillis();
-			for (Entry<String, List<String>> script : scripts.get(ScriptEventHandler.SCRIPTKEY_CRON).entrySet()) {
+			Map<String, List<String>> cronScripts = scripts.get(ScriptEventHandler.SCRIPTKEY_CRON);
+			if (cronScripts == null) {
+				return;
+			}
+			for (Entry<String, List<String>> script : cronScripts.entrySet()) {
 				List<String> lines = new ArrayList<>(script.getValue());
 				if (lines.size() < 2) {
 					continue;

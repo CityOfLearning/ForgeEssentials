@@ -23,7 +23,7 @@ public class FECommandManager extends ConfigLoaderBase {
 
 	}
 
-	public static final int COMMANDS_VERSION = 3;
+	public static final int COMMANDS_VERSION = 4;
 
 	protected static Map<String, ForgeEssentialsCommandBase> commands = new HashMap<>();
 
@@ -35,6 +35,13 @@ public class FECommandManager extends ConfigLoaderBase {
 
 	public static void clearRegisteredCommands() {
 		registeredCommands.clear();
+	}
+
+	public static void deregisterCommand(String name) {
+		ForgeEssentialsCommandBase command = commands.remove(name);
+		if (command != null) {
+			command.deregister();
+		}
 	}
 
 	private static void loadCommandConfig(ForgeEssentialsCommandBase command) {
@@ -55,10 +62,16 @@ public class FECommandManager extends ConfigLoaderBase {
 	}
 
 	public static void registerCommand(ForgeEssentialsCommandBase command) {
+		registerCommand(command, false);
+	}
+
+	public static void registerCommand(ForgeEssentialsCommandBase command, boolean registerNow) {
 		commands.put(command.getCommandName(), command);
 		if (config != null) {
 			loadCommandConfig(command);
-			// command.register();
+		}
+		if (registerNow) {
+			command.register();
 		}
 	}
 

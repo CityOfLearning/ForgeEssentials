@@ -52,7 +52,7 @@ public class CommandSellprice extends ParserCommandBase {
 	public static void calcPriceList(CommandParserArgs arguments, boolean save) {
 		/*
 		 * Map<Item, Double> priceMap = new TreeMap<>(new Comparator<Item>() {
-		 *
+		 * 
 		 * @Override public int compare(Item a, Item b) { try { String aId =
 		 * GameData.getItemRegistry().getNameForObject(a); String bId =
 		 * GameData.getItemRegistry().getNameForObject(b); return
@@ -402,7 +402,7 @@ public class CommandSellprice extends ParserCommandBase {
 
 	public static void parseSetprice(CommandParserArgs arguments) throws CommandException {
 		if (arguments.isEmpty()) {
-			arguments.confirm("/sellprice baseprice <item> [price]");
+			arguments.confirm("/sellprice set <item> <price>");
 			return;
 		}
 

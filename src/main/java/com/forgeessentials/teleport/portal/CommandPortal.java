@@ -157,12 +157,17 @@ public class CommandPortal extends ParserCommandBase {
 
 	@Override
 	public String getCommandName() {
-		return "portal";
+		return "feportal";
 	}
 
 	@Override
 	public String getCommandUsage(ICommandSender p_71518_1_) {
 		return "/portal delete|create|recreate|list|target [name] [x y z] [dim] Manage portals.";
+	}
+
+	@Override
+	public String[] getDefaultAliases() {
+		return new String[] { "portal" };
 	}
 
 	@Override

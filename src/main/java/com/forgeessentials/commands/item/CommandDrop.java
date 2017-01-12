@@ -1,7 +1,8 @@
 package com.forgeessentials.commands.item;
 
 import com.forgeessentials.api.UserIdent;
-import com.forgeessentials.commands.util.FEcmdModuleCommands;
+import com.forgeessentials.commands.ModuleCommands;
+import com.forgeessentials.core.commands.ForgeEssentialsCommandBase;
 import com.forgeessentials.core.misc.TranslatedCommandException;
 import com.forgeessentials.util.output.ChatOutputHandler;
 
@@ -25,7 +26,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.common.registry.GameData;
 import net.minecraftforge.permission.PermissionLevel;
 
-public class CommandDrop extends FEcmdModuleCommands {
+public class CommandDrop extends ForgeEssentialsCommandBase {
 
 	@Override
 	public boolean canConsoleUseCommand() {
@@ -73,7 +74,7 @@ public class CommandDrop extends FEcmdModuleCommands {
 
 	@Override
 	public String getCommandName() {
-		return "drop";
+		return "fedrop";
 	}
 
 	@Override
@@ -82,13 +83,18 @@ public class CommandDrop extends FEcmdModuleCommands {
 	}
 
 	@Override
+	public String[] getDefaultAliases() {
+		return new String[] { "drop" };
+	}
+
+	@Override
 	public PermissionLevel getPermissionLevel() {
 		return PermissionLevel.OP;
 	}
 
 	@Override
-	public int getRequiredPermissionLevel() {
-		return 2;
+	public String getPermissionNode() {
+		return ModuleCommands.PERM + ".drop";
 	}
 
 	@SuppressWarnings("deprecation")
@@ -230,4 +236,5 @@ public class CommandDrop extends FEcmdModuleCommands {
 		EntityPlayerMP playermp = UserIdent.getPlayerByMatchOrUsername(sender, sender.getName());
 		processCommand(playermp, args);
 	}
+
 }

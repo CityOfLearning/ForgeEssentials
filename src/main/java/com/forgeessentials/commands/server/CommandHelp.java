@@ -82,7 +82,6 @@ public class CommandHelp extends ParserCommandBase implements ConfigLoader {
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public void parse(CommandParserArgs arguments) throws CommandException {
 		if (arguments.isEmpty()) {
 			if (arguments.isTabCompletion) {
@@ -106,8 +105,7 @@ public class CommandHelp extends ParserCommandBase implements ConfigLoader {
 
 				ICommand command = MinecraftServer.getServer().getCommandManager().getCommands().get(name);
 
-				SortedSet<ICommand> results = new TreeSet<ICommand>(
-						(a, b) -> a.getCommandName().compareTo(b.getCommandName()));
+				SortedSet<ICommand> results = new TreeSet<>((a, b) -> a.getCommandName().compareTo(b.getCommandName()));
 				Set<Map.Entry<String, ICommand>> commands = MinecraftServer.getServer().getCommandManager()
 						.getCommands().entrySet();
 				for (Entry<String, ICommand> cmd : commands) {

@@ -1,6 +1,5 @@
 package com.forgeessentials.core.preloader.asminjector;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -177,7 +176,7 @@ public class MethodInjector implements Comparable<MethodInjector> {
 	 * Creates new LabelNode instances for mapping labels during injection
 	 */
 	private synchronized void createLabelMappings() {
-		labelMappings = new HashMap<LabelNode, LabelNode>();
+		labelMappings = new HashMap<>();
 		for (AbstractInsnNode i = injector.instructions.getFirst(); i != null; i = i.getNext()) {
 			if (i instanceof LabelNode) {
 				labelMappings.put((LabelNode) i, new LabelNode());
@@ -241,7 +240,7 @@ public class MethodInjector implements Comparable<MethodInjector> {
 						break classLoop;
 					}
 				}
-				originalClass = ASMUtil.loadClassNode(ASMUtil.javaName(originalClass.superName));
+				originalClass = ASMUtil.getClassNode(ASMUtil.javaName(originalClass.superName));
 			}
 			if (originalField == null) {
 				throw new InjectionException(
@@ -266,7 +265,7 @@ public class MethodInjector implements Comparable<MethodInjector> {
 			// Remap field access
 			fieldNode.owner = originalClass.name;
 			fieldNode.name = originalField.name;
-		} catch (IOException e) {
+		} catch (ClassNotFoundException e) {
 			throw new InjectionException(String.format("Unable to find shadowed field %s", field.name), e);
 		}
 	}
@@ -294,7 +293,7 @@ public class MethodInjector implements Comparable<MethodInjector> {
 						break classLoop;
 					}
 				}
-				originalClass = ASMUtil.loadClassNode(ASMUtil.javaName(originalClass.superName));
+				originalClass = ASMUtil.getClassNode(ASMUtil.javaName(originalClass.superName));
 			}
 			if (originalMethod == null) {
 				throw new InjectionException(
@@ -319,7 +318,7 @@ public class MethodInjector implements Comparable<MethodInjector> {
 			// Remap field access
 			methodNode.owner = originalClass.name;
 			methodNode.name = originalMethod.name;
-		} catch (IOException e) {
+		} catch (ClassNotFoundException e) {
 			throw new InjectionException(String.format("Unable to find shadowed method %s", method.name), e);
 		}
 	}
@@ -411,7 +410,7 @@ public class MethodInjector implements Comparable<MethodInjector> {
 					List<String> localNames = locals.get((vn.var - injectorArgumentCount) + injectedLocalsCount);
 					LocalVariableNode varNode = null;
 					namesLoop: for (String varName : localNames) {
-						for (LocalVariableNode lvn : (targetMethod.localVariables)) {
+						for (LocalVariableNode lvn : targetMethod.localVariables) {
 							if (lvn.name.equals(varName)) {
 								varNode = lvn;
 								break namesLoop;
@@ -423,7 +422,7 @@ public class MethodInjector implements Comparable<MethodInjector> {
 								StringUtils.join(localNames, ", "));
 						System.err.println(message);
 						System.err.println("Found local variables:");
-						for (LocalVariableNode lvn : (targetMethod.localVariables)) {
+						for (LocalVariableNode lvn : targetMethod.localVariables) {
 							System.err.println(String.format("  %s: %s", lvn.name, lvn.desc));
 						}
 						throw new InjectionException(message);

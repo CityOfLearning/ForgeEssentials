@@ -64,7 +64,7 @@ public class CommandServerSettings extends ParserCommandBase {
 
 	@Override
 	public String getPermissionNode() {
-		return ModuleCommands.PERM + "." + getCommandName();
+		return ModuleCommands.PERM + ".serversettings";
 	}
 
 	@Override

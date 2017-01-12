@@ -45,12 +45,17 @@ public class CommandJump extends ForgeEssentialsCommandBase {
 
 	@Override
 	public String getCommandName() {
-		return "jump";
+		return "fejump";
 	}
 
 	@Override
 	public String getCommandUsage(ICommandSender sender) {
 		return "/jump Teleport to the location you are looking at";
+	}
+
+	@Override
+	public String[] getDefaultAliases() {
+		return new String[] { "jump" };
 	}
 
 	@Override

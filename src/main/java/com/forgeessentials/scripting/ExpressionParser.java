@@ -65,6 +65,7 @@ public class ExpressionParser {
 			}
 
 		};
+
 		public static Function round = new Function("round", "Returns it's input rounded to the nearest integer") {
 
 			@Override
@@ -258,10 +259,22 @@ public class ExpressionParser {
 	public static class Operator extends Token {
 		public static Operator Add = new Operator(1, true, "Add");
 		public static Operator Sub = new Operator(1, true, "Sub");
-		public static Operator Mul = new Operator(2, true, "Mul");;
+
+		public static Operator Neg = new Operator(1, true, "Neg") {
+			@Override
+			public int numArgs() {
+				return 1;
+			}
+		};
+
+		public static Operator Mul = new Operator(2, true, "Mul");
+
 		public static Operator Div = new Operator(2, true, "Div");
+
 		public static Operator Mod = new Operator(2, true, "Mod");
+
 		public static Operator Pow = new Operator(3, false, "Pow");
+
 		public static Operator LeftParen = new Operator(0, false, "LeftParen");
 		public static Operator RightParen = new Operator(0, false, "RightParen");
 		public static Operator Comma = new Operator(0, false, "Comma");
@@ -303,7 +316,7 @@ public class ExpressionParser {
 
 		public double execute(double... inputs) {
 			double n0 = inputs[0];
-			double n1 = inputs[1];
+			double n1 = numArgs() >= 2 ? inputs[1] : 0;
 			if (this == Operator.Add) {
 				n0 += n1;
 			} else if (this == Operator.Sub) {
@@ -316,6 +329,8 @@ public class ExpressionParser {
 				n0 %= n1;
 			} else if (this == Operator.Pow) {
 				n0 = Math.pow(n0, n1);
+			} else if (this == Operator.Neg) {
+				n0 = -n0;
 			} else {
 				return 0;
 			}
@@ -393,28 +408,13 @@ public class ExpressionParser {
 
 				lastTokenWasNumber = true;
 			} else if (t instanceof Operator) {
-				if ((lastTokenWasNumber != null) && !lastTokenWasNumber && !opStack.isEmpty()
-						&& (t != Operator.LeftParen) && (t != Operator.RightParen) && !(t instanceof Function)) {
-					Operator op = opStack.peek();
+				if (((lastTokenWasNumber == null) || !lastTokenWasNumber) && (t != Operator.LeftParen)
+						&& (t != Operator.RightParen) && !(t instanceof Function)) {
 					if (t == Operator.Sub) {
-						if (op == Operator.Add) {
-							opStack.pop();
-							opStack.push(Operator.Sub);
-						} else if (op == Operator.Sub) {
-							opStack.pop();
-							opStack.push(Operator.Add);
-						} else {
-							return null;
-						}
-
-					} else if (t == Operator.Add) {
-						if ((op != Operator.Add) && (op != Operator.Sub)) {
-							return null;
-						}
+						opStack.push(Operator.Neg);
 					} else {
 						return null;
 					}
-
 				} else {
 					Operator op1 = (Operator) t;
 					if ((op1 != Operator.LeftParen) && (op1 != Operator.RightParen) && !opStack.isEmpty()

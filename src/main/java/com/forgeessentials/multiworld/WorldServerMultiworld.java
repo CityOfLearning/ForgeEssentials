@@ -9,14 +9,10 @@ import net.minecraft.world.Teleporter;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.storage.ISaveHandler;
 import net.minecraft.world.storage.WorldInfo;
+import net.minecraftforge.common.DimensionManager;
 
-/**
- *
- * @author Olee
- */
 public class WorldServerMultiworld extends WorldServer {
 
-	private Multiworld world;
 	private SimpleTeleporter worldTeleporter;
 
 	public WorldServerMultiworld(MinecraftServer mcServer, ISaveHandler saveHandler, WorldInfo info, int dimensionId,
@@ -25,7 +21,6 @@ public class WorldServerMultiworld extends WorldServer {
 		mapStorage = worldServer.getMapStorage();
 		worldScoreboard = worldServer.getScoreboard();
 		worldTeleporter = new SimpleTeleporter(this);
-		this.world = world;
 	}
 
 	@Override
@@ -33,14 +28,14 @@ public class WorldServerMultiworld extends WorldServer {
 		return worldTeleporter;
 	}
 
-	public Multiworld getMultiworld() {
-		return world;
-	}
-
 	@Override
 	protected void saveLevel() throws MinecraftException {
 		perWorldStorage.saveAllData();
 		saveHandler.saveWorldInfo(worldInfo);
+	}
+	
+	public void syncScoreboard(){
+		this.worldScoreboard = DimensionManager.getWorld(0).getScoreboard();
 	}
 
 }

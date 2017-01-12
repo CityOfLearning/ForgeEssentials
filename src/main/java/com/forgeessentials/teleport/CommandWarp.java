@@ -46,12 +46,17 @@ public class CommandWarp extends ParserCommandBase {
 
 	@Override
 	public String getCommandName() {
-		return "warp";
+		return "fewarp";
 	}
 
 	@Override
 	public String getCommandUsage(ICommandSender sender) {
 		return "/warp <name> [set|delete]: Set/delete/teleport to a warp point";
+	}
+
+	@Override
+	public String[] getDefaultAliases() {
+		return new String[] { "warp" };
 	}
 
 	@Override
@@ -139,4 +144,5 @@ public class CommandWarp extends ParserCommandBase {
 		APIRegistry.perms.registerPermissionProperty(PERM_LIMIT, "10", "Maximal warp count");
 		APIRegistry.perms.registerPermissionPropertyOp(PERM_LIMIT, "false");
 	}
+
 }

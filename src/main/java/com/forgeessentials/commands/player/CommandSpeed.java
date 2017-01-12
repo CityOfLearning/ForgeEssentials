@@ -1,7 +1,8 @@
 package com.forgeessentials.commands.player;
 
 import com.forgeessentials.api.UserIdent;
-import com.forgeessentials.commands.util.FEcmdModuleCommands;
+import com.forgeessentials.commands.ModuleCommands;
+import com.forgeessentials.core.commands.ForgeEssentialsCommandBase;
 import com.forgeessentials.util.output.ChatOutputHandler;
 
 import net.minecraft.command.CommandException;
@@ -12,7 +13,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagFloat;
 import net.minecraftforge.permission.PermissionLevel;
 
-public class CommandSpeed extends FEcmdModuleCommands {
+public class CommandSpeed extends ForgeEssentialsCommandBase {
 	@Override
 	public boolean canConsoleUseCommand() {
 		return true;
@@ -20,7 +21,7 @@ public class CommandSpeed extends FEcmdModuleCommands {
 
 	@Override
 	public String getCommandName() {
-		return "speed";
+		return "fespeed";
 	}
 
 	@Override
@@ -29,8 +30,18 @@ public class CommandSpeed extends FEcmdModuleCommands {
 	}
 
 	@Override
+	public String[] getDefaultAliases() {
+		return new String[] { "speed" };
+	}
+
+	@Override
 	public PermissionLevel getPermissionLevel() {
 		return PermissionLevel.OP;
+	}
+
+	@Override
+	public String getPermissionNode() {
+		return ModuleCommands.PERM + ".speed";
 	}
 
 	@Override

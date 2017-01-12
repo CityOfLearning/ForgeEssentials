@@ -30,12 +30,17 @@ public class CommandEnchant extends ParserCommandBase {
 
 	@Override
 	public String getCommandName() {
-		return "enchant";
+		return "feenchant";
 	}
 
 	@Override
 	public String getCommandUsage(ICommandSender sender) {
 		return "/enchant (<name> [lvl])*: Enchants the current item";
+	}
+
+	@Override
+	public String[] getDefaultAliases() {
+		return new String[] { "enchant" };
 	}
 
 	@Override
@@ -57,7 +62,6 @@ public class CommandEnchant extends ParserCommandBase {
 
 		List<String> validEnchantmentNames = new ArrayList<>();
 		Map<String, Enchantment> validEnchantments = new HashMap<>();
-		// the book list seems to be a copy of the enchantment list
 		for (Enchantment enchantment : Enchantment.enchantmentsBookList) {
 			if ((enchantment != null) && enchantment.canApplyAtEnchantingTable(stack)) {
 				String name = StatCollector.translateToLocal(enchantment.getName()).replaceAll(" ", "");
@@ -74,7 +78,6 @@ public class CommandEnchant extends ParserCommandBase {
 			return;
 		}
 
-		@SuppressWarnings("unchecked")
 		Map<Integer, Integer> enchantments = EnchantmentHelper.getEnchantments(stack);
 		while (!arguments.isEmpty()) {
 			arguments.tabComplete(validEnchantmentNames);

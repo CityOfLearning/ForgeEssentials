@@ -3,8 +3,9 @@ package com.forgeessentials.commands.world;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.forgeessentials.commands.util.FEcmdModuleCommands;
+import com.forgeessentials.commands.ModuleCommands;
 import com.forgeessentials.commands.util.TickTaskBlockFinder;
+import com.forgeessentials.core.commands.ForgeEssentialsCommandBase;
 import com.forgeessentials.core.misc.FECommandManager.ConfigurableCommand;
 import com.forgeessentials.core.misc.TranslatedCommandException;
 
@@ -17,7 +18,7 @@ import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.registry.GameData;
 import net.minecraftforge.permission.PermissionLevel;
 
-public class CommandFindblock extends FEcmdModuleCommands implements ConfigurableCommand {
+public class CommandFindblock extends ForgeEssentialsCommandBase implements ConfigurableCommand {
 
 	public static final int defaultCount = 1;
 	public static int defaultRange = 20 * 16;
@@ -26,7 +27,7 @@ public class CommandFindblock extends FEcmdModuleCommands implements Configurabl
 	@Override
 	public List<String> addTabCompletionOptions(ICommandSender sender, String[] args, BlockPos pos) {
 		if (args.length == 1) {
-			List<String> names = new ArrayList<String>();
+			List<String> names = new ArrayList<>();
 			for (Item i : GameData.getItemRegistry().typeSafeIterable()) {
 				names.add(i.getUnlocalizedName());
 			}
@@ -53,7 +54,6 @@ public class CommandFindblock extends FEcmdModuleCommands implements Configurabl
 
 	@Override
 	public String getCommandUsage(ICommandSender sender) {
-
 		return "/fb <block> [meta] [max distance] [amount of blocks] [speed] Finds a block.";
 	}
 
@@ -68,6 +68,11 @@ public class CommandFindblock extends FEcmdModuleCommands implements Configurabl
 	}
 
 	@Override
+	public String getPermissionNode() {
+		return ModuleCommands.PERM + ".findblock";
+	}
+
+	@Override
 	public void loadConfig(Configuration config, String category) {
 		defaultRange = config.get(category, "defaultRange", defaultRange, "Default max distance used.").getInt();
 		defaultSpeed = config.get(category, "defaultSpeed", defaultSpeed, "Default speed used.").getInt();
@@ -77,10 +82,6 @@ public class CommandFindblock extends FEcmdModuleCommands implements Configurabl
 	public void loadData() {
 	}
 
-	/*
-	 * syntax: /fb <block> [max distance, def = 20 * 16] [amount of blocks, def
-	 * = 1] [speed, def = 10]
-	 */
 	@Override
 	public void processCommandPlayer(EntityPlayerMP sender, String[] args) throws CommandException {
 		if (args.length < 1) {

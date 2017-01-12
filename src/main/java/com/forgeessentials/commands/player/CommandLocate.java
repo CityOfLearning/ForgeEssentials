@@ -3,8 +3,9 @@ package com.forgeessentials.commands.player;
 import java.util.List;
 
 import com.forgeessentials.api.UserIdent;
-import com.forgeessentials.commands.util.FEcmdModuleCommands;
+import com.forgeessentials.commands.ModuleCommands;
 import com.forgeessentials.commons.selections.WorldPoint;
+import com.forgeessentials.core.commands.ForgeEssentialsCommandBase;
 import com.forgeessentials.core.misc.TranslatedCommandException;
 import com.forgeessentials.core.misc.Translator;
 import com.forgeessentials.util.output.ChatOutputHandler;
@@ -16,7 +17,8 @@ import net.minecraft.util.BlockPos;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.permission.PermissionLevel;
 
-public class CommandLocate extends FEcmdModuleCommands {
+public class CommandLocate extends ForgeEssentialsCommandBase {
+
 	@Override
 	public List<String> addTabCompletionOptions(ICommandSender sender, String[] args, BlockPos pos) {
 		if (args.length == 1) {
@@ -33,7 +35,7 @@ public class CommandLocate extends FEcmdModuleCommands {
 
 	@Override
 	public String getCommandName() {
-		return "locate";
+		return "felocate";
 	}
 
 	@Override
@@ -43,12 +45,17 @@ public class CommandLocate extends FEcmdModuleCommands {
 
 	@Override
 	public String[] getDefaultAliases() {
-		return new String[] { "gps", "loc", "playerinfo" };
+		return new String[] { "locate", "gps", "loc", "playerinfo" };
 	}
 
 	@Override
 	public PermissionLevel getPermissionLevel() {
 		return PermissionLevel.OP;
+	}
+
+	@Override
+	public String getPermissionNode() {
+		return ModuleCommands.PERM + ".locate";
 	}
 
 	@Override
@@ -68,4 +75,5 @@ public class CommandLocate extends FEcmdModuleCommands {
 						player.getName(), point.getX(), point.getY(), point.getZ(), point.getDimension(), //
 						player.theItemInWorldManager.getGameType().getName()));
 	}
+
 }

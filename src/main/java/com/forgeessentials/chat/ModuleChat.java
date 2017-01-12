@@ -27,6 +27,7 @@ import com.forgeessentials.chat.command.CommandReply;
 import com.forgeessentials.chat.command.CommandTimedMessages;
 import com.forgeessentials.chat.command.CommandUnmute;
 import com.forgeessentials.commands.util.ModuleCommandsEventHandler;
+import com.forgeessentials.commons.Censor;
 import com.forgeessentials.commons.selections.WorldPoint;
 import com.forgeessentials.core.ForgeEssentials;
 import com.forgeessentials.core.misc.FECommandManager;
@@ -393,7 +394,6 @@ public class ModuleChat {
 
 		ForgeEssentials.getConfigManager().registerLoader(CONFIG_FILE, new ChatConfig());
 
-		censor = new Censor();
 		mailer = new Mailer();
 
 		setupChatReplacements();

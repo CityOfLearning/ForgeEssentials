@@ -2,8 +2,9 @@ package com.forgeessentials.commands.world;
 
 import java.util.List;
 
-import com.forgeessentials.commands.util.FEcmdModuleCommands;
+import com.forgeessentials.commands.ModuleCommands;
 import com.forgeessentials.commons.selections.WorldPoint;
+import com.forgeessentials.core.commands.ForgeEssentialsCommandBase;
 import com.forgeessentials.core.misc.TranslatedCommandException;
 import com.forgeessentials.core.misc.Translator;
 import com.forgeessentials.util.output.ChatOutputHandler;
@@ -17,7 +18,8 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.permission.PermissionLevel;
 
-public class CommandRemove extends FEcmdModuleCommands {
+public class CommandRemove extends ForgeEssentialsCommandBase {
+
 	@Override
 	public boolean canConsoleUseCommand() {
 		return true;
@@ -25,7 +27,7 @@ public class CommandRemove extends FEcmdModuleCommands {
 
 	@Override
 	public String getCommandName() {
-		return "remove";
+		return "feremove";
 	}
 
 	@Override
@@ -38,11 +40,20 @@ public class CommandRemove extends FEcmdModuleCommands {
 	}
 
 	@Override
+	public String[] getDefaultAliases() {
+		return new String[] { "remove" };
+	}
+
+	@Override
 	public PermissionLevel getPermissionLevel() {
 		return PermissionLevel.OP;
 	}
 
-	@SuppressWarnings("unchecked")
+	@Override
+	public String getPermissionNode() {
+		return ModuleCommands.PERM + ".remove";
+	}
+
 	@Override
 	public void processCommandConsole(ICommandSender sender, String[] args) throws CommandException {
 		int radius = 0;
@@ -74,7 +85,6 @@ public class CommandRemove extends FEcmdModuleCommands {
 		ChatOutputHandler.chatConfirmation(sender, Translator.format("%d items removed.", counter));
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public void processCommandPlayer(EntityPlayerMP sender, String[] args) throws CommandException {
 		int radius = 10;

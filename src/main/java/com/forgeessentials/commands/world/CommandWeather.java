@@ -164,12 +164,17 @@ public class CommandWeather extends ParserCommandBase implements ConfigurableCom
 
 	@Override
 	public String getCommandName() {
-		return "weather";
+		return "feweather";
 	}
 
 	@Override
 	public String getCommandUsage(ICommandSender sender) {
 		return "/weather rain|storm [enable|disable|force]: Weather manipulation";
+	}
+
+	@Override
+	public String[] getDefaultAliases() {
+		return new String[] { "weather" };
 	}
 
 	@Override

@@ -17,19 +17,20 @@ import net.minecraft.init.Blocks;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.BlockEvent.BreakEvent;
+import net.minecraftforge.fe.event.entity.EntityPortalEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-/**
- *
- */
 public class PortalManager extends ServerEventHandler {
 
 	private static PortalManager instance;
 
 	public static Block portalBlock = Blocks.portal;
+
+	// private static boolean mixinLoaded = false;
 
 	private static void buildPortalFrame(Portal portal) {
 		if (!portal.hasFrame()) {
@@ -169,8 +170,11 @@ public class PortalManager extends ServerEventHandler {
 		WorldPoint before = e.before.toWorldPoint();
 		for (Portal portal : portals.values()) {
 			if (portal.getPortalArea().contains(after) && !portal.getPortalArea().contains(before)) {
-				TeleportHelper.doTeleport((EntityPlayerMP) e.entityPlayer,
-						portal.target.toWarpPoint(e.entityPlayer.rotationPitch, e.entityPlayer.rotationYaw));
+				if (!MinecraftForge.EVENT_BUS.post(new EntityPortalEvent(e.entity, after.getWorld(),
+						after.getBlockPos(), portal.target.getDimension(), portal.target.getBlockPos()))) {
+					TeleportHelper.doTeleport((EntityPlayerMP) e.entityPlayer,
+							portal.target.toWarpPoint(e.entityPlayer.rotationPitch, e.entityPlayer.rotationYaw));
+				}
 			}
 		}
 	}
