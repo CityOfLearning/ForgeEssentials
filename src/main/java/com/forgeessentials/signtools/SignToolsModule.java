@@ -72,7 +72,7 @@ public class SignToolsModule extends ConfigLoaderBase {
 			}
 
 			IChatComponent[] signText = ((TileEntitySign) te).signText;
-			if (!signText[0].getUnformattedText().equals("[command]")) {
+			if (signText[0] != null && !signText[0].getUnformattedText().equals("[command]")) {
 				return;
 			}
 
