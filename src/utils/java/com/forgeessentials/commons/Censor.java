@@ -5,18 +5,28 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.forgeessentials.chat.ModuleChat;
-import com.forgeessentials.core.ForgeEssentials;
-import com.forgeessentials.core.moduleLauncher.config.ConfigLoaderBase;
-import com.forgeessentials.util.output.LoggingHandler;
 import com.google.common.base.Strings;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.DamageSource;
-import net.minecraftforge.common.config.Configuration;
 
-public class Censor extends ConfigLoaderBase {
+public class Censor {
 
+	private static List<CensoredWord> filterList = new ArrayList<>();
+	
+	static {
+		for(String word : new String[] { "fuck\\S*", "bastard", "moron", "ass", "asshole",
+			"bitch", "shit" }){
+			filterList.add(new CensoredWord(word));
+		}
+	}
+
+	private static boolean enabled = true;
+
+	private static String censorSymbol = "#";
+
+	private static int censorSlap = 1;
+	
 	public static class CensoredWord {
 
 		public String word;
@@ -35,21 +45,6 @@ public class Censor extends ConfigLoaderBase {
 		}
 
 	}
-
-	private static final String CONFIG_CATEGORY = "Chat.Censor";
-
-	private static final String[] DEFAULT_WORDS = new String[] { "fuck\\S*", "bastard", "moron", "ass", "asshole",
-			"bitch", "shit" };
-
-	private static final String CENSOR_HELP = "Words to be censored. Prepend with ! to disable word boundary check.";
-
-	private static List<CensoredWord> filterList = new ArrayList<>();
-
-	public static boolean enabled;
-
-	public static String censorSymbol;
-
-	public static int censorSlap;
 
 	public static boolean containsSwear(String message) {
 		return !message.equals(filter(message));
@@ -77,45 +72,12 @@ public class Censor extends ConfigLoaderBase {
 		}
 		return message;
 	}
-
-	public static String filterIRC(String message) {
-		if (!enabled) {
-			return message;
-		}
-		for (CensoredWord filter : filterList) {
-			Matcher m = filter.pattern.matcher(message);
-			if (m.find()) {
-				if (filter.blank == null) {
-					filter.blank = Strings.repeat(censorSymbol, m.end() - m.start());
-				}
-				message = m.replaceAll(filter.blank);
-			}
-		}
-		return message;
+	
+	public Censor(List words, boolean isEnabled, String symbol, int damage){
+		filterList = words;
+		enabled = isEnabled;
+		censorSymbol = symbol;
+		censorSlap = damage;
+		
 	}
-
-	public Censor() {
-		ForgeEssentials.getConfigManager().registerLoader(ModuleChat.CONFIG_FILE, this);
-	}
-
-	@Override
-	public void load(Configuration config, boolean isReload) {
-		enabled = config.get(CONFIG_CATEGORY, "enable", true).getBoolean(true);
-		censorSlap = config.get(CONFIG_CATEGORY, "slapDamage", 1, "Damage to a player when he uses a censored word")
-				.getInt();
-		censorSymbol = config.get(CONFIG_CATEGORY, "censorSymbol", "#", "Replace censored words with this character")
-				.getString();
-		if (censorSymbol.length() > 1) {
-			LoggingHandler.felog.warn("Censor symbol is too long!");
-			censorSymbol = censorSymbol.substring(1);
-		} else if (censorSymbol.isEmpty()) {
-			LoggingHandler.felog.warn("Censor symbol is empty!");
-			censorSymbol = "#";
-		}
-		filterList.clear();
-		for (String word : config.get(CONFIG_CATEGORY, "words", DEFAULT_WORDS, CENSOR_HELP).getStringList()) {
-			filterList.add(new CensoredWord(word));
-		}
-	}
-
 }

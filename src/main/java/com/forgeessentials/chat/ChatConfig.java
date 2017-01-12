@@ -1,9 +1,13 @@
 package com.forgeessentials.chat;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.IllegalFormatException;
+import java.util.List;
 import java.util.Set;
 
+import com.forgeessentials.commons.Censor;
+import com.forgeessentials.commons.Censor.CensoredWord;
 import com.forgeessentials.core.moduleLauncher.config.ConfigLoaderBase;
 import com.forgeessentials.util.output.LoggingHandler;
 
@@ -41,6 +45,20 @@ public class ChatConfig extends ConfigLoaderBase {
 	public static String[] loginMessage;
 
 	public static Set<String> mutedCommands = new HashSet<>();
+	
+	//censor 
+	public static final String[] DEFAULT_WORDS = new String[] { "fuck\\S*", "bastard", "moron", "ass", "asshole",
+			"bitch", "shit" };
+
+	private static final String CENSOR_HELP = "Words to be censored. Prepend with ! to disable word boundary check.";
+
+	private static List<CensoredWord> filterList = new ArrayList<>();
+
+	public static boolean enabled;
+
+	public static String censorSymbol;
+
+	public static int censorSlap;
 
 	@Override
 	public void load(Configuration config, boolean isReload) {
@@ -70,6 +88,25 @@ public class ChatConfig extends ConfigLoaderBase {
 
 		ModuleChat.instance
 				.setChatLogging(config.get(CATEGORY, "LogChat", true, "Log all chat messages").getBoolean(true));
+
+		enabled = config.get("Chat.Censor", "enable", true).getBoolean(true);
+		censorSlap = config.get("Chat.Censor", "slapDamage", 1, "Damage to a player when he uses a censored word")
+				.getInt();
+		censorSymbol = config.get("Chat.Censor", "censorSymbol", "#", "Replace censored words with this character")
+				.getString();
+		if (censorSymbol.length() > 1) {
+			LoggingHandler.felog.warn("Censor symbol is too long!");
+			censorSymbol = censorSymbol.substring(1);
+		} else if (censorSymbol.isEmpty()) {
+			LoggingHandler.felog.warn("Censor symbol is empty!");
+			censorSymbol = "#";
+		}
+		filterList.clear();
+		for (String word : config.get("Chat.Censor", "words", DEFAULT_WORDS, CENSOR_HELP).getStringList()) {
+			filterList.add(new CensoredWord(word));
+		}
+		
+		ModuleChat.censor = new Censor(filterList, enabled, censorSymbol, censorSlap);
 	}
 
 	@Override

@@ -394,7 +394,6 @@ public class ModuleChat {
 
 		ForgeEssentials.getConfigManager().registerLoader(CONFIG_FILE, new ChatConfig());
 
-		censor = new Censor();
 		mailer = new Mailer();
 
 		setupChatReplacements();
