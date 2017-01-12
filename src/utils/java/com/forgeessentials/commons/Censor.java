@@ -1,10 +1,11 @@
-package com.forgeessentials.chat;
+package com.forgeessentials.commons;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.forgeessentials.chat.ModuleChat;
 import com.forgeessentials.core.ForgeEssentials;
 import com.forgeessentials.core.moduleLauncher.config.ConfigLoaderBase;
 import com.forgeessentials.util.output.LoggingHandler;
