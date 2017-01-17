@@ -49,6 +49,8 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.zip.GZIPOutputStream;
 
+import com.forgeessentials.util.output.LoggingHandler;
+
 import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
@@ -73,7 +75,7 @@ public class Metrics {
 		/**
 		 * The set of plotters that are contained within this graph
 		 */
-		private final Set<Plotter> plotters = new LinkedHashSet<Plotter>();
+		private final Set<Plotter> plotters = new LinkedHashSet<>();
 
 		private Graph(final String name) {
 			this.name = name;
@@ -634,8 +636,8 @@ public class Metrics {
 		connection.setDoOutput(true);
 
 		if (debug) {
-			System.out.println("[Metrics] Prepared request for " + pluginName + " uncompressed=" + uncompressed.length
-					+ " compressed=" + compressed.length);
+			LoggingHandler.felog.debug("[Metrics] Prepared request for " + pluginName + " uncompressed="
+					+ uncompressed.length + " compressed=" + compressed.length);
 		}
 
 		// Write the data
