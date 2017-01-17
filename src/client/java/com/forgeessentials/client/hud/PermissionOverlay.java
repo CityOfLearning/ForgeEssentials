@@ -1,4 +1,4 @@
-package com.forgeessentials.client.handler;
+package com.forgeessentials.client.hud;
 
 import org.lwjgl.opengl.GL11;
 

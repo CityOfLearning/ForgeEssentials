@@ -1,4 +1,4 @@
-package com.forgeessentials.client.handler;
+package com.forgeessentials.client.hud;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -77,7 +77,49 @@ public class PlotsRenderer implements IMessageHandler<Packet4PlotsUpdate, IMessa
 		fr.drawString(name, -t, 1, 553648127);
 		fr.drawString(name, -t, 1, -1);
 	}
+private static void renderBoxWithTris(WorldRenderer wr) {
+	wr.begin(GL11.GL_TRIANGLE_STRIP, DefaultVertexFormats.POSITION);
 
+	wr.pos(-0.5f, -0.5f, -0.5f).endVertex(); // triangle 1 : begin
+	wr.pos(-0.5f, -0.5f, 0.5f).endVertex();
+	wr.pos(-0.5f, 0.5f, 0.5f).endVertex(); // triangle 1 : end
+	wr.pos(0.5f, 0.5f, -0.5f).endVertex(); // triangle 2 : begin
+	wr.pos(-0.5f, -0.5f, -0.5f).endVertex();
+	wr.pos(-0.5f, 0.5f, -0.5f).endVertex(); // triangle 2 : end
+	wr.pos(0.5f, -0.5f, 0.5f).endVertex();
+	wr.pos(-0.5f, -0.5f, -0.5f).endVertex();
+	wr.pos(0.5f, -0.5f, -0.5f).endVertex();
+	wr.pos(0.5f, 0.5f, -0.5f).endVertex();
+	wr.pos(0.5f, -0.5f, -0.5f).endVertex();
+	wr.pos(-0.5f, -0.5f, -0.5f).endVertex();
+	wr.pos(-0.5f, -0.5f, -0.5f).endVertex();
+	wr.pos(-0.5f, 0.5f, 0.5f).endVertex();
+	wr.pos(-0.5f, 0.5f, -0.5f).endVertex();
+	wr.pos(0.5f, -0.5f, 0.5f).endVertex();
+	wr.pos(-0.5f, -0.5f, 0.5f).endVertex();
+	wr.pos(-0.5f, -0.5f, -0.5f).endVertex();
+	wr.pos(-0.5f, 0.5f, 0.5f).endVertex();
+	wr.pos(-0.5f, -0.5f, 0.5f).endVertex();
+	wr.pos(0.5f, -0.5f, 0.5f).endVertex();
+	wr.pos(0.5f, 0.5f, 0.5f).endVertex();
+	wr.pos(0.5f, -0.5f, -0.5f).endVertex();
+	wr.pos(0.5f, 0.5f, -0.5f).endVertex();
+	wr.pos(0.5f, -0.5f, -0.5f).endVertex();
+	wr.pos(0.5f, 0.5f, 0.5f).endVertex();
+	wr.pos(0.5f, -0.5f, 0.5f).endVertex();
+	wr.pos(0.5f, 0.5f, 0.5f).endVertex();
+	wr.pos(0.5f, 0.5f, -0.5f).endVertex();
+	wr.pos(-0.5f, 0.5f, -0.5f).endVertex();
+	wr.pos(0.5f, 0.5f, 0.5f).endVertex();
+	wr.pos(-0.5f, 0.5f, -0.5f).endVertex();
+	wr.pos(-0.5f, 0.5f, 0.5f).endVertex();
+	wr.pos(0.5f, 0.5f, 0.5f).endVertex();
+	wr.pos(-0.5f, 0.5f, 0.5f).endVertex();
+	wr.pos(0.5f, -0.5f, 0.5f).endVertex();
+	
+	Tessellator.getInstance().draw();
+
+}
 	/**
 	 * must be translated to proper point before calling
 	 */
@@ -123,6 +165,55 @@ public class PlotsRenderer implements IMessageHandler<Packet4PlotsUpdate, IMessa
 
 		wr.pos(-0.5, 0.5, -0.5).endVertex();
 		wr.pos(-0.5, 0.5, 0.5).endVertex();
+
+		Tessellator.getInstance().draw();
+	}
+
+	/**
+	 * must be translated to proper point before calling
+	 */
+	private static void renderBoxFaces(WorldRenderer wr) {
+
+		wr.begin(GL11.GL_QUAD_STRIP, DefaultVertexFormats.POSITION);
+
+		// FRONT
+		wr.pos(-0.5, -0.5, -0.5).endVertex();
+		wr.pos(-0.5, 0.5, -0.5).endVertex();
+
+		wr.pos(-0.5, 0.5, -0.5).endVertex();
+		wr.pos(0.5, 0.5, -0.5).endVertex();
+
+		wr.pos(0.5, 0.5, -0.5).endVertex();
+		wr.pos(0.5, -0.5, -0.5).endVertex();
+
+		wr.pos(0.5, -0.5, -0.5).endVertex();
+		wr.pos(-0.5, -0.5, -0.5).endVertex();
+
+		// betweens.
+		wr.pos(0.5, 0.5, -0.5).endVertex();
+		wr.pos(0.5, 0.5, 0.5).endVertex();
+
+		wr.pos(0.5, -0.5, -0.5).endVertex();
+		wr.pos(0.5, -0.5, 0.5).endVertex();
+
+		wr.pos(-0.5, -0.5, -0.5).endVertex();
+		wr.pos(-0.5, -0.5, 0.5).endVertex();
+
+		wr.pos(-0.5, 0.5, -0.5).endVertex();
+		wr.pos(-0.5, 0.5, 0.5).endVertex();
+
+		// BACK
+		wr.pos(-0.5, -0.5, 0.5).endVertex();
+		wr.pos(-0.5, 0.5, 0.5).endVertex();
+
+		wr.pos(-0.5, 0.5, 0.5).endVertex();
+		wr.pos(0.5, 0.5, 0.5).endVertex();
+
+		wr.pos(0.5, 0.5, 0.5).endVertex();
+		wr.pos(0.5, -0.5, 0.5).endVertex();
+
+		wr.pos(0.5, -0.5, 0.5).endVertex();
+		wr.pos(-0.5, -0.5, 0.5).endVertex();
 
 		Tessellator.getInstance().draw();
 	}
@@ -190,74 +281,44 @@ public class PlotsRenderer implements IMessageHandler<Packet4PlotsUpdate, IMessa
 			GlStateManager.disableLighting();
 			GL11.glLineWidth(3);
 
-			boolean seeThrough = false;
-			while (true) {
-				if (seeThrough) {
-					GlStateManager.disableDepth();
-					GlStateManager.enableBlend();
-					GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-				} else {
-					GlStateManager.disableBlend();
-					GlStateManager.enableDepth();
-				}
+			GlStateManager.enableBlend();
+			GlStateManager.tryBlendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
+			GlStateManager.enableDepth();
 
-				for (Integer type : plots.keySet()) {
-					switch (type) {
-					case 0: // ownerless
-						if (seeThrough) {
-							GlStateManager.color(1, 1, 1, ALPHA);
-						} else {
-							GlStateManager.color(1, 1, 1);
-						}
-						break;
-					case 1: // players
-						if (seeThrough) {
-							GlStateManager.color(0, 0.5f, 0.75f, ALPHA);
-						} else {
-							GlStateManager.color(0, 0.5f, 0.75f);
-						}
-						break;
-					case 2: // teams
-						if (seeThrough) {
-							GlStateManager.color(1, 0, 1, ALPHA);
-						} else {
-							GlStateManager.color(1, 0, 1);
-						}
-						break;
-					case 3: // other non team player
-						if (seeThrough) {
-							GlStateManager.color(1, 0, 0, ALPHA);
-						} else {
-							GlStateManager.color(1, 0, 0);
-						}
-						break;
-					}
-					for (PlotArea plot : plots.get(type)) {
-						// only render plots in this dimension
-						if (plot.getDimension() == FMLClientHandler.instance().getClient().thePlayer.dimension) {
-							// render start
+			for (Integer type : plots.keySet()) {
 
-							Point p1 = plot.getHighPoint();
-							Point p2 = plot.getLowPoint();
-							Point size = plot.getSize();
-							GlStateManager.pushMatrix();
-							{
-								GlStateManager.translate((float) (p1.getX() + p2.getX()) / 2,
-										(float) (p1.getY() + p2.getY()) / 2, (float) (p1.getZ() + p2.getZ()) / 2);
-								GlStateManager.scale(1 + size.getX(), 1 + size.getY(), 1 + size.getZ());
-								renderBox(wr);
-								GlStateManager.enableTexture2D();
-							}
-							GlStateManager.popMatrix();
-						}
-					}
-
-				}
-
-				if (!seeThrough) {
+				switch (type) {
+				case 0: // ownerless
+					GlStateManager.color(1, 1, 1, ALPHA);
+					break;
+				case 1: // players
+					GlStateManager.color(0, 0.5f, 0.75f, ALPHA);
+					break;
+				case 2: // teams
+					GlStateManager.color(1, 0, 1, ALPHA);
+					break;
+				case 3: // other non team player
+					GlStateManager.color(1, 0, 0, ALPHA);
 					break;
 				}
-				seeThrough = false;
+				for (PlotArea plot : plots.get(type)) {
+					// only render plots in this dimension
+					if (plot.getDimension() == FMLClientHandler.instance().getClient().thePlayer.dimension) {
+						// render start
+
+						Point p1 = plot.getHighPoint();
+						Point p2 = plot.getLowPoint();
+						Point size = plot.getSize();
+						GlStateManager.pushMatrix();
+						{
+							GlStateManager.translate((float) (p1.getX() + p2.getX()) / 2,
+									(float) (p1.getY() + p2.getY()) / 2, (float) (p1.getZ() + p2.getZ()) / 2);
+							GlStateManager.scale(1 + size.getX(), 1 + size.getY(), 1 + size.getZ());
+							renderBoxFaces(wr);
+						}
+						GlStateManager.popMatrix();
+					}
+				}
 			}
 			GlStateManager.enableTexture2D();
 		}

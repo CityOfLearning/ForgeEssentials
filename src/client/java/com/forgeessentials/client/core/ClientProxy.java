@@ -1,11 +1,11 @@
 package com.forgeessentials.client.core;
 
 import com.forgeessentials.client.ForgeEssentialsClient;
-import com.forgeessentials.client.handler.CUIRenderer;
-import com.forgeessentials.client.handler.PermissionOverlay;
-import com.forgeessentials.client.handler.PlotsRenderer;
 import com.forgeessentials.client.handler.QuestionerKeyHandler;
 import com.forgeessentials.client.handler.ReachDistanceHandler;
+import com.forgeessentials.client.hud.CUIRenderer;
+import com.forgeessentials.client.hud.PermissionOverlay;
+import com.forgeessentials.client.hud.PlotsRenderer;
 import com.forgeessentials.commons.BuildInfo;
 import com.forgeessentials.commons.network.NetworkUtils;
 import com.forgeessentials.commons.network.NetworkUtils.NullMessageHandler;
