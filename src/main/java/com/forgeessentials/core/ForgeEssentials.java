@@ -21,7 +21,7 @@ import com.forgeessentials.commons.network.Packet3PlayerPermissions;
 import com.forgeessentials.commons.network.Packet4PlotsUpdate;
 import com.forgeessentials.commons.network.Packet5Noclip;
 import com.forgeessentials.commons.network.Packet6SyncPlots;
-import com.forgeessentials.commons.selections.WorldArea;
+import com.forgeessentials.commons.selections.PlotArea;
 import com.forgeessentials.compat.HelpFixer;
 import com.forgeessentials.core.commands.CommandFEInfo;
 import com.forgeessentials.core.commands.CommandFEWorldInfo;
@@ -402,22 +402,26 @@ public class ForgeEssentials extends ConfigLoaderBase {
 					if (p.getOwner().equals(UserIdent.get(ctx.getServerHandler().playerEntity))) {
 						// players plot
 						NetworkUtils.netHandler.sendTo(
-								new Packet4PlotsUpdate(new WorldArea(p.getDimension(), p.getZone().getArea()), 1, true),
+								new Packet4PlotsUpdate(
+										new PlotArea(p.getName(), p.getDimension(), p.getZone().getArea()), 1, true),
 								ctx.getServerHandler().playerEntity);
 					} else if ((p.getOwner().getPlayer() != null)
 							&& ctx.getServerHandler().playerEntity.isOnSameTeam(p.getOwner().getPlayer())) {
 						// teams plot, why is player coming up null?
 						NetworkUtils.netHandler.sendTo(
-								new Packet4PlotsUpdate(new WorldArea(p.getDimension(), p.getZone().getArea()), 2, true),
+								new Packet4PlotsUpdate(
+										new PlotArea(p.getName(), p.getDimension(), p.getZone().getArea()), 2, true),
 								ctx.getServerHandler().playerEntity);
 					} else { // someone elses plot
 						NetworkUtils.netHandler.sendTo(
-								new Packet4PlotsUpdate(new WorldArea(p.getDimension(), p.getZone().getArea()), 3, true),
+								new Packet4PlotsUpdate(
+										new PlotArea(p.getName(), p.getDimension(), p.getZone().getArea()), 3, true),
 								ctx.getServerHandler().playerEntity);
 					}
 				} else { // ownerless plot
 					NetworkUtils.netHandler.sendTo(
-							new Packet4PlotsUpdate(new WorldArea(p.getDimension(), p.getZone().getArea()), 0, true),
+							new Packet4PlotsUpdate(new PlotArea(p.getName(), p.getDimension(), p.getZone().getArea()),
+									0, true),
 							ctx.getServerHandler().playerEntity);
 				}
 			}

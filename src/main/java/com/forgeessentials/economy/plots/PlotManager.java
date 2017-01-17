@@ -7,7 +7,7 @@ import com.forgeessentials.api.UserIdent;
 import com.forgeessentials.api.permissions.PermissionEvent;
 import com.forgeessentials.commons.network.NetworkUtils;
 import com.forgeessentials.commons.network.Packet4PlotsUpdate;
-import com.forgeessentials.commons.selections.WorldArea;
+import com.forgeessentials.commons.selections.PlotArea;
 import com.forgeessentials.core.misc.FECommandManager;
 import com.forgeessentials.core.misc.Translator;
 import com.forgeessentials.core.moduleLauncher.config.ConfigLoader;
@@ -90,8 +90,8 @@ public class PlotManager extends ServerEventHandler implements ConfigLoader {
 	// public static final String PERM_SELL_PRICE = PERM_DATA + ".price";
 
 	public static void handleDeletePlot(Plot plot) {
-		NetworkUtils.netHandler.sendToAll(
-				new Packet4PlotsUpdate(new WorldArea(plot.getDimension(), plot.getZone().getArea()), 0, false));
+		NetworkUtils.netHandler.sendToAll(new Packet4PlotsUpdate(
+				new PlotArea(plot.getName(), plot.getDimension(), plot.getZone().getArea()), 0, false));
 	}
 
 	public static void handleNewPlot(Plot plot) {
@@ -100,18 +100,22 @@ public class PlotManager extends ServerEventHandler implements ConfigLoader {
 				if (plot.getOwner().equals(UserIdent.get(user))) { // players
 																	// plot
 					NetworkUtils.netHandler.sendTo(new Packet4PlotsUpdate(
-							new WorldArea(plot.getDimension(), plot.getZone().getArea()), 1, true), user);
+							new PlotArea(plot.getName(), plot.getDimension(), plot.getZone().getArea()), 1, true),
+							user);
 				} else if (user.isOnSameTeam(plot.getOwner().getPlayer())) { // teams
 																				// plot
 					NetworkUtils.netHandler.sendTo(new Packet4PlotsUpdate(
-							new WorldArea(plot.getDimension(), plot.getZone().getArea()), 2, true), user);
+							new PlotArea(plot.getName(), plot.getDimension(), plot.getZone().getArea()), 2, true),
+							user);
 				} else { // someone elses plot
 					NetworkUtils.netHandler.sendTo(new Packet4PlotsUpdate(
-							new WorldArea(plot.getDimension(), plot.getZone().getArea()), 3, true), user);
+							new PlotArea(plot.getName(), plot.getDimension(), plot.getZone().getArea()), 3, true),
+							user);
 				}
 			} else { // ownerless plot
 				NetworkUtils.netHandler.sendTo(
-						new Packet4PlotsUpdate(new WorldArea(plot.getDimension(), plot.getZone().getArea()), 0, true),
+						new Packet4PlotsUpdate(
+								new PlotArea(plot.getName(), plot.getDimension(), plot.getZone().getArea()), 0, true),
 						user);
 			}
 		}
@@ -125,18 +129,22 @@ public class PlotManager extends ServerEventHandler implements ConfigLoader {
 				if (plot.getOwner().equals(UserIdent.get(user))) { // players
 																	// plot
 					NetworkUtils.netHandler.sendTo(new Packet4PlotsUpdate(
-							new WorldArea(plot.getDimension(), plot.getZone().getArea()), 1, true), user);
+							new PlotArea(plot.getName(), plot.getDimension(), plot.getZone().getArea()), 1, true),
+							user);
 				} else if (user.isOnSameTeam(plot.getOwner().getPlayer())) { // teams
 																				// plot
 					NetworkUtils.netHandler.sendTo(new Packet4PlotsUpdate(
-							new WorldArea(plot.getDimension(), plot.getZone().getArea()), 2, true), user);
+							new PlotArea(plot.getName(), plot.getDimension(), plot.getZone().getArea()), 2, true),
+							user);
 				} else { // someone elses plot
 					NetworkUtils.netHandler.sendTo(new Packet4PlotsUpdate(
-							new WorldArea(plot.getDimension(), plot.getZone().getArea()), 3, true), user);
+							new PlotArea(plot.getName(), plot.getDimension(), plot.getZone().getArea()), 3, true),
+							user);
 				}
 			} else { // ownerless plot
 				NetworkUtils.netHandler.sendTo(
-						new Packet4PlotsUpdate(new WorldArea(plot.getDimension(), plot.getZone().getArea()), 0, true),
+						new Packet4PlotsUpdate(
+								new PlotArea(plot.getName(), plot.getDimension(), plot.getZone().getArea()), 0, true),
 						user);
 			}
 		}
