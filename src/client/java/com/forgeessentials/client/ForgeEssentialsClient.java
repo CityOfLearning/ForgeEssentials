@@ -23,8 +23,6 @@ public class ForgeEssentialsClient {
 
 	public static final String MODID = "ForgeEssentialsClient";
 
-	public static final Logger feclientlog = LogManager.getLogger("forgeessentials");
-
 	@SidedProxy(clientSide = "com.forgeessentials.client.core.ClientProxy", serverSide = "com.forgeessentials.client.core.CommonProxy")
 	protected static CommonProxy proxy;
 
@@ -44,7 +42,7 @@ public class ForgeEssentialsClient {
 		if (side.equals(Side.SERVER)) {
 			if (map.containsKey("ForgeEssentials")) {
 				serverHasFE = true;
-				feclientlog.info("The server is running ForgeEssentials.");
+				LoggingHandler.felog.info("The server is running ForgeEssentials.");
 			}
 		}
 		return true;
@@ -52,7 +50,6 @@ public class ForgeEssentialsClient {
 
 	@EventHandler
 	public void load(FMLInitializationEvent e) {
-		LoggingHandler.init(ForgeEssentialsClient.MODID);
 		proxy.load(e);
 	}
 
@@ -60,8 +57,9 @@ public class ForgeEssentialsClient {
 
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent e) {
+		LoggingHandler.init(ForgeEssentialsClient.MODID);
 		if (e.getSide() == Side.SERVER) {
-			feclientlog.error("ForgeEssentials client does nothing on servers. You should remove it!");
+			LoggingHandler.felog.error("ForgeEssentials client does nothing on servers. You should remove it!");
 		}
 		proxy.doPreInit(e);
 	}

@@ -1,7 +1,5 @@
 package com.forgeessentials.client.core;
 
-import static com.forgeessentials.client.ForgeEssentialsClient.feclientlog;
-
 import com.forgeessentials.client.ForgeEssentialsClient;
 import com.forgeessentials.client.handler.CUIRenderer;
 import com.forgeessentials.client.handler.PermissionOverlay;
@@ -11,6 +9,7 @@ import com.forgeessentials.client.handler.ReachDistanceHandler;
 import com.forgeessentials.commons.BuildInfo;
 import com.forgeessentials.commons.network.NetworkUtils;
 import com.forgeessentials.commons.network.NetworkUtils.NullMessageHandler;
+import com.forgeessentials.commons.output.LoggingHandler;
 import com.forgeessentials.commons.network.Packet0Handshake;
 import com.forgeessentials.commons.network.Packet1SelectionUpdate;
 import com.forgeessentials.commons.network.Packet2Reach;
@@ -93,7 +92,7 @@ public class ClientProxy extends CommonProxy {
 	@Override
 	public void doPreInit(FMLPreInitializationEvent event) {
 		BuildInfo.getBuildInfo(event.getSourceFile());
-		feclientlog.info(String.format("Running ForgeEssentials client %s (%s)", BuildInfo.getFullVersion(),
+		LoggingHandler.felog.info(String.format("Running ForgeEssentials client %s (%s)", BuildInfo.getFullVersion(),
 				BuildInfo.getBuildHash()));
 
 		// Initialize configuration
