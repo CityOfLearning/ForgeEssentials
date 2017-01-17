@@ -27,7 +27,7 @@ public class CommandReply extends ForgeEssentialsCommandBase {
 	}
 
 	public static void messageSent(ICommandSender argFrom, ICommandSender argTo) {
-		replyMap.put(argTo, new WeakReference<ICommandSender>(argFrom));
+		replyMap.put(argTo, new WeakReference<>(argFrom));
 	}
 
 	/* ------------------------------------------------------------ */

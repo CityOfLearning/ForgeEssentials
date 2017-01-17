@@ -198,7 +198,7 @@ public final class ChatOutputHandler extends ConfigLoaderBase {
 	 * @return
 	 */
 	public static Collection<EnumChatFormatting> enumChatFormattings(String textFormats) {
-		List<EnumChatFormatting> result = new ArrayList<EnumChatFormatting>();
+		List<EnumChatFormatting> result = new ArrayList<>();
 		for (int i = 0; i < textFormats.length(); i++) {
 			char formatChar = textFormats.charAt(i);
 			for (EnumChatFormatting format : EnumChatFormatting.values()) {

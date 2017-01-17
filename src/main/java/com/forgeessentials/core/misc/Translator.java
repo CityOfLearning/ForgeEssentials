@@ -24,7 +24,7 @@ public final class Translator {
 			+ "You can put translations after the \"=\" beind each entry.\n"
 			+ "FE is NOT responsible for translations and we do NOT guarantee that all texts can be translated.";
 
-	public static final TreeMap<String, String> translations = new TreeMap<String, String>();
+	public static final TreeMap<String, String> translations = new TreeMap<>();
 
 	public static String format(String text, Object... args) {
 		return String.format(translate(text), args);

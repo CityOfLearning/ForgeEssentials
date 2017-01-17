@@ -96,7 +96,7 @@ public class ClassInjector {
 
 			Map<String, String> aliases;
 			if (useAliases) {
-				aliases = ASMUtil.keyValueListToMap(ASMUtil.<List<String>> getAnnotationValue(aInject, "aliases"));
+				aliases = ASMUtil.keyValueListToMap(ASMUtil.<List<String>>getAnnotationValue(aInject, "aliases"));
 			} else {
 				aliases = new HashMap<>();
 			}
@@ -180,8 +180,8 @@ public class ClassInjector {
 		List<InjectionPoint> injectionPoints = new ArrayList<>();
 		for (AnnotationNode annotation : annotations) {
 			String type = ASMUtil.getAnnotationValue(annotation, "value");
-			String target = replaceAliases(ASMUtil.<String> getAnnotationValue(annotation, "target"), aliases);
-			Shift shift = Shift.fromAnnotation(ASMUtil.<String[]> getAnnotationValue(annotation, "shift"));
+			String target = replaceAliases(ASMUtil.<String>getAnnotationValue(annotation, "target"), aliases);
+			Shift shift = Shift.fromAnnotation(ASMUtil.<String[]>getAnnotationValue(annotation, "shift"));
 			Integer by = ASMUtil.getAnnotationValue(annotation, "by");
 			Integer ordinal = ASMUtil.getAnnotationValue(annotation, "ordinal");
 			InjectionPoint ip = InjectionPoint.parse(type, target, shift, by, ordinal);

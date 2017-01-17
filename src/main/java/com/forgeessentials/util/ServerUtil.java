@@ -45,7 +45,7 @@ public abstract class ServerUtil {
 	@SuppressWarnings("unchecked")
 	public static void copyNbt(NBTTagCompound nbt, NBTTagCompound data) {
 		// Clear old data
-		for (String key : new HashSet<String>(nbt.getKeySet())) {
+		for (String key : new HashSet<>(nbt.getKeySet())) {
 			nbt.removeTag(key);
 		}
 

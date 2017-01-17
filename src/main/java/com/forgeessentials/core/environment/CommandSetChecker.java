@@ -47,7 +47,7 @@ public class CommandSetChecker {
 
 		if (server.getCommandManager() instanceof CommandHandler) {
 			try {
-				HashMap<String, ICommand> initials = new HashMap<String, ICommand>();
+				HashMap<String, ICommand> initials = new HashMap<>();
 				HashMultimap<String, ICommand> duplicates = HashMultimap.create();
 
 				Set<ICommand> cmdList = ReflectionHelper.getPrivateValue(CommandHandler.class,
@@ -66,7 +66,7 @@ public class CommandSetChecker {
 					PermissionManager.registerCommandPermission(cmd);
 				}
 
-				Set<ICommand> toRemove = new HashSet<ICommand>();
+				Set<ICommand> toRemove = new HashSet<>();
 				keep = null;
 				Class<? extends ICommand> cmdClass;
 				int kept = -1, other = -1;

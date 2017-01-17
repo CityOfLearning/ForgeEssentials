@@ -15,8 +15,8 @@ public class Packet3PlayerPermissions implements IMessage {
 	public Set<Integer> breakIds;
 
 	public Packet3PlayerPermissions() {
-		placeIds = new HashSet<Integer>();
-		breakIds = new HashSet<Integer>();
+		placeIds = new HashSet<>();
+		breakIds = new HashSet<>();
 	}
 
 	public Packet3PlayerPermissions(boolean reset, Set<Integer> placeIds, Set<Integer> breakeIds) {

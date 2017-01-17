@@ -13,7 +13,7 @@ import net.minecraft.entity.passive.EntityTameable;
 
 public class MobTypeRegistry {
 	private static final HashMultimap<EnumMobType, String> MobTypeRegistry = HashMultimap.create();
-	private static final HashMap<String, String> tameableChecks = new HashMap<String, String>();
+	private static final HashMap<String, String> tameableChecks = new HashMap<>();
 
 	public static final void addMob(EnumMobType type, String className) {
 		MobTypeRegistry.put(type, className);

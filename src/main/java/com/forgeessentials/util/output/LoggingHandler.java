@@ -60,7 +60,7 @@ public class LoggingHandler {
 
 	public static List<String> getLatestLog(int count) {
 		if (count >= logCache.getQueue().size()) {
-			return new ArrayList<String>(logCache.getQueue());
+			return new ArrayList<>(logCache.getQueue());
 		}
 
 		Iterator<String> iterator = logCache.getQueue().iterator();
@@ -68,7 +68,7 @@ public class LoggingHandler {
 			iterator.next();
 		}
 
-		ArrayList<String> lines = new ArrayList<String>(count);
+		ArrayList<String> lines = new ArrayList<>(count);
 		for (; iterator.hasNext() && (count > 0); count--) {
 			lines.add(iterator.next());
 		}

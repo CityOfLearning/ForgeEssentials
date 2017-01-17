@@ -10,7 +10,6 @@ import com.forgeessentials.api.UserIdent;
 import com.forgeessentials.commons.selections.WarpPoint;
 import com.forgeessentials.commons.selections.WorldPoint;
 import com.forgeessentials.util.PlayerInfo;
-import com.forgeessentials.util.ServerUtil;
 import com.forgeessentials.util.events.ServerEventHandler;
 import com.forgeessentials.util.output.ChatOutputHandler;
 import com.forgeessentials.util.output.LoggingHandler;
@@ -34,7 +33,6 @@ import net.minecraftforge.fe.event.entity.EntityPortalEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 public class TeleportHelper extends ServerEventHandler {
 
@@ -204,10 +202,10 @@ public class TeleportHelper extends ServerEventHandler {
 		}
 
 		// Setup timed teleport
-		//with no warmup or cooldown we dont need this
-		//tpInfos.put(player.getPersistentID(), new TeleportInfo(player, point, 0));
-		
-		
+		// with no warmup or cooldown we dont need this
+		// tpInfos.put(player.getPersistentID(), new TeleportInfo(player, point,
+		// 0));
+
 		checkedTeleport(player, point);
 	}
 
@@ -288,16 +286,17 @@ public class TeleportHelper extends ServerEventHandler {
 		}
 	}
 
-//	@SubscribeEvent
-//	public void serverTickEvent(TickEvent.ServerTickEvent e) {
-//		if (e.phase == TickEvent.Phase.START) {
-//			for (Iterator<TeleportInfo> it = tpInfos.values().iterator(); it.hasNext();) {
-//				TeleportInfo tpInfo = it.next();
-//				if (tpInfo.check()) {
-//					it.remove();
-//				}
-//			}
-//		}
-//	}
+	// @SubscribeEvent
+	// public void serverTickEvent(TickEvent.ServerTickEvent e) {
+	// if (e.phase == TickEvent.Phase.START) {
+	// for (Iterator<TeleportInfo> it = tpInfos.values().iterator();
+	// it.hasNext();) {
+	// TeleportInfo tpInfo = it.next();
+	// if (tpInfo.check()) {
+	// it.remove();
+	// }
+	// }
+	// }
+	// }
 
 }

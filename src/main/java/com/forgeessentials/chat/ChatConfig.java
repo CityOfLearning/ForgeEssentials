@@ -45,8 +45,8 @@ public class ChatConfig extends ConfigLoaderBase {
 	public static String[] loginMessage;
 
 	public static Set<String> mutedCommands = new HashSet<>();
-	
-	//censor 
+
+	// censor
 	public static final String[] DEFAULT_WORDS = new String[] { "fuck\\S*", "bastard", "moron", "ass", "asshole",
 			"bitch", "shit" };
 
@@ -105,7 +105,7 @@ public class ChatConfig extends ConfigLoaderBase {
 		for (String word : config.get("Chat.Censor", "words", DEFAULT_WORDS, CENSOR_HELP).getStringList()) {
 			filterList.add(new CensoredWord(word));
 		}
-		
+
 		ModuleChat.censor = new Censor(filterList, enabled, censorSymbol, censorSlap);
 	}
 

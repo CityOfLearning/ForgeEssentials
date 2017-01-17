@@ -51,8 +51,8 @@ public class JsonProvider extends ZonePersistenceProvider {
 			this.name = name;
 			this.area = area;
 			this.shape = shape;
-			groups = new HashMap<String, GroupData>();
-			players = new HashMap<String, UserData>();
+			groups = new HashMap<>();
+			players = new HashMap<>();
 		}
 	}
 
@@ -68,7 +68,7 @@ public class JsonProvider extends ZonePersistenceProvider {
 			this.suffix = suffix;
 			this.Default = Default;
 			this.priority = priority;
-			permissions = new ArrayList<String>();
+			permissions = new ArrayList<>();
 		}
 	}
 
@@ -78,7 +78,7 @@ public class JsonProvider extends ZonePersistenceProvider {
 
 		public GroupMembers(String name) {
 			this.name = name;
-			members = new ArrayList<String>();
+			members = new ArrayList<>();
 		}
 	}
 
@@ -87,7 +87,7 @@ public class JsonProvider extends ZonePersistenceProvider {
 		public Map<String, GroupData> groups;
 
 		public GroupsData() {
-			groups = new HashMap<String, GroupData>();
+			groups = new HashMap<>();
 		}
 	}
 
@@ -102,8 +102,8 @@ public class JsonProvider extends ZonePersistenceProvider {
 			this.username = username;
 			this.prefix = prefix;
 			this.suffix = suffix;
-			groups = new ArrayList<String>();
-			permissions = new ArrayList<String>();
+			groups = new ArrayList<>();
+			permissions = new ArrayList<>();
 		}
 	}
 
@@ -111,7 +111,7 @@ public class JsonProvider extends ZonePersistenceProvider {
 		public Map<String, UserData> users;
 
 		public UsersData() {
-			users = new HashMap<String, UserData>();
+			users = new HashMap<>();
 		}
 	}
 
@@ -123,9 +123,9 @@ public class JsonProvider extends ZonePersistenceProvider {
 
 		public WorldZoneData(int id, int dimId) {
 			this.id = id;
-			groups = new HashMap<String, GroupData>();
-			players = new HashMap<String, UserData>();
-			zones = new ArrayList<AreaZoneData>();
+			groups = new HashMap<>();
+			players = new HashMap<>();
+			zones = new ArrayList<>();
 		}
 	}
 
@@ -141,7 +141,7 @@ public class JsonProvider extends ZonePersistenceProvider {
 
 	private Map<String, GroupData> getGroupDataMap(Zone zone, Set<String> groups) {
 		boolean global = zone instanceof ServerZone;
-		Map<String, GroupData> groupDataMap = new HashMap<String, GroupData>();
+		Map<String, GroupData> groupDataMap = new HashMap<>();
 		for (String group : groups) {
 			PermissionList groupList = new PermissionList(zone.getGroupPermissions(group));
 			String prefix = groupList.remove(FEPermissions.PREFIX);
@@ -188,7 +188,7 @@ public class JsonProvider extends ZonePersistenceProvider {
 
 	private Map<String, UserData> getUserDataMap(Zone zone, Set<UserIdent> users) {
 		boolean global = zone instanceof ServerZone;
-		Map<String, UserData> userDataMap = new HashMap<String, UserData>();
+		Map<String, UserData> userDataMap = new HashMap<>();
 		for (UserIdent user : users) {
 			String uuid = (user.getUuid() == null ? null : user.getUuid().toString());
 			String username = user.getUsername();
@@ -278,7 +278,7 @@ public class JsonProvider extends ZonePersistenceProvider {
 	}
 
 	private void loadWorlds(ServerZone serverZone) {
-		List<File> files = new ArrayList<File>();
+		List<File> files = new ArrayList<>();
 		Path p = FileSystems.getDefault().getPath(path.getAbsolutePath());
 		try (DirectoryStream<Path> ds = Files.newDirectoryStream(p, "world_*.json")) {
 			for (Path p2 : ds) {

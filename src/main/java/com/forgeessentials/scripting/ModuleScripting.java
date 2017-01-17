@@ -98,10 +98,8 @@ public class ModuleScripting extends ServerEventHandler implements ScriptHandler
 		PatternCommand cmd;
 		if (!PatternCommand.getPatternCommands().containsKey("god")) {
 			cmd = new PatternCommand("god", "/god on|off [player]", null);
-			cmd.getPatterns().put("on @p",
-					Arrays.asList(new String[] { "permcheck fe.commands.god.others", //
-							"permset user @0 deny fe.protection.damageby.*", "$*/heal @0",
-							"echo God mode turned ON for @0" }));
+			cmd.getPatterns().put("on @p", Arrays.asList(new String[] { "permcheck fe.commands.god.others", //
+					"permset user @0 deny fe.protection.damageby.*", "$*/heal @0", "echo God mode turned ON for @0" }));
 			cmd.getPatterns().put("off @p",
 					Arrays.asList(new String[] { //
 							"permcheck fe.commands.god.others", "permset user @0 clear fe.protection.damageby.*",

@@ -4,11 +4,14 @@ public enum PermissionLevel {
 
 	TRUE(0),
 
-	@Deprecated OP_1(1),
+	@Deprecated
+	OP_1(1),
 
-	@Deprecated OP_2(2),
+	@Deprecated
+	OP_2(2),
 
-	@Deprecated OP_3(3),
+	@Deprecated
+	OP_3(3),
 
 	OP(4),
 

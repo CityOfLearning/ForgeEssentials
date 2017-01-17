@@ -107,7 +107,7 @@ public class ShopData {
 	public ShopData(WorldPoint point, EntityItemFrame frame) {
 		pos = point;
 		itemFrameId = frame.getPersistentID();
-		itemFrame = new WeakReference<EntityItemFrame>(frame);
+		itemFrame = new WeakReference<>(frame);
 	}
 
 	public String getError() {
@@ -122,7 +122,7 @@ public class ShopData {
 			for (EntityItemFrame entityItemFrame : entities) {
 				if (entityItemFrame.getPersistentID().equals(itemFrameId)) {
 					frame = entityItemFrame;
-					itemFrame = new WeakReference<EntityItemFrame>(frame);
+					itemFrame = new WeakReference<>(frame);
 					break;
 				}
 			}

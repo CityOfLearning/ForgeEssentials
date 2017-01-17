@@ -52,7 +52,7 @@ public class ClientProxy extends CommonProxy {
 	/* ------------------------------------------------------------ */
 
 	private static PlotsRenderer plotRenderer = new PlotsRenderer();
-	
+
 	private static CUIRenderer cuiRenderer = new CUIRenderer();
 
 	private static PermissionOverlay permissionOverlay = new PermissionOverlay();
@@ -118,7 +118,7 @@ public class ClientProxy extends CommonProxy {
 		allowCUI = config
 				.get(Configuration.CATEGORY_GENERAL, "allowCUI", true, "Set to false to disable rendering selections.")
 				.getBoolean(true);
-		
+
 		allowPUI = config
 				.get(Configuration.CATEGORY_GENERAL, "allowPUI", true, "Set to false to disable rendering plots.")
 				.getBoolean(true);

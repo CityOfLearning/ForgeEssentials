@@ -24,7 +24,7 @@ public class WorldZone extends Zone implements Loadable {
 
 	private int dimensionID;
 
-	private List<AreaZone> areaZones = new ArrayList<AreaZone>();
+	private List<AreaZone> areaZones = new ArrayList<>();
 
 	public WorldZone(int id) {
 		super(id);

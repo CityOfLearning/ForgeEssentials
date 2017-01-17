@@ -74,11 +74,11 @@ public class NBTTagCompoundType implements DataType<NBTTagCompound> {
 						NBTTagList tagList = new NBTTagList();
 						JsonArray jsonArray = tagData.getValue().getAsJsonArray();
 						for (JsonElement el : jsonArray) {
-							tagList.appendTag(new NBTTagString(context.<String> deserialize(el, String.class)));
+							tagList.appendTag(new NBTTagString(context.<String>deserialize(el, String.class)));
 						}
 						result.setTag(tagName, tagList);
 					} else if (tagData.getValue().isJsonPrimitive()) {
-						result.setString(tagName, context.<String> deserialize(tagData.getValue(), String.class));
+						result.setString(tagName, context.<String>deserialize(tagData.getValue(), String.class));
 					} else {
 						LoggingHandler.felog.error("Error parsing NBT data: Invalid data type");
 					}

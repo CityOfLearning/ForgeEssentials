@@ -12,21 +12,6 @@ import net.minecraft.util.DamageSource;
 
 public class Censor {
 
-	private static List<CensoredWord> filterList = new ArrayList<>();
-	
-	static {
-		for(String word : new String[] { "fuck\\S*", "bastard", "moron", "ass", "asshole",
-			"bitch", "shit" }){
-			filterList.add(new CensoredWord(word));
-		}
-	}
-
-	private static boolean enabled = true;
-
-	private static String censorSymbol = "#";
-
-	private static int censorSlap = 1;
-	
 	public static class CensoredWord {
 
 		public String word;
@@ -45,6 +30,20 @@ public class Censor {
 		}
 
 	}
+
+	private static List<CensoredWord> filterList = new ArrayList<>();
+
+	static {
+		for (String word : new String[] { "fuck\\S*", "bastard", "moron", "ass", "asshole", "bitch", "shit" }) {
+			filterList.add(new CensoredWord(word));
+		}
+	}
+
+	private static boolean enabled = true;
+
+	private static String censorSymbol = "#";
+
+	private static int censorSlap = 1;
 
 	public static boolean containsSwear(String message) {
 		return !message.equals(filter(message));
@@ -72,12 +71,12 @@ public class Censor {
 		}
 		return message;
 	}
-	
-	public Censor(List words, boolean isEnabled, String symbol, int damage){
+
+	public Censor(List words, boolean isEnabled, String symbol, int damage) {
 		filterList = words;
 		enabled = isEnabled;
 		censorSymbol = symbol;
 		censorSlap = damage;
-		
+
 	}
 }

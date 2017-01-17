@@ -117,7 +117,7 @@ public class UserIdent {
 			}
 		}
 		if ((ident.player == null) || (ident.player.get() != player)) {
-			ident.player = new WeakReference<EntityPlayer>(player);
+			ident.player = new WeakReference<>(player);
 		}
 		return ident;
 	}
@@ -342,7 +342,7 @@ public class UserIdent {
 				byUuid.put(player.getPersistentID(), ident);
 			}
 		}
-		ident.player = new WeakReference<EntityPlayer>(player);
+		ident.player = new WeakReference<>(player);
 		ident.username = player.getName();
 		ident.uuid = player.getPersistentID();
 
@@ -350,7 +350,7 @@ public class UserIdent {
 			APIRegistry.getFEEventBus().post(new UserIdentInvalidatedEvent(usernameIdent, ident));
 
 			// Change data for already existing references to old UserIdent
-			usernameIdent.player = new WeakReference<EntityPlayer>(player);
+			usernameIdent.player = new WeakReference<>(player);
 			usernameIdent.username = player.getName();
 
 			// Replace entry in username map by the one from uuid map
@@ -377,7 +377,7 @@ public class UserIdent {
 	protected WeakReference<EntityPlayer> player;
 
 	private UserIdent(EntityPlayerMP player) {
-		this.player = new WeakReference<EntityPlayer>(player);
+		this.player = new WeakReference<>(player);
 		uuid = player.getPersistentID();
 		username = player.getName();
 		byUuid.put(uuid, this);
@@ -390,7 +390,7 @@ public class UserIdent {
 		if ((identUsername != null) && identUsername.isEmpty()) {
 			identUsername = null;
 		}
-		player = identPlayer == null ? null : new WeakReference<EntityPlayer>(identPlayer);
+		player = identPlayer == null ? null : new WeakReference<>(identPlayer);
 		if (identPlayer != null) {
 			uuid = identPlayer.getPersistentID();
 			username = identPlayer.getName();
@@ -593,7 +593,7 @@ public class UserIdent {
 
 	public void refreshPlayer() {
 		EntityPlayerMP player = UserIdent.getPlayerByUuid(uuid);
-		this.player = player == null ? null : new WeakReference<EntityPlayer>(player);
+		this.player = player == null ? null : new WeakReference<>(player);
 	}
 
 	public String toSerializeString() {

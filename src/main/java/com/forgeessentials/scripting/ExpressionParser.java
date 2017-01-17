@@ -388,9 +388,9 @@ public class ExpressionParser {
 		// expr = parseFunctions(expr);
 		Matcher m = OPERATION_PATTERN.matcher(expr.replaceAll("\\s*", ""));
 		boolean matchedOnce = false;
-		Stack<Operator> opStack = new Stack<Operator>();
+		Stack<Operator> opStack = new Stack<>();
 
-		LinkedList<Token> outputQueue = new LinkedList<Token>();
+		LinkedList<Token> outputQueue = new LinkedList<>();
 		Boolean lastTokenWasNumber = null;
 
 		Stack<Integer> functionArgs = new Stack<>();
@@ -483,7 +483,7 @@ public class ExpressionParser {
 		while (!opStack.isEmpty()) {
 			outputQueue.add(opStack.pop());
 		}
-		Stack<NumericToken> numStack = new Stack<NumericToken>();
+		Stack<NumericToken> numStack = new Stack<>();
 		while (!outputQueue.isEmpty()) {
 			Object output = outputQueue.remove();
 			if (output instanceof NumericToken) {

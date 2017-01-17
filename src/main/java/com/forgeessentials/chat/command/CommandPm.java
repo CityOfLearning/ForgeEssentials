@@ -34,7 +34,7 @@ public class CommandPm extends ParserCommandBase {
 	}
 
 	public static void setTarget(ICommandSender sender, ICommandSender target) {
-		targetMap.put(sender, new WeakReference<ICommandSender>(target));
+		targetMap.put(sender, new WeakReference<>(target));
 	}
 
 	/* ------------------------------------------------------------ */

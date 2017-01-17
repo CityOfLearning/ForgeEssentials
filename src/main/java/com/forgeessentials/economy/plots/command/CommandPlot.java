@@ -372,7 +372,7 @@ public class CommandPlot extends ParserCommandBase {
 
 		final WorldPoint playerRef = arguments.senderPlayer != null ? arguments.getSenderPoint().setY(0)
 				: new WorldPoint(0, 0, 0, 0);
-		SortedSet<Plot> plots = new TreeSet<Plot>((a, b) -> {
+		SortedSet<Plot> plots = new TreeSet<>((a, b) -> {
 			if (a.getDimension() != playerRef.getDimension()) {
 				if (b.getDimension() == playerRef.getDimension()) {
 					return 1;

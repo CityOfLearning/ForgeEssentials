@@ -61,7 +61,7 @@ public class CommandPromote extends ParserCommandBase {
 
 		if (arguments.isTabCompletion) {
 			if (arguments.args.size() == 1) {
-				arguments.tabCompletion = new ArrayList<String>();
+				arguments.tabCompletion = new ArrayList<>();
 				for (String group : APIRegistry.perms.getServerZone().getGroups()) {
 					if (CommandBase.doesStringStartWith(arguments.args.peek(), group)) {
 						arguments.tabCompletion.add(group);

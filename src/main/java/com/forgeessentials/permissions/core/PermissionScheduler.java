@@ -56,7 +56,7 @@ public class PermissionScheduler extends ServerEventHandler implements ConfigLoa
 
 		public String offMessage;
 
-		public List<Integer> times = new ArrayList<Integer>();
+		public List<Integer> times = new ArrayList<>();
 
 		public Map<String, PermissionEntry> permissions = new HashMap<>();
 

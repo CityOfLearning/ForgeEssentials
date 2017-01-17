@@ -29,7 +29,6 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
 
 import net.minecraft.command.server.CommandScoreboard;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.WorldManager;
 import net.minecraft.world.WorldProvider;
@@ -42,7 +41,6 @@ import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.network.ForgeMessage.DimensionRegisterMessage;
 import net.minecraftforge.event.CommandEvent;
-import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fe.DimensionManagerHelper;
 import net.minecraftforge.fe.event.world.WorldPreLoadEvent;
@@ -466,6 +464,18 @@ public class MultiworldManager extends ServerEventHandler implements NamedWorldH
 		}
 	}
 
+	@SubscribeEvent
+	public void scoreboardAltered(CommandEvent event) {
+		if (event.command instanceof CommandScoreboard) {
+			for (Multiworld world : worlds.values()) {
+				((WorldServerMultiworld) world.getWorldServer()).syncScoreboard();
+			}
+		}
+	}
+
+	// ============================================================
+	// WorldProvider management
+
 	/**
 	 * Remove dimensions and clear multiworld-data when server stopped
 	 *
@@ -481,9 +491,6 @@ public class MultiworldManager extends ServerEventHandler implements NamedWorldH
 		worlds.clear();
 	}
 
-	// ============================================================
-	// WorldProvider management
-
 	/**
 	 * When a world is unloaded and marked as to-be-unregistered, remove it now
 	 * when it is not needed any more
@@ -493,6 +500,9 @@ public class MultiworldManager extends ServerEventHandler implements NamedWorldH
 		unregisterDimensions();
 		deleteDimensions();
 	}
+
+	// ============================================================
+	// WorldType management
 
 	/**
 	 * Unload world
@@ -508,9 +518,6 @@ public class MultiworldManager extends ServerEventHandler implements NamedWorldH
 		worlds.remove(world.getName());
 	}
 
-	// ============================================================
-	// WorldType management
-
 	/**
 	 * Unregister all worlds that have been marked for removal
 	 */
@@ -518,7 +525,7 @@ public class MultiworldManager extends ServerEventHandler implements NamedWorldH
 		for (Iterator<WorldServer> it = worldsToRemove.iterator(); it.hasNext();) {
 			WorldServer world = it.next();
 			// Check with DimensionManager, whether the world is still loaded
-			if (world != null && DimensionManager.getWorld(world.provider.getDimensionId()) == null) {
+			if ((world != null) && (DimensionManager.getWorld(world.provider.getDimensionId()) == null)) {
 				if (DimensionManager.isDimensionRegistered(world.provider.getDimensionId())) {
 					DimensionManager.unregisterDimension(world.provider.getDimensionId());
 				}
@@ -552,15 +559,6 @@ public class MultiworldManager extends ServerEventHandler implements NamedWorldH
 		Multiworld mw = getMultiworld(event.world.provider.getDimensionId());
 		if (mw != null) {
 			mw.worldLoaded = false;
-		}
-	}
-
-	@SubscribeEvent
-	public void scoreboardAltered(CommandEvent event){
-		if(event.command instanceof CommandScoreboard){
-			for(Multiworld world : worlds.values()){
-				((WorldServerMultiworld) world.getWorldServer()).syncScoreboard();
-			}
 		}
 	}
 }

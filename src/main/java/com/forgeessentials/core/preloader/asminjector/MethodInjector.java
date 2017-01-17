@@ -144,7 +144,7 @@ public class MethodInjector implements Comparable<MethodInjector> {
 
 				// TODO: Cache @Local info
 				List<String> localAliases = ASMUtil.getAnnotationValue(aLocal, "value");
-				localAliases = localAliases == null ? new ArrayList<String>() : new ArrayList<>(localAliases);
+				localAliases = localAliases == null ? new ArrayList<>() : new ArrayList<>(localAliases);
 				localAliases.add(injector.localVariables.get(i + isNonStatic).name);
 				locals.add(localAliases);
 

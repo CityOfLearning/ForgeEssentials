@@ -88,7 +88,7 @@ public class WorldBorder implements Loadable {
 	public Set<WorldBorderEffect> getOrCreateActiveEffects(EntityPlayer player) {
 		Set<WorldBorderEffect> effects = activeEffects.get(player);
 		if (effects == null) {
-			effects = new HashSet<WorldBorderEffect>();
+			effects = new HashSet<>();
 			activeEffects.put(player, effects);
 		}
 		return effects;

@@ -25,7 +25,7 @@ import net.minecraft.item.ItemStack;
 
 public class PlayerInfo implements Loadable {
 
-	private static HashMap<UUID, PlayerInfo> playerInfoMap = new HashMap<UUID, PlayerInfo>();
+	private static HashMap<UUID, PlayerInfo> playerInfoMap = new HashMap<>();
 
 	/* ------------------------------------------------------------ */
 	/* General */
@@ -191,7 +191,7 @@ public class PlayerInfo implements Loadable {
 	@Expose(serialize = false)
 	private long lastActivity = System.currentTimeMillis();
 
-	private HashMap<String, Date> namedTimeout = new HashMap<String, Date>();
+	private HashMap<String, Date> namedTimeout = new HashMap<>();
 
 	private PlayerInfo(UUID uuid) {
 		ident = UserIdent.get(uuid);
@@ -200,7 +200,7 @@ public class PlayerInfo implements Loadable {
 	@Override
 	public void afterLoad() {
 		if (namedTimeout == null) {
-			namedTimeout = new HashMap<String, Date>();
+			namedTimeout = new HashMap<>();
 		}
 		lastActivity = System.currentTimeMillis();
 		if ((activeInventoryGroup == null) || activeInventoryGroup.isEmpty()) {

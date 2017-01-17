@@ -33,9 +33,9 @@ public class WorldServerMultiworld extends WorldServer {
 		perWorldStorage.saveAllData();
 		saveHandler.saveWorldInfo(worldInfo);
 	}
-	
-	public void syncScoreboard(){
-		this.worldScoreboard = DimensionManager.getWorld(0).getScoreboard();
+
+	public void syncScoreboard() {
+		worldScoreboard = DimensionManager.getWorld(0).getScoreboard();
 	}
 
 }

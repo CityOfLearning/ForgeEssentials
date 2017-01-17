@@ -15,7 +15,7 @@ public class DefaultPermissionProvider implements IPermissionProvider {
 	private static final String PERM_HELP = PermissionManager.DEFAULT_COMMAND_NODE + ".help";
 	private static final String PERM_ME = PermissionManager.DEFAULT_COMMAND_NODE + ".me";
 
-	protected static final Map<String, PermissionLevel> permissions = new HashMap<String, PermissionLevel>();
+	protected static final Map<String, PermissionLevel> permissions = new HashMap<>();
 
 	@Override
 	public boolean checkPermission(PermissionContext context, String permission) {

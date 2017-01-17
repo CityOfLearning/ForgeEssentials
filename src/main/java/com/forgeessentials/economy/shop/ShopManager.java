@@ -65,15 +65,15 @@ public class ShopManager extends ServerEventHandler implements ConfigLoader {
 
 	public static final String CONFIG_FILE = "Shops";
 
-	public static final Set<String> shopTags = new HashSet<String>();
+	public static final Set<String> shopTags = new HashSet<>();
 
 	public static boolean useStock;
 
-	protected static Set<ShopData> shops = new HashSet<ShopData>();
+	protected static Set<ShopData> shops = new HashSet<>();
 
-	protected static Map<WorldPoint, ShopData> shopSignMap = new WeakHashMap<WorldPoint, ShopData>();
+	protected static Map<WorldPoint, ShopData> shopSignMap = new WeakHashMap<>();
 
-	protected static Map<UUID, ShopData> shopFrameMap = new WeakHashMap<UUID, ShopData>();
+	protected static Map<UUID, ShopData> shopFrameMap = new WeakHashMap<>();
 
 	/* ------------------------------------------------------------ */
 	/* Data */

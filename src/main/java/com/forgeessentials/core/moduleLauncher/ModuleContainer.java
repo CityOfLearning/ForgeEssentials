@@ -24,7 +24,7 @@ import net.minecraftforge.fml.common.discovery.ASMDataTable.ASMData;
 @SuppressWarnings("rawtypes")
 public class ModuleContainer implements Comparable {
 
-	protected static HashSet<Class> modClasses = new HashSet<Class>();
+	protected static HashSet<Class> modClasses = new HashSet<>();
 
 	private static Object handleMod(Class modClass) {
 		String modid;

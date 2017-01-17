@@ -195,7 +195,7 @@ public class ScriptParser {
 						actionArgs = matcher.replaceFirst(Matcher.quoteReplacement(argument.process(sender)));
 						matcher.reset(actionArgs);
 					} else {
-						List<Entity> list = PlayerSelector.<Entity> matchEntities(sender, "@p", Entity.class);
+						List<Entity> list = PlayerSelector.<Entity>matchEntities(sender, "@p", Entity.class);
 						for (Entity entity : list) {
 							// hopefully this is a list of size 1...
 							actionArgs = matcher.replaceFirst(Matcher.quoteReplacement(argument.process(entity)));
@@ -281,8 +281,8 @@ public class ScriptParser {
 
 	public static boolean run(List<String> script, ICommandSender sender, List<String> args) throws CommandException {
 		String[] gotoLabel = new String[1];
-		HashMap<String, String> variableMap = new HashMap<String, String>();
-		HashMap<String, Integer> labels = new HashMap<String, Integer>();
+		HashMap<String, String> variableMap = new HashMap<>();
+		HashMap<String, Integer> labels = new HashMap<>();
 		gotoLabel[0] = null;
 		int line = 0;
 		long time = System.currentTimeMillis();

@@ -47,7 +47,7 @@ public class DBConnector {
 		this.dType = type = tempType = dType;
 		this.dbDefault = dbDefault;
 		this.dbFileDefault = dbFileDefault;
-		data = new HashMap<EnumDBType, HashMap<String, Property>>();
+		data = new HashMap<>();
 		useParent = useFallback;
 	}
 
@@ -179,7 +179,7 @@ public class DBConnector {
 
 			props = data.get(dbType);
 			if (props == null) {
-				props = new HashMap<String, Property>();
+				props = new HashMap<>();
 				data.put(dbType, props);
 			}
 

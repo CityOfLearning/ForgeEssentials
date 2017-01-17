@@ -53,7 +53,7 @@ public class CommandParserArgs {
 	public static final Pattern timeFormatPattern = Pattern.compile("(\\d+)(\\D+)?");
 
 	public static List<String> completePlayer(String arg) {
-		Set<String> result = new TreeSet<String>();
+		Set<String> result = new TreeSet<>();
 		for (UserIdent knownPlayerIdent : APIRegistry.perms.getServerZone().getKnownPlayers()) {
 			if (CommandBase.doesStringStartWith(arg, knownPlayerIdent.getUsernameOrUuid())) {
 				result.add(knownPlayerIdent.getUsernameOrUuid());
@@ -64,7 +64,7 @@ public class CommandParserArgs {
 				result.add(player.getName());
 			}
 		}
-		return new ArrayList<String>(result);
+		return new ArrayList<>(result);
 	}
 
 	public final ICommand command;
@@ -86,7 +86,7 @@ public class CommandParserArgs {
 
 	public CommandParserArgs(ICommand command, String[] args, ICommandSender sender, boolean isTabCompletion) {
 		this.command = command;
-		this.args = new LinkedList<String>(Arrays.asList(args));
+		this.args = new LinkedList<>(Arrays.asList(args));
 		this.sender = sender;
 		senderPlayer = (sender instanceof EntityPlayerMP) ? (EntityPlayerMP) sender : null;
 		ident = (senderPlayer == null)
@@ -264,7 +264,7 @@ public class CommandParserArgs {
 		if (isTabCompletion && (size() == 1)) {
 			String permission = peek();
 			Set<String> permissionSet = APIRegistry.perms.getServerZone().getRootZone().enumRegisteredPermissions();
-			Set<String> result = new TreeSet<String>();
+			Set<String> result = new TreeSet<>();
 			for (String perm : permissionSet) {
 				int nodeIndex = perm.indexOf('.', permission.length());
 				if (nodeIndex >= 0) {
@@ -274,7 +274,7 @@ public class CommandParserArgs {
 					result.add(perm);
 				}
 			}
-			tabCompletion = new ArrayList<String>(result);
+			tabCompletion = new ArrayList<>(result);
 			throw new CancelParsingException();
 		}
 		return remove();

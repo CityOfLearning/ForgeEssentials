@@ -29,7 +29,7 @@ public class GenLayerMultiworldBiome extends GenLayer {
 		this.parent = parent;
 
 		for (BiomeManager.BiomeType type : BiomeManager.BiomeType.values()) {
-			biomes[type.ordinal()] = new ArrayList<BiomeEntry>();
+			biomes[type.ordinal()] = new ArrayList<>();
 		}
 		biomes[BiomeManager.BiomeType.DESERT.ordinal()].add(new BiomeEntry(BiomeGenBase.plains, 10));
 		biomes[BiomeManager.BiomeType.WARM.ordinal()].add(new BiomeEntry(BiomeGenBase.plains, 10));

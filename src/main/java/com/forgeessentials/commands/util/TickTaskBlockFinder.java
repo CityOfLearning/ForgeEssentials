@@ -42,7 +42,7 @@ public class TickTaskBlockFinder implements TickTask {
 	private int j = 0;
 	private int segment_passed = 0;
 
-	ArrayList<Point> results = new ArrayList<Point>();
+	ArrayList<Point> results = new ArrayList<>();
 
 	public TickTaskBlockFinder(EntityPlayer player, String id, int meta, int range, int amount, int speed) {
 		this.player = player;

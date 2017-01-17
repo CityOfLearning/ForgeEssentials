@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
  */
 public class FEClientMixinConfig implements IMixinConfigPlugin {
 
-	protected static List<String> injectedPatches = new ArrayList<String>();
+	protected static List<String> injectedPatches = new ArrayList<>();
 
 	public static List<String> getInjectedPatches() {
 		return injectedPatches;

@@ -19,7 +19,7 @@ public class FEChunkLoader implements LoadingCallback {
 		return instance;
 	}
 
-	HashMap<Integer, Ticket> map = new HashMap<Integer, Ticket>();
+	HashMap<Integer, Ticket> map = new HashMap<>();
 
 	public FEChunkLoader() {
 		instance = this;

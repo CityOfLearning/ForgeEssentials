@@ -28,10 +28,10 @@ public abstract class BookUtil {
 		NBTTagCompound tag = new NBTTagCompound();
 		NBTTagList pages = new NBTTagList();
 
-		HashMap<String, String> map = new HashMap<String, String>();
+		HashMap<String, String> map = new HashMap<>();
 		if (file.isFile()) {
 			if (file.getName().contains(".txt")) {
-				List<String> lines = new ArrayList<String>();
+				List<String> lines = new ArrayList<>();
 				try {
 					lines.add(EnumChatFormatting.GREEN + "START" + EnumChatFormatting.BLACK);
 					lines.add("");
@@ -73,7 +73,7 @@ public abstract class BookUtil {
 			}
 		}
 
-		SortedSet<String> keys = new TreeSet<String>(map.keySet());
+		SortedSet<String> keys = new TreeSet<>(map.keySet());
 		for (String name : keys) {
 			pages.appendTag(new NBTTagString(name + map.get(name)));
 		}
@@ -91,10 +91,10 @@ public abstract class BookUtil {
 		NBTTagCompound tag = new NBTTagCompound();
 		NBTTagList pages = new NBTTagList();
 
-		HashMap<String, String> map = new HashMap<String, String>();
+		HashMap<String, String> map = new HashMap<>();
 		if (file.isFile()) {
 			if (file.getName().contains(".txt")) {
-				List<String> lines = new ArrayList<String>();
+				List<String> lines = new ArrayList<>();
 				try {
 					lines.add(EnumChatFormatting.GREEN + "START" + EnumChatFormatting.BLACK);
 					lines.add("");
@@ -135,7 +135,7 @@ public abstract class BookUtil {
 			}
 		}
 
-		SortedSet<String> keys = new TreeSet<String>(map.keySet());
+		SortedSet<String> keys = new TreeSet<>(map.keySet());
 		for (String name : keys) {
 			pages.appendTag(new NBTTagString(name + map.get(name)));
 		}
@@ -153,10 +153,10 @@ public abstract class BookUtil {
 		NBTTagCompound tag = new NBTTagCompound();
 		NBTTagList pages = new NBTTagList();
 
-		HashMap<String, String> map = new HashMap<String, String>();
+		HashMap<String, String> map = new HashMap<>();
 		if (file.isFile()) {
 			if (file.getName().contains(".txt")) {
-				List<String> lines = new ArrayList<String>();
+				List<String> lines = new ArrayList<>();
 				try {
 					try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)))) {
 						String line = reader.readLine();
@@ -179,7 +179,7 @@ public abstract class BookUtil {
 			}
 		}
 
-		SortedSet<String> keys = new TreeSet<String>(map.keySet());
+		SortedSet<String> keys = new TreeSet<>(map.keySet());
 		for (String name : keys) {
 			pages.appendTag(new NBTTagString(name + map.get(name)));
 		}
@@ -197,10 +197,10 @@ public abstract class BookUtil {
 		NBTTagCompound tag = new NBTTagCompound();
 		NBTTagList pages = new NBTTagList();
 
-		HashMap<String, String> map = new HashMap<String, String>();
+		HashMap<String, String> map = new HashMap<>();
 		if (file.isFile()) {
 			if (file.getName().contains(".txt")) {
-				List<String> lines = new ArrayList<String>();
+				List<String> lines = new ArrayList<>();
 				try {
 					try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)))) {
 						String line = reader.readLine();
@@ -223,7 +223,7 @@ public abstract class BookUtil {
 			}
 		}
 
-		SortedSet<String> keys = new TreeSet<String>(map.keySet());
+		SortedSet<String> keys = new TreeSet<>(map.keySet());
 		for (String name : keys) {
 			pages.appendTag(new NBTTagString(name + map.get(name)));
 		}
@@ -241,14 +241,14 @@ public abstract class BookUtil {
 		NBTTagCompound tag = new NBTTagCompound();
 		NBTTagList pages = new NBTTagList();
 
-		HashMap<String, String> map = new HashMap<String, String>();
+		HashMap<String, String> map = new HashMap<>();
 
 		File[] listOfFiles = folder.listFiles();
 
 		for (File file : listOfFiles) {
 			if (file.isFile()) {
 				if (file.getName().contains(".txt")) {
-					List<String> lines = new ArrayList<String>();
+					List<String> lines = new ArrayList<>();
 					try {
 						lines.add(EnumChatFormatting.GREEN + "START" + EnumChatFormatting.BLACK);
 						lines.add("");
@@ -291,7 +291,7 @@ public abstract class BookUtil {
 			}
 		}
 
-		SortedSet<String> keys = new TreeSet<String>(map.keySet());
+		SortedSet<String> keys = new TreeSet<>(map.keySet());
 		for (String name : keys) {
 			pages.appendTag(new NBTTagString(name + map.get(name)));
 		}
@@ -309,14 +309,14 @@ public abstract class BookUtil {
 		NBTTagCompound tag = new NBTTagCompound();
 		NBTTagList pages = new NBTTagList();
 
-		HashMap<String, String> map = new HashMap<String, String>();
+		HashMap<String, String> map = new HashMap<>();
 
 		File[] listOfFiles = folder.listFiles();
 
 		for (File file : listOfFiles) {
 			if (file.isFile()) {
 				if (file.getName().contains(".txt")) {
-					List<String> lines = new ArrayList<String>();
+					List<String> lines = new ArrayList<>();
 					try {
 						lines.add(EnumChatFormatting.GREEN + "START" + EnumChatFormatting.BLACK);
 						lines.add("");
@@ -359,7 +359,7 @@ public abstract class BookUtil {
 			}
 		}
 
-		SortedSet<String> keys = new TreeSet<String>(map.keySet());
+		SortedSet<String> keys = new TreeSet<>(map.keySet());
 		for (String name : keys) {
 			pages.appendTag(new NBTTagString(name + map.get(name)));
 		}
