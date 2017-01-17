@@ -10,6 +10,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
@@ -78,9 +79,9 @@ public class PermissionOverlay extends Gui implements IMessageHandler<Packet3Pla
 	public void renderGameOverlayEvent(RenderGameOverlayEvent event) {
 		if (!event.isCancelable() && (event.type == ElementType.HOTBAR)) {
 			Minecraft.getMinecraft().renderEngine.bindTexture(deniedPlaceTexture);
-			GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-			GL11.glDisable(GL11.GL_LIGHTING);
-			GL11.glEnable(GL11.GL_BLEND);
+			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+			GlStateManager.disableLighting();
+			GlStateManager.enableBlend();
 
 			ScaledResolution res = new ScaledResolution(Minecraft.getMinecraft());
 			int width = res.getScaledWidth();

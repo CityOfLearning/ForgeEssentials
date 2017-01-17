@@ -1,12 +1,12 @@
 package com.forgeessentials.client.handler;
 
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL12;
 
 import com.forgeessentials.commons.network.Packet1SelectionUpdate;
 import com.forgeessentials.commons.selections.Point;
 import com.forgeessentials.commons.selections.Selection;
 
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
@@ -105,80 +105,88 @@ public class CUIRenderer implements IMessageHandler<Packet1SelectionUpdate, IMes
 		double renderPosX = TileEntityRendererDispatcher.staticPlayerX;
 		double renderPosY = TileEntityRendererDispatcher.staticPlayerY;
 		double renderPosZ = TileEntityRendererDispatcher.staticPlayerZ;
-		GL11.glPushMatrix();
-		GL11.glTranslated(-renderPosX + 0.5, -renderPosY + 0.5, -renderPosZ + 0.5);
+		GlStateManager.pushMatrix();
+		{
+			GlStateManager.translate(-renderPosX + 0.5, -renderPosY + 0.5, -renderPosZ + 0.5);
 
-		GL11.glDisable(GL11.GL_TEXTURE_2D);
-		GL11.glEnable(GL12.GL_RESCALE_NORMAL);
-		GL11.glDisable(GL11.GL_LIGHTING);
-		GL11.glLineWidth(2);
+			GlStateManager.disableTexture2D();
+			GlStateManager.enableRescaleNormal();
+			GlStateManager.disableLighting();
+			GL11.glLineWidth(3);
 
-		boolean seeThrough = true;
-		while (true) {
-			if (seeThrough) {
-				GL11.glDisable(GL11.GL_DEPTH_TEST);
-				GL11.glEnable(GL11.GL_BLEND);
-				GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-			} else {
-				GL11.glDisable(GL11.GL_BLEND);
-				GL11.glEnable(GL11.GL_DEPTH_TEST);
-			}
-
-			// render start
-			if (selection.getStart() != null) {
-				Point p = selection.getStart();
-				GL11.glPushMatrix();
-				GL11.glTranslated(p.getX(), p.getY(), p.getZ());
-				GL11.glScalef(0.96F, 0.96F, 0.96F);
+			boolean seeThrough = true;
+			while (true) {
 				if (seeThrough) {
-					GL11.glColor4f(1, 0, 0, ALPHA);
+					GlStateManager.disableDepth();
+					GlStateManager.enableBlend();
+					GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 				} else {
-					GL11.glColor3f(1, 0, 0);
+					GlStateManager.disableBlend();
+					GlStateManager.enableDepth();
 				}
-				renderBox();
-				GL11.glPopMatrix();
-			}
 
-			// render end
-			if (selection.getEnd() != null) {
-				Point p = selection.getEnd();
-				GL11.glPushMatrix();
-				GL11.glTranslated(p.getX(), p.getY(), p.getZ());
-				GL11.glScalef(0.98F, 0.98F, 0.98F);
-				if (seeThrough) {
-					GL11.glColor4f(0, 1, 0, ALPHA);
-				} else {
-					GL11.glColor3f(0, 1, 0);
+				// render start
+				if (selection.getStart() != null) {
+					Point p = selection.getStart();
+					GlStateManager.pushMatrix();
+					{
+						GlStateManager.translate(p.getX(), p.getY(), p.getZ());
+						GlStateManager.scale(0.96F, 0.96F, 0.96F);
+						if (seeThrough) {
+							GlStateManager.color(1, 0, 0, ALPHA);
+						} else {
+							GlStateManager.color(1, 0, 0);
+						}
+						renderBox();
+					}
+					GlStateManager.popMatrix();
 				}
-				renderBox();
-				GL11.glPopMatrix();
-			}
 
-			// render box
-			if ((selection.getStart() != null) && (selection.getEnd() != null)) {
-				Point p1 = selection.getStart();
-				Point p2 = selection.getEnd();
-				Point size = selection.getSize();
-				GL11.glPushMatrix();
-				GL11.glTranslated((float) (p1.getX() + p2.getX()) / 2, (float) (p1.getY() + p2.getY()) / 2,
-						(float) (p1.getZ() + p2.getZ()) / 2);
-				GL11.glScalef(1 + size.getX(), 1 + size.getY(), 1 + size.getZ());
-				if (seeThrough) {
-					GL11.glColor4f(0, 0, 1, ALPHA);
-				} else {
-					GL11.glColor3f(0, 1, 1);
+				// render end
+				if (selection.getEnd() != null) {
+					Point p = selection.getEnd();
+					GlStateManager.pushMatrix();
+					{
+						GlStateManager.translate(p.getX(), p.getY(), p.getZ());
+						GlStateManager.scale(0.98F, 0.98F, 0.98F);
+						if (seeThrough) {
+							GlStateManager.color(0, 1, 0, ALPHA);
+						} else {
+							GlStateManager.color(0, 1, 0);
+						}
+						renderBox();
+					}
+					GlStateManager.popMatrix();
 				}
-				renderBox();
-				GL11.glPopMatrix();
-			}
 
-			if (!seeThrough) {
-				break;
+				// render box
+				if ((selection.getStart() != null) && (selection.getEnd() != null)) {
+					Point p1 = selection.getStart();
+					Point p2 = selection.getEnd();
+					Point size = selection.getSize();
+					GlStateManager.pushMatrix();
+					{
+						GlStateManager.translate((float) (p1.getX() + p2.getX()) / 2,
+								(float) (p1.getY() + p2.getY()) / 2, (float) (p1.getZ() + p2.getZ()) / 2);
+						GlStateManager.scale(1 + size.getX(), 1 + size.getY(), 1 + size.getZ());
+						if (seeThrough) {
+							GlStateManager.color(0, 0, 1, ALPHA);
+						} else {
+							GlStateManager.color(0, 1, 1);
+						}
+						renderBox();
+					}
+					GlStateManager.popMatrix();
+				}
+
+				if (!seeThrough) {
+					break;
+				}
+				seeThrough = false;
 			}
-			seeThrough = false;
+			GlStateManager.enableTexture2D();
 		}
-		GL11.glEnable(GL11.GL_TEXTURE_2D);
-		GL11.glPopMatrix();
+		GlStateManager.popMatrix();
 	}
 
 }
