@@ -187,7 +187,7 @@ public class ForgeEssentials extends ConfigLoaderBase {
 	public ForgeEssentials() {
 		// new TestClass().test();
 		initConfiguration();
-		LoggingHandler.init();
+		LoggingHandler.init(ForgeEssentials.MODID);
 		BuildInfo.getBuildInfo(FELaunchHandler.getJarLocation());
 		Environment.check();
 		MinecraftForge.EVENT_BUS.register(this);

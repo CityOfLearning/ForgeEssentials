@@ -52,7 +52,7 @@ public class ForgeEssentialsClient {
 
 	@EventHandler
 	public void load(FMLInitializationEvent e) {
-		LoggingHandler.init();
+		LoggingHandler.init(ForgeEssentialsClient.MODID);
 		proxy.load(e);
 	}
 

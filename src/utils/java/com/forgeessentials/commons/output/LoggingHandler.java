@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.Appender;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.BaseConfiguration;
@@ -12,7 +13,6 @@ import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.apache.logging.log4j.core.impl.Log4jContextFactory;
 import org.apache.logging.log4j.core.layout.PatternLayout;
 
-import com.forgeessentials.core.ForgeEssentials;
 
 public class LoggingHandler {
 
@@ -25,7 +25,7 @@ public class LoggingHandler {
 	public static final QueueLogAppender logCache = new QueueLogAppender("fe_server_log_queue", null, MC_PATTERN, true,
 			MAX_LOG_LENGTH);
 
-	public static final org.apache.logging.log4j.Logger felog = LogManager.getLogger(ForgeEssentials.MODID);
+	public static Logger felog;
 
 	static {
 		addAppenderToAllConfigurations(logCache);
@@ -75,8 +75,8 @@ public class LoggingHandler {
 		return lines;
 	}
 
-	public static void init() {
-		/* do nothing */
+	public static void init(String modid) {
+		felog = LogManager.getLogger(modid);
 	}
 
 }
