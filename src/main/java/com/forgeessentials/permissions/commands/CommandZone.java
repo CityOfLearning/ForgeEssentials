@@ -1,10 +1,14 @@
 package com.forgeessentials.permissions.commands;
 
+import java.util.Map.Entry;
+
 import com.forgeessentials.api.APIRegistry;
+import com.forgeessentials.api.UserIdent;
 import com.forgeessentials.api.permissions.AreaZone;
 import com.forgeessentials.api.permissions.FEPermissions;
 import com.forgeessentials.api.permissions.WorldZone;
 import com.forgeessentials.api.permissions.Zone;
+import com.forgeessentials.api.permissions.Zone.PermissionList;
 import com.forgeessentials.commons.selections.AreaBase;
 import com.forgeessentials.commons.selections.AreaShape;
 import com.forgeessentials.core.commands.ParserCommandBase;
@@ -27,6 +31,9 @@ public class CommandZone extends ParserCommandBase {
 	public static final String PERM_DEFINE = PERM_NODE + ".define";
 	public static final String PERM_DELETE = PERM_NODE + ".delete";
 	public static final String PERM_SETTINGS = PERM_NODE + ".settings";
+	public static final String PERM_SWAP = PERM_NODE + ".swap";
+	public static final String PERM_DUPLICATE = PERM_NODE + ".duplicate";
+	public static final String PERM_COPY = PERM_NODE + ".copy";
 
 	public static AreaZone getAreaZone(WorldZone worldZone, String arg) {
 		try {
@@ -38,6 +45,45 @@ public class CommandZone extends ParserCommandBase {
 			/* none */
 		}
 		return worldZone.getAreaZone(arg);
+	}
+
+	public static void parseCopy(CommandParserArgs arguments) throws CommandException {
+		arguments.checkPermission(PERM_COPY);
+		if (arguments.isEmpty()) {
+			throw new TranslatedCommandException(FEPermissions.MSG_NOT_ENOUGH_ARGUMENTS);
+		}
+
+		tabCompleteArea(arguments);
+		String areaName1 = arguments.remove();
+
+		tabCompleteArea(arguments);
+		String areaName2 = arguments.remove();
+
+		if (arguments.isTabCompletion) {
+			return;
+		}
+
+		WorldZone worldZone = arguments.getWorldZone();
+		AreaZone areaZone1 = getAreaZone(worldZone, areaName1);
+		AreaZone areaZone2 = getAreaZone(worldZone, areaName2);
+		if (areaZone1 == null) {
+			throw new TranslatedCommandException("Area \"%s\" does not exist!", areaName1);
+		}
+		if (areaZone2 == null) {
+			throw new TranslatedCommandException("Area \"%s\" does not exist!", areaName2);
+		}
+
+		for (Entry<String, PermissionList> groupPerm : areaZone1.getGroupPermissions().entrySet()) {
+			for (Entry<String, String> perm : groupPerm.getValue().entrySet()) {
+				areaZone2.setGroupPermissionProperty(groupPerm.getKey(), perm.getKey(), perm.getValue());
+			}
+		}
+
+		for (Entry<UserIdent, PermissionList> playerPerm : areaZone1.getPlayerPermissions().entrySet()) {
+			for (Entry<String, String> perm : playerPerm.getValue().entrySet()) {
+				areaZone2.setPlayerPermissionProperty(playerPerm.getKey(), perm.getKey(), perm.getValue());
+			}
+		}
 	}
 
 	public static void parseDefine(CommandParserArgs arguments, boolean redefine) throws CommandException {
@@ -119,6 +165,65 @@ public class CommandZone extends ParserCommandBase {
 		}
 		areaZone.getWorldZone().removeAreaZone(areaZone);
 		arguments.confirm("Area \"%s\" has been deleted.", areaZone.getName());
+	}
+
+	public static void parseDuplicate(CommandParserArgs arguments) throws CommandException {
+		arguments.checkPermission(PERM_DUPLICATE);
+		if (arguments.isEmpty()) {
+			throw new TranslatedCommandException(FEPermissions.MSG_NOT_ENOUGH_ARGUMENTS);
+		}
+
+		tabCompleteArea(arguments);
+		String areaName1 = arguments.remove();
+
+		tabCompleteArea(arguments);
+		String areaName2 = arguments.remove();
+
+		if (arguments.isTabCompletion) {
+			return;
+		}
+
+		WorldZone worldZone = arguments.getWorldZone();
+		AreaZone areaZone1 = getAreaZone(worldZone, areaName1);
+		AreaZone areaZone2 = getAreaZone(worldZone, areaName2);
+		if (areaZone1 == null) {
+			throw new TranslatedCommandException("Area \"%s\" does not exist!", areaName1);
+		}
+		if (areaZone2 != null) {
+			throw new TranslatedCommandException(String.format("Area \"%s\" already exists!", areaName2));
+		}
+		AreaShape shape = AreaShape.BOX;
+		AreaBase selection = SelectionHandler.getSelection(arguments.senderPlayer);
+		if (selection == null) {
+			throw new TranslatedCommandException("No selection available. Please select a region first.");
+		}
+
+		arguments.permissionContext.setTargetStart(selection.getLowPoint().toVec3())
+				.setTargetEnd(selection.getHighPoint().toVec3());
+		arguments.checkPermission(PERM_DEFINE);
+
+		try {
+			areaZone2 = new AreaZone(worldZone, areaName2, selection);
+			if (shape != null) {
+				areaZone2.setShape(shape);
+			}
+
+			for (Entry<String, PermissionList> groupPerm : areaZone1.getGroupPermissions().entrySet()) {
+				for (Entry<String, String> perm : groupPerm.getValue().entrySet()) {
+					areaZone2.setGroupPermissionProperty(groupPerm.getKey(), perm.getKey(), perm.getValue());
+				}
+			}
+
+			for (Entry<UserIdent, PermissionList> playerPerm : areaZone1.getPlayerPermissions().entrySet()) {
+				for (Entry<String, String> perm : playerPerm.getValue().entrySet()) {
+					areaZone2.setPlayerPermissionProperty(playerPerm.getKey(), perm.getKey(), perm.getValue());
+				}
+			}
+
+			arguments.confirm("Area \"%s\" has been defined.", areaName2);
+		} catch (EventCancelledException e) {
+			throw new TranslatedCommandException("Defining area \"%s\" has been cancelled.", areaName2);
+		}
 	}
 
 	public static void parseEntryExitMessage(CommandParserArgs arguments, boolean isEntry) throws CommandException {
@@ -259,6 +364,35 @@ public class CommandZone extends ParserCommandBase {
 		arguments.confirm("Area \"%s\" has been selected.", areaName);
 	}
 
+	public static void parseSwap(CommandParserArgs arguments) throws CommandException {
+		arguments.checkPermission(PERM_SWAP);
+		if (arguments.isEmpty()) {
+			throw new TranslatedCommandException(FEPermissions.MSG_NOT_ENOUGH_ARGUMENTS);
+		}
+
+		tabCompleteArea(arguments);
+		String areaName1 = arguments.remove();
+
+		tabCompleteArea(arguments);
+		String areaName2 = arguments.remove();
+
+		if (arguments.isTabCompletion) {
+			return;
+		}
+
+		WorldZone worldZone = arguments.getWorldZone();
+		AreaZone areaZone1 = getAreaZone(worldZone, areaName1);
+		AreaZone areaZone2 = getAreaZone(worldZone, areaName2);
+		if (areaZone1 == null) {
+			throw new TranslatedCommandException("Area \"%s\" does not exist!", areaName1);
+		}
+		if (areaZone2 == null) {
+			throw new TranslatedCommandException("Area \"%s\" does not exist!", areaName2);
+		}
+
+		areaZone1.swapPermissions(areaZone2);
+	}
+
 	public static void tabCompleteArea(CommandParserArgs arguments) throws CommandException {
 		if (arguments.isTabCompletion && (arguments.size() == 1)) {
 			for (Zone z : APIRegistry.perms.getZones()) {
@@ -282,17 +416,17 @@ public class CommandZone extends ParserCommandBase {
 
 	@Override
 	public String getCommandName() {
-		return "area";
+		return "zone";
 	}
 
 	@Override
 	public String getCommandUsage(ICommandSender sender) {
-		return "/area: Manage permission areas";
+		return "/zone: Manage permission zones";
 	}
 
 	@Override
 	public String[] getDefaultAliases() {
-		return new String[] { "zone" };
+		return new String[] { "area" };
 	}
 
 	@Override
@@ -314,10 +448,16 @@ public class CommandZone extends ParserCommandBase {
 			arguments.confirm("/zone delete <zone-id>: Delete a zone.");
 			arguments.confirm("/zone select <zone-id>: Select a zone.");
 			arguments.confirm("/zone entry|exit <zone-id> <message|clear>: Set the zone entry/exit message.");
+			arguments.confirm("/zone swap <zone-id> <zone-id>: Swaps permissions with another zone");
+			arguments.confirm(
+					"/zone duplicate <zone-id-from> <new-zone-name>: Duplicates the zones permissions and creates a new zone.");
+			arguments.confirm(
+					"/zone copy <zone-id-from> <zone-id-to>: Copies the zones permissions into the destination zone.");
 			return;
 		}
 
-		arguments.tabComplete("define", "list", "delete", "select", "redefine", "exit", "entry");
+		arguments.tabComplete("define", "list", "delete", "select", "redefine", "exit", "entry", "swap", "duplicate",
+				"copy", "info");
 		String arg = arguments.remove().toLowerCase();
 		switch (arg) {
 		case "select":
@@ -344,9 +484,17 @@ public class CommandZone extends ParserCommandBase {
 		case "exit":
 			parseEntryExitMessage(arguments, false);
 			break;
+		case "swap":
+			parseSwap(arguments);
+			break;
+		case "duplicate":
+			parseDuplicate(arguments);
+			break;
+		case "copy":
+			parseCopy(arguments);
+			break;
 		default:
 			throw new TranslatedCommandException(FEPermissions.MSG_UNKNOWN_SUBCOMMAND, arg);
 		}
 	}
-
 }
