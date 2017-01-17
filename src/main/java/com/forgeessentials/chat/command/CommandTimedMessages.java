@@ -9,6 +9,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import com.forgeessentials.api.permissions.FEPermissions;
 import com.forgeessentials.chat.ModuleChat;
+import com.forgeessentials.commons.output.LoggingHandler;
 import com.forgeessentials.core.ForgeEssentials;
 import com.forgeessentials.core.commands.ParserCommandBase;
 import com.forgeessentials.core.misc.TaskRegistry;
@@ -16,7 +17,6 @@ import com.forgeessentials.core.misc.TranslatedCommandException;
 import com.forgeessentials.core.moduleLauncher.config.ConfigSaver;
 import com.forgeessentials.util.CommandParserArgs;
 import com.forgeessentials.util.output.ChatOutputHandler;
-import com.forgeessentials.util.output.LoggingHandler;
 import com.google.gson.JsonParseException;
 
 import net.minecraft.command.CommandException;

@@ -6,7 +6,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import com.forgeessentials.util.output.LoggingHandler;
+import com.forgeessentials.commons.output.LoggingHandler;
 
 import net.minecraftforge.common.config.Configuration;
 

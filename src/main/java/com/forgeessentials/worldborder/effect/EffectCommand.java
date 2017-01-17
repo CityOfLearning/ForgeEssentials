@@ -2,10 +2,10 @@ package com.forgeessentials.worldborder.effect;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.forgeessentials.commons.output.LoggingHandler;
 import com.forgeessentials.scripting.ScriptArguments;
 import com.forgeessentials.util.PlayerInfo;
 import com.forgeessentials.util.ServerUtil;
-import com.forgeessentials.util.output.LoggingHandler;
 import com.forgeessentials.worldborder.WorldBorder;
 import com.forgeessentials.worldborder.WorldBorderEffect;
 

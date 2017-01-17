@@ -2,8 +2,8 @@ package com.forgeessentials.worldborder;
 
 import java.lang.reflect.Type;
 
+import com.forgeessentials.commons.output.LoggingHandler;
 import com.forgeessentials.data.v2.DataManager.DataType;
-import com.forgeessentials.util.output.LoggingHandler;
 import com.forgeessentials.worldborder.effect.EffectMessage;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonElement;

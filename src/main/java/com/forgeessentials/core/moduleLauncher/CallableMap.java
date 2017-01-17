@@ -7,7 +7,7 @@ import java.lang.reflect.Modifier;
 import java.util.Set;
 
 import com.forgeessentials.api.APIRegistry.ForgeEssentialsRegistrar;
-import com.forgeessentials.util.output.LoggingHandler;
+import com.forgeessentials.commons.output.LoggingHandler;
 import com.google.common.collect.HashMultimap;
 
 import net.minecraftforge.fml.common.FMLCommonHandler;

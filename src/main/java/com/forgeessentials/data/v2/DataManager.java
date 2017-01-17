@@ -15,11 +15,11 @@ import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 
+import com.forgeessentials.commons.output.LoggingHandler;
 import com.forgeessentials.data.v2.types.BlockType;
 import com.forgeessentials.data.v2.types.ItemStackType;
 import com.forgeessentials.data.v2.types.NBTTagCompoundType;
 import com.forgeessentials.data.v2.types.UserIdentType;
-import com.forgeessentials.util.output.LoggingHandler;
 import com.google.common.base.Throwables;
 import com.google.gson.ExclusionStrategy;
 import com.google.gson.FieldAttributes;

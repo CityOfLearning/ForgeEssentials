@@ -16,6 +16,7 @@ import java.util.regex.Pattern;
 import com.forgeessentials.api.APIRegistry;
 import com.forgeessentials.api.UserIdent;
 import com.forgeessentials.chat.ChatConfig;
+import com.forgeessentials.commons.output.LoggingHandler;
 import com.forgeessentials.commons.selections.WorldPoint;
 import com.forgeessentials.core.FEConfig;
 import com.forgeessentials.core.ForgeEssentials;
@@ -26,7 +27,6 @@ import com.forgeessentials.scripting.ScriptParser.SyntaxException;
 import com.forgeessentials.util.PlayerInfo;
 import com.forgeessentials.util.ServerUtil;
 import com.forgeessentials.util.output.ChatOutputHandler;
-import com.forgeessentials.util.output.LoggingHandler;
 import com.google.common.collect.ImmutableMap;
 
 import net.minecraft.command.ICommandSender;

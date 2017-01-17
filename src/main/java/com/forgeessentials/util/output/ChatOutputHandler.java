@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 
+import com.forgeessentials.commons.output.LoggingHandler;
 import com.forgeessentials.core.moduleLauncher.config.ConfigLoaderBase;
 
 import net.minecraft.command.ICommandSender;

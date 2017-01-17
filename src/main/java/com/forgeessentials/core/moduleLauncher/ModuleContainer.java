@@ -7,13 +7,13 @@ import java.lang.reflect.Method;
 import java.util.HashSet;
 
 import com.forgeessentials.api.APIRegistry;
+import com.forgeessentials.commons.output.LoggingHandler;
 import com.forgeessentials.core.ForgeEssentials;
 import com.forgeessentials.core.moduleLauncher.FEModule.Container;
 import com.forgeessentials.core.moduleLauncher.FEModule.Instance;
 import com.forgeessentials.core.moduleLauncher.FEModule.ModuleDir;
 import com.forgeessentials.core.moduleLauncher.FEModule.ParentMod;
 import com.forgeessentials.core.moduleLauncher.FEModule.Preconditions;
-import com.forgeessentials.util.output.LoggingHandler;
 import com.google.common.base.Throwables;
 
 import net.minecraft.command.ICommandSender;

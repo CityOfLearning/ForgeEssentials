@@ -8,8 +8,8 @@ import java.util.Set;
 
 import com.forgeessentials.commons.Censor;
 import com.forgeessentials.commons.Censor.CensoredWord;
+import com.forgeessentials.commons.output.LoggingHandler;
 import com.forgeessentials.core.moduleLauncher.config.ConfigLoaderBase;
-import com.forgeessentials.util.output.LoggingHandler;
 
 import net.minecraftforge.common.config.Configuration;
 

@@ -13,6 +13,7 @@ import com.forgeessentials.api.UserIdent;
 import com.forgeessentials.api.economy.Wallet;
 import com.forgeessentials.api.permissions.FEPermissions;
 import com.forgeessentials.api.permissions.Zone;
+import com.forgeessentials.commons.output.LoggingHandler;
 import com.forgeessentials.commons.selections.WarpPoint;
 import com.forgeessentials.core.ForgeEssentials;
 import com.forgeessentials.core.misc.TaskRegistry;
@@ -27,7 +28,6 @@ import com.forgeessentials.scripting.ScriptParser.SyntaxException;
 import com.forgeessentials.util.CommandParserArgs;
 import com.forgeessentials.util.PlayerInfo;
 import com.forgeessentials.util.output.ChatOutputHandler;
-import com.forgeessentials.util.output.LoggingHandler;
 import com.google.common.collect.ImmutableMap;
 
 import net.minecraft.command.CommandException;

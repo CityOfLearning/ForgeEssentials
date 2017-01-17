@@ -17,6 +17,7 @@ import org.apache.commons.io.FileUtils;
 
 import com.forgeessentials.api.APIRegistry;
 import com.forgeessentials.api.ScriptHandler;
+import com.forgeessentials.commons.output.LoggingHandler;
 import com.forgeessentials.core.ForgeEssentials;
 import com.forgeessentials.core.moduleLauncher.FEModule;
 import com.forgeessentials.scripting.ScriptParser.ScriptArgument;
@@ -30,7 +31,6 @@ import com.forgeessentials.util.events.FEModuleEvent.FEModulePreInitEvent;
 import com.forgeessentials.util.events.FEModuleEvent.FEModuleServerInitEvent;
 import com.forgeessentials.util.events.ServerEventHandler;
 import com.forgeessentials.util.output.ChatOutputHandler;
-import com.forgeessentials.util.output.LoggingHandler;
 
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;

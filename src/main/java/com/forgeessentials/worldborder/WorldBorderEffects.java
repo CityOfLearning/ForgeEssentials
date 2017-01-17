@@ -1,6 +1,6 @@
 package com.forgeessentials.worldborder;
 
-import com.forgeessentials.util.output.LoggingHandler;
+import com.forgeessentials.commons.output.LoggingHandler;
 import com.forgeessentials.worldborder.effect.EffectBlock;
 import com.forgeessentials.worldborder.effect.EffectCommand;
 import com.forgeessentials.worldborder.effect.EffectDamage;

@@ -3,7 +3,7 @@ package com.forgeessentials.util;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.forgeessentials.util.output.LoggingHandler;
+import com.forgeessentials.commons.output.LoggingHandler;
 
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;

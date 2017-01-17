@@ -8,7 +8,7 @@ import java.util.HashMap;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Level;
 
-import com.forgeessentials.util.output.LoggingHandler;
+import com.forgeessentials.commons.output.LoggingHandler;
 import com.google.common.base.Throwables;
 
 import net.minecraftforge.common.config.Configuration;

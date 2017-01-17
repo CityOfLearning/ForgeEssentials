@@ -1,9 +1,9 @@
 package com.forgeessentials.compat.worldedit;
 
+import com.forgeessentials.commons.output.LoggingHandler;
 import com.forgeessentials.core.moduleLauncher.ModuleLauncher;
 import com.forgeessentials.util.events.FEModuleEvent.FEModulePostInitEvent;
 import com.forgeessentials.util.events.FEModuleEvent.FEModuleServerInitEvent;
-import com.forgeessentials.util.output.LoggingHandler;
 import com.forgeessentials.util.selections.SelectionHandler;
 import com.sk89q.worldedit.forge.ForgeWorldEdit;
 

@@ -7,6 +7,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.forgeessentials.client.core.CommonProxy;
 import com.forgeessentials.commons.BuildInfo;
+import com.forgeessentials.commons.output.LoggingHandler;
 
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
@@ -51,6 +52,7 @@ public class ForgeEssentialsClient {
 
 	@EventHandler
 	public void load(FMLInitializationEvent e) {
+		LoggingHandler.init();
 		proxy.load(e);
 	}
 

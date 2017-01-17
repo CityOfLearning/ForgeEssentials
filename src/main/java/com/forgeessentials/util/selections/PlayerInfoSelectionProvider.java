@@ -1,10 +1,10 @@
 package com.forgeessentials.util.selections;
 
+import com.forgeessentials.commons.output.LoggingHandler;
 import com.forgeessentials.commons.selections.AreaBase;
 import com.forgeessentials.commons.selections.Point;
 import com.forgeessentials.commons.selections.Selection;
 import com.forgeessentials.util.PlayerInfo;
-import com.forgeessentials.util.output.LoggingHandler;
 
 import net.minecraft.entity.player.EntityPlayerMP;
 

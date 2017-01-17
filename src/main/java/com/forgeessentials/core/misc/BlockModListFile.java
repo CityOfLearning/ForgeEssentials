@@ -5,9 +5,9 @@ import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.util.Calendar;
 
+import com.forgeessentials.commons.output.LoggingHandler;
 import com.forgeessentials.core.FEConfig;
 import com.forgeessentials.core.ForgeEssentials;
-import com.forgeessentials.util.output.LoggingHandler;
 
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;

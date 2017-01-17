@@ -3,8 +3,8 @@ package com.forgeessentials.util;
 import java.util.HashMap;
 import java.util.List;
 
+import com.forgeessentials.commons.output.LoggingHandler;
 import com.forgeessentials.core.ForgeEssentials;
-import com.forgeessentials.util.output.LoggingHandler;
 
 import net.minecraft.world.ChunkCoordIntPair;
 import net.minecraft.world.World;

@@ -10,8 +10,8 @@ import java.util.Set;
 import com.forgeessentials.api.APIRegistry;
 import com.forgeessentials.api.UserIdent;
 import com.forgeessentials.api.permissions.FEPermissions;
+import com.forgeessentials.commons.output.LoggingHandler;
 import com.forgeessentials.core.misc.TranslatedCommandException;
-import com.forgeessentials.util.output.LoggingHandler;
 
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;

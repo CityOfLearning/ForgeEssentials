@@ -11,8 +11,8 @@ import java.io.OutputStreamWriter;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
+import com.forgeessentials.commons.output.LoggingHandler;
 import com.forgeessentials.core.ForgeEssentials;
-import com.forgeessentials.util.output.LoggingHandler;
 import com.google.common.base.Charsets;
 
 public final class Translator {

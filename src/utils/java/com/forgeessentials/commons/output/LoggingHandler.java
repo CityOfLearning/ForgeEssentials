@@ -1,4 +1,4 @@
-package com.forgeessentials.util.output;
+package com.forgeessentials.commons.output;
 
 import java.util.ArrayList;
 import java.util.Iterator;

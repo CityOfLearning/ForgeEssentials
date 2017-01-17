@@ -1,7 +1,7 @@
 package com.forgeessentials.protection.effect;
 
+import com.forgeessentials.commons.output.LoggingHandler;
 import com.forgeessentials.scripting.ScriptParser;
-import com.forgeessentials.util.output.LoggingHandler;
 
 import net.minecraft.command.CommandException;
 import net.minecraft.entity.player.EntityPlayerMP;

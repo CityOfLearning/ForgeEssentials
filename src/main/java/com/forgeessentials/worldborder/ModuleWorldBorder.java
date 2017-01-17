@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.forgeessentials.api.APIRegistry;
+import com.forgeessentials.commons.output.LoggingHandler;
 import com.forgeessentials.commons.selections.Point;
 import com.forgeessentials.core.ForgeEssentials;
 import com.forgeessentials.core.misc.FECommandManager;
@@ -17,7 +18,6 @@ import com.forgeessentials.util.events.FEModuleEvent.FEModuleInitEvent;
 import com.forgeessentials.util.events.FEModuleEvent.FEModuleServerInitEvent;
 import com.forgeessentials.util.events.PlayerMoveEvent;
 import com.forgeessentials.util.events.ServerEventHandler;
-import com.forgeessentials.util.output.LoggingHandler;
 import com.forgeessentials.worldborder.effect.EffectBlock;
 
 import net.minecraft.entity.player.EntityPlayerMP;

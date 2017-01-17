@@ -4,8 +4,8 @@ import java.lang.reflect.Type;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import com.forgeessentials.commons.output.LoggingHandler;
 import com.forgeessentials.data.v2.DataManager.DataType;
-import com.forgeessentials.util.output.LoggingHandler;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonElement;

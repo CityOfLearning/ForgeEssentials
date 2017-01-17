@@ -10,13 +10,13 @@ import java.util.UUID;
 
 import com.forgeessentials.api.APIRegistry;
 import com.forgeessentials.api.UserIdent;
+import com.forgeessentials.commons.output.LoggingHandler;
 import com.forgeessentials.commons.selections.Point;
 import com.forgeessentials.commons.selections.WarpPoint;
 import com.forgeessentials.data.v2.DataManager;
 import com.forgeessentials.data.v2.Loadable;
 import com.forgeessentials.util.events.FEPlayerEvent.ClientHandshakeEstablished;
 import com.forgeessentials.util.events.FEPlayerEvent.NoPlayerInfoEvent;
-import com.forgeessentials.util.output.LoggingHandler;
 import com.google.gson.annotations.Expose;
 
 import net.minecraft.entity.player.EntityPlayer;

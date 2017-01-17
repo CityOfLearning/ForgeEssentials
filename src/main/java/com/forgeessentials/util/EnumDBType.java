@@ -2,7 +2,7 @@ package com.forgeessentials.util;
 
 import java.util.IllegalFormatException;
 
-import com.forgeessentials.util.output.LoggingHandler;
+import com.forgeessentials.commons.output.LoggingHandler;
 import com.google.common.base.Throwables;
 
 public enum EnumDBType {

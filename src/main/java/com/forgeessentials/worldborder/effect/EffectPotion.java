@@ -1,8 +1,8 @@
 package com.forgeessentials.worldborder.effect;
 
+import com.forgeessentials.commons.output.LoggingHandler;
 import com.forgeessentials.data.v2.Loadable;
 import com.forgeessentials.util.PlayerInfo;
-import com.forgeessentials.util.output.LoggingHandler;
 import com.forgeessentials.worldborder.WorldBorder;
 import com.forgeessentials.worldborder.WorldBorderEffect;
 

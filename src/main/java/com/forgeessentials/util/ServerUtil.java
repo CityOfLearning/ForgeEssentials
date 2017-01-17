@@ -15,10 +15,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import com.forgeessentials.commons.output.LoggingHandler;
 import com.forgeessentials.core.commands.ForgeEssentialsCommandBase;
 import com.forgeessentials.core.environment.CommandSetChecker;
 import com.forgeessentials.core.environment.Environment;
-import com.forgeessentials.util.output.LoggingHandler;
 import com.google.common.base.Throwables;
 
 import net.minecraft.block.Block;

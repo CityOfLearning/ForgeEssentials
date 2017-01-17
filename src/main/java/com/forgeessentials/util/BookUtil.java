@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import com.forgeessentials.util.output.LoggingHandler;
+import com.forgeessentials.commons.output.LoggingHandler;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;

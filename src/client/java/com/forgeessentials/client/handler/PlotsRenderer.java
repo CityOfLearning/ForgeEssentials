@@ -11,9 +11,9 @@ import com.forgeessentials.client.ForgeEssentialsClient;
 import com.forgeessentials.commons.network.NetworkUtils;
 import com.forgeessentials.commons.network.Packet4PlotsUpdate;
 import com.forgeessentials.commons.network.Packet6SyncPlots;
+import com.forgeessentials.commons.output.LoggingHandler;
 import com.forgeessentials.commons.selections.PlotArea;
 import com.forgeessentials.commons.selections.Point;
-import com.forgeessentials.util.output.LoggingHandler;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
