@@ -61,13 +61,15 @@ public class PermissionOverlay extends Gui implements IMessageHandler<Packet3Pla
 			permissions.breakIds.addAll(message.breakIds);
 
 			EntityPlayerSP player = Minecraft.getMinecraft().thePlayer;
-			ItemStack stack = player.getCurrentEquippedItem();
-			if (stack != null) {
-				int itemId = GameData.getItemRegistry().getId(stack.getItem());
-				for (int id : message.placeIds) {
-					if (itemId == id) {
-						player.stopUsingItem();
-						break;
+			if (player != null) {
+				ItemStack stack = player.getCurrentEquippedItem();
+				if (stack != null) {
+					int itemId = GameData.getItemRegistry().getId(stack.getItem());
+					for (int id : message.placeIds) {
+						if (itemId == id) {
+							player.stopUsingItem();
+							break;
+						}
 					}
 				}
 			}
