@@ -171,21 +171,25 @@ public class MultiworldManager extends ServerEventHandler implements NamedWorldH
 		for (Iterator<WorldServer> it = worldsToDelete.iterator(); it.hasNext();) {
 			WorldServer world = it.next();
 			// Check with DimensionManager, whether the world is still loaded
-			if (DimensionManager.getWorld(world.provider.getDimensionId()) == null) {
-				try {
-					if (DimensionManager.isDimensionRegistered(world.provider.getDimensionId())) {
-						DimensionManager.unregisterDimension(world.provider.getDimensionId());
+			if (world != null) {
+				if (DimensionManager.getWorld(world.provider.getDimensionId()) == null) {
+					try {
+						if (DimensionManager.isDimensionRegistered(world.provider.getDimensionId())) {
+							DimensionManager.unregisterDimension(world.provider.getDimensionId());
+						}
+
+						File path = world.getChunkSaveLocation(); 
+						FileUtils.deleteDirectory(path);
+
+						//TODO: should delete the permission files as well 
+						
+						it.remove();
+					} catch (IOException e) {
+						LoggingHandler.felog.warn("Error deleting dimension files");
 					}
-
-					File path = world.getChunkSaveLocation(); // new
-																// File(world.getSaveHandler().getWorldDirectory(),
-																// world.provider.getSaveFolder());
-					FileUtils.deleteDirectory(path);
-
-					it.remove();
-				} catch (IOException e) {
-					LoggingHandler.felog.warn("Error deleting dimension files");
 				}
+			} else {
+				LoggingHandler.felog.warn("World is null, it may have already been deleted");
 			}
 		}
 	}
