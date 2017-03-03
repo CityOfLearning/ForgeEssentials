@@ -14,6 +14,7 @@ import com.forgeessentials.util.CommandParserArgs;
 
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.WorldType;
 import net.minecraftforge.permission.PermissionLevel;
@@ -80,7 +81,12 @@ public class CommandMultiworld extends ParserCommandBase {
 		try {
 			ModuleMultiworld.getMultiworldManager().addWorld(world);
 			if (arguments.senderPlayer != null) {
+				if(world.getWorldServer().provider.getRandomizedSpawnPoint().getY() > 0){
+					BlockPos spawnPos = world.getWorldServer().provider.getRandomizedSpawnPoint();
+					world.teleport(arguments.senderPlayer, spawnPos.getX(), spawnPos.getY(), spawnPos.getZ(), true);
+				} else {
 				world.teleport(arguments.senderPlayer, true);
+				}
 			}
 		} catch (MultiworldException e) {
 			throw new TranslatedCommandException(e.type.error);
