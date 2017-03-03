@@ -7,8 +7,8 @@ import java.util.TimerTask;
 import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import com.forgeessentials.util.events.FEModuleEvent.FEModuleServerStopEvent;
 import com.forgeessentials.commons.output.LoggingHandler;
+import com.forgeessentials.util.events.FEModuleEvent.FEModuleServerStopEvent;
 import com.forgeessentials.util.events.ServerEventHandler;
 
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;

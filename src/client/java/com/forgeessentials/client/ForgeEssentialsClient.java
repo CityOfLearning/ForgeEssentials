@@ -2,9 +2,6 @@ package com.forgeessentials.client;
 
 import java.util.Map;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import com.forgeessentials.client.core.CommonProxy;
 import com.forgeessentials.commons.BuildInfo;
 import com.forgeessentials.commons.output.LoggingHandler;

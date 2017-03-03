@@ -13,7 +13,6 @@ import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.apache.logging.log4j.core.impl.Log4jContextFactory;
 import org.apache.logging.log4j.core.layout.PatternLayout;
 
-
 public class LoggingHandler {
 
 	public static final PatternLayout MC_PATTERN = PatternLayout

@@ -46,7 +46,8 @@ public class CommandVanish extends ParserCommandBase {
 		} else {
 			vanishedPlayers.remove(ident);
 			EntityTrackerEntry tracker = (EntityTrackerEntry) world.getEntityTracker().getTrackingPlayers(player);
-//			EntityTrackerEntry tracker = world.getEntityTracker().trackedEntityHashTable.lookup(player.getEntityId());
+			// EntityTrackerEntry tracker =
+			// world.getEntityTracker().trackedEntityHashTable.lookup(player.getEntityId());
 			// ((EntityTrackerHelper)
 			// world.getEntityTracker()).getEntityTrackerEntry(player);
 			for (EntityPlayer otherPlayer : players) {
