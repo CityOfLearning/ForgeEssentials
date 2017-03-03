@@ -30,6 +30,7 @@ import com.google.common.collect.ImmutableMap;
 
 import net.minecraft.command.server.CommandScoreboard;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.StatCollector;
 import net.minecraft.world.WorldManager;
 import net.minecraft.world.WorldProvider;
 import net.minecraft.world.WorldServer;
@@ -178,11 +179,11 @@ public class MultiworldManager extends ServerEventHandler implements NamedWorldH
 							DimensionManager.unregisterDimension(world.provider.getDimensionId());
 						}
 
-						File path = world.getChunkSaveLocation(); 
+						File path = world.getChunkSaveLocation();
 						FileUtils.deleteDirectory(path);
 
-						//TODO: should delete the permission files as well 
-						
+						// TODO: should delete the permission files as well
+
 						it.remove();
 					} catch (IOException e) {
 						LoggingHandler.felog.warn("Error deleting dimension files");
@@ -190,6 +191,7 @@ public class MultiworldManager extends ServerEventHandler implements NamedWorldH
 				}
 			} else {
 				LoggingHandler.felog.warn("World is null, it may have already been deleted");
+				it.remove();
 			}
 		}
 	}
@@ -397,7 +399,8 @@ public class MultiworldManager extends ServerEventHandler implements NamedWorldH
 					continue;
 				}
 
-				worldProviderClasses.put(provider.getValue().getName(), provider.getKey());
+				worldProviderClasses.put(StatCollector.translateToLocal(provider.getValue().getName()),
+						provider.getKey());
 			}
 			worldProviderClasses.put(PROVIDER_NORMAL, 0);
 			worldProviderClasses.put(PROVIDER_HELL, 1);
