@@ -5,9 +5,9 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Set;
 
-import com.forgeessentials.api.EnumMobType;
-import com.forgeessentials.api.EnumMobType.FEMob;
-import com.forgeessentials.api.EnumMobType.FEMob.IsTamed;
+import com.forgeessentials.commons.EnumMobType;
+import com.forgeessentials.commons.EnumMobType.FEMob;
+import com.forgeessentials.commons.EnumMobType.FEMob.IsTamed;
 import com.forgeessentials.commons.output.LoggingHandler;
 
 import net.minecraft.entity.passive.EntityTameable;

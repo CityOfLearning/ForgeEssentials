@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.forgeessentials.api.EnumMobType;
+import com.forgeessentials.commons.EnumMobType;
 import com.forgeessentials.core.misc.TaskRegistry;
 import com.forgeessentials.core.misc.TaskRegistry.TickTask;
 import com.forgeessentials.core.misc.TranslatedCommandException;

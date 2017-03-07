@@ -5,7 +5,7 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Set;
 
-import com.forgeessentials.api.EnumMobType;
+import com.forgeessentials.commons.EnumMobType;
 import com.google.common.collect.HashMultimap;
 
 import net.minecraft.entity.EntityLiving;
