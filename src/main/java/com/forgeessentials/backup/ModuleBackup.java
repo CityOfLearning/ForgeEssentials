@@ -400,9 +400,9 @@ public class ModuleBackup extends ConfigLoaderBase {
 		backupOnUnload = config.get(CONFIG_CAT, "backup_on_unload", true, "Always backup when a world is unloaded")
 				.getBoolean();
 		keepBackups = config.get(CONFIG_CAT, "keep_backups", 12, "Keep at least this amount of last backups").getInt();
-		dailyBackups = config.get(CONFIG_CAT, "keep_daily_backups", 7,
+		dailyBackups = config.get(CONFIG_CAT, "keep_daily_backups", 3,
 				"Keep at least one daily backup for this last number of last days").getInt();
-		weeklyBackups = config.get(CONFIG_CAT, "keep_weekly_backups", 8,
+		weeklyBackups = config.get(CONFIG_CAT, "keep_weekly_backups", 3,
 				"Keep at least one weekly backup for this last number of weeks").getInt();
 		baseFolder = new File(config.get(CONFIG_CAT, "base_folder", moduleDir.getPath(),
 				"Folder to store the backups in. Can be anywhere writable in the file system.").getString());
