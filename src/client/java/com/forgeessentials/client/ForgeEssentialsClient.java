@@ -4,6 +4,7 @@ import java.util.Map;
 
 import com.forgeessentials.client.core.CommonProxy;
 import com.forgeessentials.commons.BuildInfo;
+import com.forgeessentials.commons.MobTypeLoader;
 import com.forgeessentials.commons.output.LoggingHandler;
 
 import net.minecraftforge.fml.common.Mod;
@@ -58,6 +59,7 @@ public class ForgeEssentialsClient {
 		if (e.getSide() == Side.SERVER) {
 			LoggingHandler.felog.error("ForgeEssentials client does nothing on servers. You should remove it!");
 		}
+		MobTypeLoader.preLoad(e);
 		proxy.doPreInit(e);
 	}
 
