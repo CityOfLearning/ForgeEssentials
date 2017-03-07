@@ -349,9 +349,9 @@ public class MultiworldManager extends ServerEventHandler implements NamedWorldH
 
 			WorldServer worldServer = new WorldServerMultiworld(mcServer, savehandler, info, world.dimensionId,
 					overworld, mcServer.theProfiler, world);
-			
-			//assign a spawn point for the player
-			if(worldServer.provider.canRespawnHere()){
+
+			// assign a spawn point for the player
+			if (worldServer.provider.canRespawnHere()) {
 				worldServer.setSpawnPoint(worldServer.provider.getRandomizedSpawnPoint());
 			}
 

@@ -156,7 +156,7 @@ public class Multiworld {
 	public void teleport(EntityPlayerMP player, boolean instant) throws CommandException {
 		teleport(player, getWorldServer(), instant);
 	}
-	
+
 	public void teleport(EntityPlayerMP player, double x, double y, double z, boolean instant) throws CommandException {
 		teleport(player, getWorldServer(), x, y, z, instant);
 	}
