@@ -1,11 +1,10 @@
-package com.forgeessentials.commands.util;
+package com.forgeessentials.commons;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Set;
 
-import com.forgeessentials.commons.EnumMobType;
 import com.forgeessentials.commons.EnumMobType.FEMob;
 import com.forgeessentials.commons.EnumMobType.FEMob.IsTamed;
 import com.forgeessentials.commons.output.LoggingHandler;
