@@ -2,7 +2,7 @@ package com.forgeessentials.api;
 
 import net.minecraft.command.ICommandSender;
 
-public interface ScriptHandler {
+public interface IScriptHandler {
 	/**
 	 * Call before ServerStarting, so that your scripts with custom keys can be
 	 * added

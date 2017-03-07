@@ -49,7 +49,7 @@ public class APIRegistry {
 	 * Use to call scripting API functions, or to invoke a script run from
 	 * outside the module.
 	 */
-	public static ScriptHandler scripts;
+	public static IScriptHandler scripts;
 
 	/**
 	 * Allows identifying worlds by name. If you change this handler, remember

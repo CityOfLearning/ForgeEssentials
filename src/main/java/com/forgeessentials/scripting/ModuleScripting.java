@@ -16,7 +16,7 @@ import java.util.TreeMap;
 import org.apache.commons.io.FileUtils;
 
 import com.forgeessentials.api.APIRegistry;
-import com.forgeessentials.api.ScriptHandler;
+import com.forgeessentials.api.IScriptHandler;
 import com.forgeessentials.commons.output.LoggingHandler;
 import com.forgeessentials.core.ForgeEssentials;
 import com.forgeessentials.core.moduleLauncher.FEModule;
@@ -42,7 +42,7 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.ServerTickEvent;
 import net.minecraftforge.permission.PermissionLevel;
 
 @FEModule(name = "Scripting", parentMod = ForgeEssentials.class, isCore = false)
-public class ModuleScripting extends ServerEventHandler implements ScriptHandler {
+public class ModuleScripting extends ServerEventHandler implements IScriptHandler {
 
 	public static final long CRON_CHECK_INTERVAL = 1000;
 
