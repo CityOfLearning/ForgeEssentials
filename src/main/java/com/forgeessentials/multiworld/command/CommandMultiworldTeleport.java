@@ -117,4 +117,13 @@ public class CommandMultiworldTeleport extends ParserCommandBase {
 		Multiworld.teleport(player, world, x, y, z, false);
 	}
 
+	/**
+     * Return whether the specified command parameter index is a username parameter.
+     */
+	@Override
+    public boolean isUsernameIndex(String[] args, int index)
+    {
+        return index == 1;
+    }
+	
 }

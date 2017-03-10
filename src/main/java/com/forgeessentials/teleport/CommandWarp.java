@@ -19,6 +19,7 @@ import com.forgeessentials.util.ServerUtil;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.permission.PermissionLevel;
 
 public class CommandWarp extends ParserCommandBase {
@@ -51,7 +52,7 @@ public class CommandWarp extends ParserCommandBase {
 
 	@Override
 	public String getCommandUsage(ICommandSender sender) {
-		return "/warp <name> [set|delete]: Set/delete/teleport to a warp point";
+		return "/warp <name> [set|delete|player]: Set/delete/teleport to a warp point";
 	}
 
 	@Override
@@ -132,11 +133,32 @@ public class CommandWarp extends ParserCommandBase {
 				arguments.confirm("Deleted warp \"%s\"", warpName);
 				break;
 			default:
-				throw new TranslatedCommandException(FEPermissions.MSG_UNKNOWN_SUBCOMMAND, subCommand);
+				EntityPlayerMP player = arguments.parsePlayer(true, true).getPlayerMP();
+				if (player == null) {
+					throw new TranslatedCommandException(FEPermissions.MSG_UNKNOWN_SUBCOMMAND, subCommand);
+				} else {
+					WarpPoint point = warps.get(warpName);
+					if (point == null) {
+						throw new TranslatedCommandException("Warp by this name does not exist");
+					}
+					if (!arguments.hasPermission(PERM_WARP + "." + warpName)) {
+						throw new TranslatedCommandException("You don't have permission to use this warp");
+					}
+					TeleportHelper.teleport(player, point);
+				}
 			}
 		}
 	}
 
+	/**
+     * Return whether the specified command parameter index is a username parameter.
+     */
+	@Override
+    public boolean isUsernameIndex(String[] args, int index)
+    {
+        return index == 1;
+    }
+	
 	@Override
 	public void registerExtraPermissions() {
 		APIRegistry.perms.registerPermission(PERM_SET, PermissionLevel.OP, "Allow setting warps");
