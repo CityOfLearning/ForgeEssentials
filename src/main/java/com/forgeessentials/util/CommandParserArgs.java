@@ -280,16 +280,6 @@ public class CommandParserArgs {
 		return remove();
 	}
 
-	@Deprecated
-	public UserIdent parsePlayer() throws CommandException {
-		return parsePlayer(true, false);
-	}
-
-	@Deprecated
-	public UserIdent parsePlayer(boolean mustExist) throws CommandException {
-		return parsePlayer(mustExist, false);
-	}
-
 	public UserIdent parsePlayer(boolean mustExist, boolean mustBeOnline) throws CommandException {
 		if (isTabCompletion && (size() == 1)) {
 			tabCompletion = completePlayer(peek());

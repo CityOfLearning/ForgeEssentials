@@ -46,6 +46,15 @@ public class CommandMultiworldTeleport extends ParserCommandBase {
 		return ModuleMultiworld.PERM_TELEPORT;
 	}
 
+	/**
+	 * Return whether the specified command parameter index is a username
+	 * parameter.
+	 */
+	@Override
+	public boolean isUsernameIndex(String[] args, int index) {
+		return index == 1;
+	}
+
 	@Override
 	public void parse(CommandParserArgs arguments) throws CommandException {
 		if (arguments.isEmpty()) {
@@ -117,13 +126,4 @@ public class CommandMultiworldTeleport extends ParserCommandBase {
 		Multiworld.teleport(player, world, x, y, z, false);
 	}
 
-	/**
-     * Return whether the specified command parameter index is a username parameter.
-     */
-	@Override
-    public boolean isUsernameIndex(String[] args, int index)
-    {
-        return index == 1;
-    }
-	
 }

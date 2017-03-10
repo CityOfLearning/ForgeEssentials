@@ -70,6 +70,15 @@ public class CommandWarp extends ParserCommandBase {
 		return PERM;
 	}
 
+	/**
+	 * Return whether the specified command parameter index is a username
+	 * parameter.
+	 */
+	@Override
+	public boolean isUsernameIndex(String[] args, int index) {
+		return index == 1;
+	}
+
 	@Override
 	public void parse(CommandParserArgs arguments) throws CommandException {
 		if (arguments.isEmpty()) {
@@ -150,15 +159,6 @@ public class CommandWarp extends ParserCommandBase {
 		}
 	}
 
-	/**
-     * Return whether the specified command parameter index is a username parameter.
-     */
-	@Override
-    public boolean isUsernameIndex(String[] args, int index)
-    {
-        return index == 1;
-    }
-	
 	@Override
 	public void registerExtraPermissions() {
 		APIRegistry.perms.registerPermission(PERM_SET, PermissionLevel.OP, "Allow setting warps");
