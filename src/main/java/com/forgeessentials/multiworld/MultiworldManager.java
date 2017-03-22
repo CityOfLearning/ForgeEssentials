@@ -478,8 +478,11 @@ public class MultiworldManager extends ServerEventHandler implements NamedWorldH
 	@SubscribeEvent
 	public void scoreboardAltered(CommandEvent event) {
 		if (event.command instanceof CommandScoreboard) {
-			for (Multiworld world : worlds.values()) {
-				((WorldServerMultiworld) world.getWorldServer()).syncScoreboard();
+			for (Integer dim : DimensionManager.getIDs()) {
+				if (dim > 1) {
+					Multiworld world = getMultiworld(dim);
+					((WorldServerMultiworld) world.getWorldServer()).syncScoreboard();
+				}
 			}
 		}
 	}
