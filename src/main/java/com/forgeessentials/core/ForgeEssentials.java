@@ -21,6 +21,7 @@ import com.forgeessentials.commons.network.Packet3PlayerPermissions;
 import com.forgeessentials.commons.network.Packet4PlotsUpdate;
 import com.forgeessentials.commons.network.Packet5Noclip;
 import com.forgeessentials.commons.network.Packet6SyncPlots;
+import com.forgeessentials.commons.network.Packet7OpenQuestionerGui;
 import com.forgeessentials.commons.output.LoggingHandler;
 import com.forgeessentials.commons.selections.PlotArea;
 import com.forgeessentials.compat.HelpFixer;
@@ -426,6 +427,11 @@ public class ForgeEssentials extends ConfigLoaderBase {
 			}
 			return null;
 		}, Packet6SyncPlots.class, 6, Side.SERVER);
+
+		NetworkUtils.registerMessageProxy(Packet7OpenQuestionerGui.class, 7, Side.CLIENT,
+				new NullMessageHandler<Packet7OpenQuestionerGui>() {
+					/* dummy */
+				});
 
 	}
 

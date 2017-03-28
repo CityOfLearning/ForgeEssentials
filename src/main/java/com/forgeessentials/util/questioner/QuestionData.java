@@ -1,10 +1,13 @@
 package com.forgeessentials.util.questioner;
 
+import com.forgeessentials.commons.network.NetworkUtils;
+import com.forgeessentials.commons.network.Packet7OpenQuestionerGui;
 import com.forgeessentials.core.misc.Translator;
 import com.forgeessentials.util.output.ChatOutputHandler;
 
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.event.ClickEvent;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.EnumChatFormatting;
@@ -87,8 +90,9 @@ public class QuestionData {
 	}
 
 	public void sendQuestion() {
-		ChatOutputHandler.sendMessage(target, question);
-		sendYesNoMessage();
+		NetworkUtils.netHandler.sendTo(new Packet7OpenQuestionerGui(question), (EntityPlayerMP) target);
+		// ChatOutputHandler.sendMessage(target, question);
+		// sendYesNoMessage();
 	}
 
 	public void sendYesNoMessage() {

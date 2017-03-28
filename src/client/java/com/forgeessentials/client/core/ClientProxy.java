@@ -1,7 +1,7 @@
 package com.forgeessentials.client.core;
 
 import com.forgeessentials.client.ForgeEssentialsClient;
-import com.forgeessentials.client.handler.QuestionerKeyHandler;
+import com.forgeessentials.client.handler.QuestionerHandler;
 import com.forgeessentials.client.handler.ReachDistanceHandler;
 import com.forgeessentials.client.hud.CUIRenderer;
 import com.forgeessentials.client.hud.PermissionOverlay;
@@ -16,6 +16,7 @@ import com.forgeessentials.commons.network.Packet3PlayerPermissions;
 import com.forgeessentials.commons.network.Packet4PlotsUpdate;
 import com.forgeessentials.commons.network.Packet5Noclip;
 import com.forgeessentials.commons.network.Packet6SyncPlots;
+import com.forgeessentials.commons.network.Packet7OpenQuestionerGui;
 import com.forgeessentials.commons.output.LoggingHandler;
 
 import net.minecraftforge.client.ClientCommandHandler;
@@ -44,7 +45,7 @@ public class ClientProxy extends CommonProxy {
 
 	/* ------------------------------------------------------------ */
 
-	public static boolean allowCUI, allowPUI, allowPermissionRender, allowQuestionerShortcuts;
+	public static boolean allowCUI, allowPUI, allowPermissionRender;
 
 	public static float reachDistance;
 
@@ -55,6 +56,8 @@ public class ClientProxy extends CommonProxy {
 	private static CUIRenderer cuiRenderer = new CUIRenderer();
 
 	private static PermissionOverlay permissionOverlay = new PermissionOverlay();
+
+	private static QuestionerHandler questioner = new QuestionerHandler();
 
 	public static Configuration getConfig() {
 		return config;
@@ -123,10 +126,6 @@ public class ClientProxy extends CommonProxy {
 				.getBoolean(true);
 		allowPermissionRender = config.get(Configuration.CATEGORY_GENERAL, "allowPermRender", true,
 				"Set to false to disable visual indication of block/item permissions").getBoolean(true);
-		allowQuestionerShortcuts = config
-				.get(Configuration.CATEGORY_GENERAL, "allowQuestionerShortcuts", true,
-						"Use shortcut buttons to answer questions. Defaults are F8 for yes and F9 for no, change in game options menu.")
-				.getBoolean(true);
 
 		if (allowCUI) {
 			// the handshake seems to happen before this...
@@ -138,9 +137,6 @@ public class ClientProxy extends CommonProxy {
 		}
 		if (allowPermissionRender) {
 			MinecraftForge.EVENT_BUS.register(permissionOverlay);
-		}
-		if (allowQuestionerShortcuts) {
-			new QuestionerKeyHandler();
 		}
 
 		config.save();
@@ -163,6 +159,7 @@ public class ClientProxy extends CommonProxy {
 		NetworkUtils.registerMessage(reachDistanceHandler, Packet2Reach.class, 2, Side.CLIENT);
 		NetworkUtils.registerMessage(permissionOverlay, Packet3PlayerPermissions.class, 3, Side.CLIENT);
 		NetworkUtils.registerMessage(plotRenderer, Packet4PlotsUpdate.class, 4, Side.CLIENT);
+		NetworkUtils.registerMessage(questioner, Packet7OpenQuestionerGui.class, 7, Side.CLIENT);
 
 		NetworkUtils.registerMessage((message, ctx) -> {
 			FMLClientHandler.instance().getClientPlayerEntity().noClip = message.getNoclip();
