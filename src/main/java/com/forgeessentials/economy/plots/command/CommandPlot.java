@@ -289,7 +289,7 @@ public class CommandPlot extends ParserCommandBase {
 			handler.respond(true);
 			return;
 		}
-		String message = Translator.format("Really claim this plot for %s", APIRegistry.economy.toString(price));
+		String message = Translator.format("Claim this plot for %s?", APIRegistry.economy.toString(price));
 		Questioner.addChecked(arguments.sender, message, handler, 30);
 
 	}
@@ -399,45 +399,19 @@ public class CommandPlot extends ParserCommandBase {
 		}
 	}
 
-	public static void parseMods(CommandParserArgs arguments, boolean modifyUsers) throws CommandException {
-		Plot plot = getPlot(arguments.sender);
-		String type = modifyUsers ? "users" : "mods";
-		String group = modifyUsers ? Plot.GROUP_PLOT_USER : Plot.GROUP_PLOT_MOD;
-
-		arguments.checkPermission(Plot.PERM_MODS);
+	public static void parsePerms(CommandParserArgs arguments) throws CommandException {
+		arguments.tabComplete("users", "guests");
 		if (arguments.isEmpty()) {
-			arguments.confirm("/plot " + type + " add|remove <player>: Add / remove " + type);
-			arguments.confirm("Plot " + type + ":");
-			for (UserIdent user : APIRegistry.perms.getServerZone().getKnownPlayers()) {
-				if (plot.getZone().getStoredPlayerGroups(user).contains(group)) {
-					arguments.confirm("  " + user.getUsernameOrUuid());
-				}
-			}
 			return;
 		}
-		arguments.tabComplete("add", "remove");
-		String action = arguments.remove().toLowerCase();
-
-		UserIdent player = arguments.parsePlayer(true, false);
-		if (arguments.isTabCompletion) {
-			return;
+		String users = arguments.remove().toLowerCase();
+		boolean userPerms;
+		if (users == "users") {
+			userPerms = true;
+		} else {
+			userPerms = false;
 		}
 
-		switch (action) {
-		case "add":
-			plot.getZone().addPlayerToGroup(player, modifyUsers ? Plot.GROUP_PLOT_USER : Plot.GROUP_PLOT_MOD);
-			arguments.confirm("Added %s to plot " + type, player.getUsernameOrUuid());
-			break;
-		case "remove":
-			plot.getZone().removePlayerFromGroup(player, modifyUsers ? Plot.GROUP_PLOT_USER : Plot.GROUP_PLOT_MOD);
-			arguments.confirm("Removed %s from plot " + type, player.getUsernameOrUuid());
-			break;
-		default:
-			throw new TranslatedCommandException.InvalidSyntaxException();
-		}
-	}
-
-	public static void parsePerms(CommandParserArgs arguments, boolean userPerms) throws CommandException {
 		final String[] tabCompletion = new String[] { "build", "interact", "use", "chest", "button", "lever", "door",
 				"animal" };
 
@@ -541,17 +515,18 @@ public class CommandPlot extends ParserCommandBase {
 				arguments.confirm("/plot set price: Put up plot for sale");
 			}
 			if (arguments.hasPermission(Plot.PERM_SET_FEE)) {
-				arguments.confirm(Translator.translate("/plot set fee: Set a fee (WIP)")); // TODO
-																							// WIP
-																							// plots
+				arguments.confirm(Translator.translate("/plot set fee: Set a fee"));
 			}
 			if (arguments.hasPermission(Plot.PERM_SET_NAME)) {
 				arguments.confirm("/plot set name: Set the plot name");
 			}
+			if (arguments.hasPermission(Plot.PERM_SET_EXCLUDE)) {
+				arguments.confirm("/plot set exclude: Set whether players are allowed to enter zone");
+			}
 			return;
 		}
 
-		arguments.tabComplete("price", "fee", "name", "owner");
+		arguments.tabComplete("price", "fee", "name", "owner", "exclude");
 		String subcmd = arguments.remove().toLowerCase();
 		switch (subcmd) {
 		case "price":
@@ -566,17 +541,53 @@ public class CommandPlot extends ParserCommandBase {
 		case "owner":
 			parseSetOwner(arguments);
 			break;
+		case "exclude":
+			parseSetExclude(arguments);
 		default:
 			break;
 		}
+	}
+
+	public static void parseSetExclude(CommandParserArgs arguments) throws CommandException {
+		Plot plot = getPlot(arguments.sender);
+		if (arguments.isEmpty()) {
+			if (arguments.hasPermission(Plot.PERM_SET_EXCLUDE)) {
+				arguments.confirm(Translator
+						.translate("/plot set exclude allow | deny: Sets whether players are allowed to enter zone"));
+			}
+			// plots
+			arguments.confirm("Current plot %s users", plot.getExclude() ? "excludes" : "does not exclude");
+			return;
+		}
+		arguments.checkPermission(Plot.PERM_SET_EXCLUDE);
+
+		arguments.tabComplete("allow", "deny");
+		String allowDeny = arguments.remove().toLowerCase();
+
+		if (arguments.isTabCompletion) {
+			return;
+		}
+
+		boolean allow;
+		switch (allowDeny) {
+		case "allow":
+			allow = true;
+			break;
+		case "deny":
+			allow = false;
+			break;
+		default:
+			throw new TranslatedCommandException(FEPermissions.MSG_INVALID_SYNTAX);
+		}
+		plot.setExclude(allow);
+		arguments.confirm(Translator.format("Set plot to %s users", allow ? "exclude" : "not exclude"));
 	}
 
 	public static void parseSetFee(CommandParserArgs arguments) throws CommandException {
 		Plot plot = getPlot(arguments.sender);
 		if (arguments.isEmpty()) {
 			if (arguments.hasPermission(Plot.PERM_SET_FEE)) {
-				arguments.confirm(Translator.translate("/plot set fee <amount> <timeout>: Set fee (WIP)")); // TODO
-																											// WIP
+				arguments.confirm(Translator.translate("/plot set fee <amount> <timeout>: Set fee"));
 			}
 			// plots
 			arguments.confirm("Current plot fee: %s", APIRegistry.economy.toString(plot.getFee()));
@@ -679,6 +690,63 @@ public class CommandPlot extends ParserCommandBase {
 		}
 	}
 
+	public static void parseUsers(CommandParserArgs arguments) throws CommandException {
+		Plot plot = getPlot(arguments.sender);
+
+		arguments.tabComplete("users", "mods", "guests");
+		if (arguments.isEmpty()) {
+			return;
+		}
+
+		String type = arguments.remove().toLowerCase();
+		String group;
+		switch (type) {
+		case "users":
+			group = Plot.GROUP_PLOT_USER;
+			break;
+		case "mods":
+			group = Plot.GROUP_PLOT_MOD;
+			break;
+		case "guests":
+			group = Plot.GROUP_PLOT_GUEST;
+			break;
+		default:
+			throw new TranslatedCommandException.InvalidSyntaxException();
+		}
+
+		arguments.checkPermission(Plot.PERM_MODS);
+		if (arguments.isEmpty()) {
+			arguments.confirm("/plot + " + type + " add|remove <player>: Add / remove " + type);
+			arguments.confirm("Plot " + type + ":");
+			for (UserIdent user : APIRegistry.perms.getServerZone().getKnownPlayers()) {
+				if (plot.getZone().getStoredPlayerGroups(user).contains(group)) {
+					arguments.confirm("  " + user.getUsernameOrUuid());
+				}
+			}
+			return;
+		}
+		arguments.tabComplete("add", "remove");
+		String action = arguments.remove().toLowerCase();
+
+		UserIdent player = arguments.parsePlayer(true, false);
+		if (arguments.isTabCompletion) {
+			return;
+		}
+
+		switch (action) {
+		case "add":
+			plot.getZone().addPlayerToGroup(player, group);
+			arguments.confirm("Added %s to plot " + type, player.getUsernameOrUuid());
+			break;
+		case "remove":
+			plot.getZone().removePlayerFromGroup(player, group);
+			arguments.confirm("Removed %s from plot " + type, player.getUsernameOrUuid());
+			break;
+		default:
+			throw new TranslatedCommandException.InvalidSyntaxException();
+		}
+	}
+
 	@Override
 	public boolean canConsoleUseCommand() {
 		return false;
@@ -728,8 +796,8 @@ public class CommandPlot extends ParserCommandBase {
 			return;
 		}
 
-		arguments.tabComplete("define", "claim", "list", "select", "set", "perms", "userperms", "mods", "users",
-				"limits", "buy", "sell", "delete");
+		arguments.tabComplete("define", "claim", "list", "select", "set", "perms", "mods", "users", "guests", "limits",
+				"buy", "sell", "delete");
 		String subcmd = arguments.remove().toLowerCase();
 		switch (subcmd) {
 		case "define":
@@ -750,20 +818,14 @@ public class CommandPlot extends ParserCommandBase {
 		case "select":
 			parseSelect(arguments);
 			break;
-		case "mods":
-			parseMods(arguments, false);
-			break;
 		case "users":
-			parseMods(arguments, true);
+			parseUsers(arguments);
 			break;
 		case "set":
 			parseSet(arguments);
 			break;
 		case "perms":
-			parsePerms(arguments, false);
-			break;
-		case "userperms":
-			parsePerms(arguments, true);
+			parsePerms(arguments);
 			break;
 		case "buy":
 			parseBuyStart(arguments);

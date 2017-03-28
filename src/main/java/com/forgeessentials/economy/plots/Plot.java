@@ -45,6 +45,9 @@ public class Plot {
 
 	public static final String GROUP_PLOT_USER = "PLOT_USER";
 
+	// someone who has paid a fee to enter the zone
+	public static final String GROUP_PLOT_GUEST = "PLOT_GUEST";
+
 	public static final String SERVER_OWNER = "SERVER";
 
 	public static final String CATEGORY = "Plots";
@@ -68,6 +71,7 @@ public class Plot {
 	public static final String PERM_SET = PERM_COMMAND + ".set";
 	public static final String PERM_SET_PRICE = PERM_SET + ".price";
 	public static final String PERM_SET_FEE = PERM_SET + ".fee";
+	public static final String PERM_SET_EXCLUDE = PERM_SET + ".exclude";
 	public static final String PERM_SET_NAME = PERM_SET + ".name";
 
 	public static final String PERM_SET_OWNER = PERM_SET + ".owner";
@@ -94,6 +98,7 @@ public class Plot {
 	public static final String PERM_SIZE_MAX = PERM_SIZE + ".max";
 	// User editable plot data permissions
 	public static final String PERM_DATA = PERM + ".data";
+	public static final String PERM_EXCLUDE = PERM_DATA + ".exclude";
 	public static final String PERM_NAME = PERM_DATA + ".name";
 	public static final String PERM_FEE = PERM_DATA + ".fee";
 	public static final String PERM_FEE_TIMEOUT = PERM_DATA + ".fee.timeout";
@@ -222,6 +227,7 @@ public class Plot {
 
 		perms.registerPermissionDescription(PERM_DATA, "Individual settings for plots");
 		perms.registerPermissionProperty(PERM_NAME, "@p's plot", "Name of the plot (@p inserts owner name)");
+		perms.registerPermissionDescription(PERM_EXCLUDE, "Whether players can enter this plot");
 		perms.registerPermissionDescription(PERM_FEE, "Price players have to pay in order to enter this plot");
 		perms.registerPermissionDescription(PERM_FEE_TIMEOUT,
 				"Duration that a player can access the plot after paying the fee");
@@ -242,6 +248,8 @@ public class Plot {
 		perms.registerPermission(PERM_LIST_OWN, PermissionLevel.TRUE, "List own plots");
 		perms.registerPermission(PERM_LIST_SALE, PermissionLevel.TRUE, "List plots open for sale");
 
+		// TODO: we probably want the students to be able to use plots so this
+		// will have to change
 		perms.registerPermission(PERM_SET + ".*", PermissionLevel.OP, "Control plot settings");
 
 		perms.registerPermission(PERM_PERMS, PermissionLevel.OP, "Control plot settings");
@@ -310,6 +318,10 @@ public class Plot {
 
 	public int getDimension() {
 		return zone.getWorldZone().getDimensionID();
+	}
+
+	public boolean getExclude() {
+		return Boolean.valueOf(zone.getGroupPermission(GROUP_ALL, PERM_EXCLUDE));
 	}
 
 	public int getFee() {
@@ -420,21 +432,29 @@ public class Plot {
 		zone.setGroupPermission(GROUP_ALL, ModuleProtection.PERM_PLACE + Zone.ALL_PERMS, false);
 		zone.setGroupPermission(GROUP_ALL, ModuleProtection.PERM_USE + Zone.ALL_PERMS, false);
 		zone.setGroupPermission(GROUP_ALL, ModuleProtection.PERM_INTERACT + Zone.ALL_PERMS, false);
-		// zone.setGroupPermission(GROUP_ALL,
-		// ModuleProtection.PERM_INTERACT_ENTITY + Zone.ALL_PERMS, false);
+		zone.setGroupPermission(GROUP_ALL, PERM_EXCLUDE, true);
+
+		zone.setGroupPermission(GROUP_PLOT_GUEST, ModuleProtection.PERM_BREAK + Zone.ALL_PERMS, false);
+		zone.setGroupPermission(GROUP_PLOT_GUEST, ModuleProtection.PERM_PLACE + Zone.ALL_PERMS, false);
+		zone.setGroupPermission(GROUP_PLOT_GUEST, ModuleProtection.PERM_USE + Zone.ALL_PERMS, false);
+		zone.setGroupPermission(GROUP_PLOT_GUEST, ModuleProtection.PERM_INTERACT + Zone.ALL_PERMS, false);
+	}
+
+	public void setExclude(boolean value) {
+		zone.setGroupPermission(GROUP_ALL, PERM_EXCLUDE, value);
 	}
 
 	public void setFee(int value) {
-		if (value < 0) {
+		if (value > 0) {
 			zone.setGroupPermissionProperty(GROUP_ALL, PERM_FEE, Long.toString(value));
 		} else {
 			zone.clearGroupPermission(GROUP_ALL, PERM_FEE);
 		}
 	}
 
-	public void setFeeTimeout(int minutes) {
-		if (minutes <= 0) {
-			zone.setGroupPermissionProperty(GROUP_ALL, PERM_FEE_TIMEOUT, Long.toString(minutes));
+	public void setFeeTimeout(int seconds) {
+		if (seconds >= 0) {
+			zone.setGroupPermissionProperty(GROUP_ALL, PERM_FEE_TIMEOUT, Long.toString(seconds));
 		} else {
 			zone.clearGroupPermission(GROUP_ALL, PERM_FEE_TIMEOUT);
 		}
@@ -463,7 +483,7 @@ public class Plot {
 	public void setPermission(String permission, boolean userPerm, boolean value) {
 		zone.setGroupPermission(GROUP_PLOT_OWNER, permission, true);
 		zone.setGroupPermission(GROUP_PLOT_MOD, permission, true);
-		zone.setGroupPermission(userPerm ? GROUP_PLOT_USER : GROUP_ALL, permission, value);
+		zone.setGroupPermission(userPerm ? GROUP_PLOT_USER : GROUP_PLOT_GUEST, permission, value);
 	}
 
 	public void setPrice(long value) {
