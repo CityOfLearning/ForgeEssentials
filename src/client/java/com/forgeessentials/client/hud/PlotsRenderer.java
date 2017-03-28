@@ -235,36 +235,38 @@ public class PlotsRenderer implements IMessageHandler<Packet4PlotsUpdate, IMessa
 
 		for (Integer type : plots.keySet()) {
 			for (PlotArea plot : plots.get(type)) {
-				Point center = plot.getCenter();
-				double d3 = player.lastTickPosX + ((player.posX - player.lastTickPosX) * event.partialTicks);
-				double d4 = player.lastTickPosY + ((player.posY - player.lastTickPosY) * event.partialTicks);
-				double d5 = player.lastTickPosZ + ((player.posZ - player.lastTickPosZ) * event.partialTicks);
-				float offX = (center.getX() - (float) d3) + 0.5f;
-				double offY = (player.posY - (float) d4) + 1.0f;
-				float offZ = (center.getZ() - (float) d5) + 0.5f;
+				if (plot.getDimension() == FMLClientHandler.instance().getClient().thePlayer.dimension) {
+					Point center = plot.getCenter();
+					double d3 = player.lastTickPosX + ((player.posX - player.lastTickPosX) * event.partialTicks);
+					double d4 = player.lastTickPosY + ((player.posY - player.lastTickPosY) * event.partialTicks);
+					double d5 = player.lastTickPosZ + ((player.posZ - player.lastTickPosZ) * event.partialTicks);
+					float offX = (center.getX() - (float) d3) + 0.5f;
+					double offY = (player.posY - (float) d4) + 1.0f;
+					float offZ = (center.getZ() - (float) d5) + 0.5f;
 
-				float f = 1.6f;
-				float f2 = 0.016666668f * f;
-				GlStateManager.pushMatrix();
-				{
-					GlStateManager.translate(offX, offY, offZ);
-					GL11.glNormal3f(0.0f, 1.0f, 0.0f);
-					GlStateManager.rotate(-rm.playerViewY, 0.0f, 1.0f, 0.0f);
-					GlStateManager.rotate(rm.playerViewX, 1.0f, 0.0f, 0.0f);
-					GlStateManager.scale(-f2, -f2, f2);
-					GlStateManager.disableLighting();
-					GlStateManager.depthMask(false);
-					GlStateManager.disableDepth();
-					GlStateManager.enableBlend();
-					GlStateManager.tryBlendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
-					GlStateManager.scale(3.0, 3.0, 1.0);
-					drawName(plot.getName(), wr, fr);
-					GlStateManager.enableLighting();
-					GlStateManager.disableBlend();
-					GlStateManager.enableDepth();
-					GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+					float f = 1.6f;
+					float f2 = 0.016666668f * f;
+					GlStateManager.pushMatrix();
+					{
+						GlStateManager.translate(offX, offY, offZ);
+						GL11.glNormal3f(0.0f, 1.0f, 0.0f);
+						GlStateManager.rotate(-rm.playerViewY, 0.0f, 1.0f, 0.0f);
+						GlStateManager.rotate(rm.playerViewX, 1.0f, 0.0f, 0.0f);
+						GlStateManager.scale(-f2, -f2, f2);
+						GlStateManager.disableLighting();
+						GlStateManager.depthMask(false);
+						GlStateManager.disableDepth();
+						GlStateManager.enableBlend();
+						GlStateManager.tryBlendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
+						GlStateManager.scale(3.0, 3.0, 1.0);
+						drawName(plot.getName(), wr, fr);
+						GlStateManager.enableLighting();
+						GlStateManager.disableBlend();
+						GlStateManager.enableDepth();
+						GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+					}
+					GlStateManager.popMatrix();
 				}
-				GlStateManager.popMatrix();
 			}
 		}
 	}
