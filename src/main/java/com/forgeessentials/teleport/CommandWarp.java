@@ -42,7 +42,7 @@ public class CommandWarp extends ParserCommandBase {
 
 	@Override
 	public boolean canConsoleUseCommand() {
-		return false;
+		return true;
 	}
 
 	@Override
