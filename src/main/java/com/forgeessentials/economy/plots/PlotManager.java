@@ -6,6 +6,7 @@ import com.forgeessentials.api.APIRegistry;
 import com.forgeessentials.api.UserIdent;
 import com.forgeessentials.api.economy.Wallet;
 import com.forgeessentials.api.permissions.PermissionEvent;
+import com.forgeessentials.api.permissions.Zone;
 import com.forgeessentials.commons.network.NetworkUtils;
 import com.forgeessentials.commons.network.Packet4PlotsUpdate;
 import com.forgeessentials.commons.selections.PlotArea;
@@ -120,7 +121,8 @@ public class PlotManager extends ServerEventHandler implements ConfigLoader {
 			if (groups.contains(Plot.GROUP_PLOT_OWNER)) {
 				message += " " + Translator.translate("as owner");
 				ChatOutputHandler.chatNotification(event.entityPlayer, message);
-			} else if (groups.contains(Plot.GROUP_PLOT_MOD)) {
+			} else if (groups.contains(Plot.GROUP_PLOT_MOD)
+					|| APIRegistry.perms.getServerZone().getPlayerGroups(ident).contains(Zone.GROUP_OPERATORS)) {
 				message += " " + Translator.translate("with mod access");
 				ChatOutputHandler.chatNotification(event.entityPlayer, message);
 			} else if (groups.contains(Plot.GROUP_PLOT_USER)) {
