@@ -5,6 +5,7 @@ import java.util.Set;
 import com.forgeessentials.api.APIRegistry;
 import com.forgeessentials.api.UserIdent;
 import com.forgeessentials.api.economy.Wallet;
+import com.forgeessentials.api.permissions.GroupEntry;
 import com.forgeessentials.api.permissions.PermissionEvent;
 import com.forgeessentials.api.permissions.Zone;
 import com.forgeessentials.commons.network.NetworkUtils;
@@ -122,7 +123,7 @@ public class PlotManager extends ServerEventHandler implements ConfigLoader {
 				message += " " + Translator.translate("as owner");
 				ChatOutputHandler.chatNotification(event.entityPlayer, message);
 			} else if (groups.contains(Plot.GROUP_PLOT_MOD)
-					|| APIRegistry.perms.getServerZone().getPlayerGroups(ident).contains(Zone.GROUP_OPERATORS)) {
+					|| isPlayerOp(ident)) {
 				message += " " + Translator.translate("with mod access");
 				ChatOutputHandler.chatNotification(event.entityPlayer, message);
 			} else if (groups.contains(Plot.GROUP_PLOT_USER)) {
@@ -201,6 +202,15 @@ public class PlotManager extends ServerEventHandler implements ConfigLoader {
 						Translator.format("You can buy this plot for %s", APIRegistry.economy.toString(price)));
 			}
 		}
+	}
+
+	private boolean isPlayerOp(UserIdent ident) {
+		for(GroupEntry group : APIRegistry.perms.getServerZone().getPlayerGroups(ident)){
+			if(group.getGroup().equals(Zone.GROUP_OPERATORS)){
+				return true;
+			}
+		}
+		return false;
 	}
 
 	@SubscribeEvent
