@@ -119,7 +119,7 @@ public class ModuleBackup extends ConfigLoaderBase {
 		backupThread = new Thread(() -> {
 			try {
 				backup(world, true);
-				cleanBackups();
+				cleanBackups(world);
 			} finally {
 				backupThread = null;
 			}
@@ -198,8 +198,8 @@ public class ModuleBackup extends ConfigLoaderBase {
 						Translator.format("Starting backup of dimensions %s", StringUtils.join(backupDims, ", ")));
 				for (WorldServer worldServer : backupWorlds) {
 					backup(worldServer, false);
+					cleanBackups(worldServer);
 				}
-				cleanBackups();
 				ModuleBackup.notify("Backup finished!");
 			} finally {
 				backupThread = null;
@@ -208,8 +208,8 @@ public class ModuleBackup extends ConfigLoaderBase {
 		backupThread.start();
 	}
 
-	private static void cleanBackups() {
-		File baseDir = new File(baseFolder, DimensionManager.getWorld(0).getWorldInfo().getWorldName());
+	private static void cleanBackups(WorldServer world) {
+		File baseDir = getBackupFolder(world).getParentFile();
 		if (!baseDir.exists()) {
 			return;
 		}
@@ -256,6 +256,9 @@ public class ModuleBackup extends ConfigLoaderBase {
 					if (!backup.getValue().delete()) {
 						LoggingHandler.felog.error(
 								String.format("Could not delete backup file %s", backup.getValue().getAbsolutePath()));
+					} else {
+						LoggingHandler.felog
+								.info(String.format("Deleted backup file: %s", backup.getValue().getAbsolutePath()));
 					}
 					it.remove();
 				}
@@ -280,6 +283,9 @@ public class ModuleBackup extends ConfigLoaderBase {
 					if (!backup.getValue().delete()) {
 						LoggingHandler.felog.error(
 								String.format("Could not delete backup file %s", backup.getValue().getAbsolutePath()));
+					} else {
+						LoggingHandler.felog
+								.info(String.format("Deleted backup file: %s", backup.getValue().getAbsolutePath()));
 					}
 					it.remove();
 				}
@@ -305,6 +311,9 @@ public class ModuleBackup extends ConfigLoaderBase {
 					if (!backup.getValue().delete()) {
 						LoggingHandler.felog.error(
 								String.format("Could not delete backup file %s", backup.getValue().getAbsolutePath()));
+					} else {
+						LoggingHandler.felog
+								.info(String.format("Deleted backup file: %s", backup.getValue().getAbsolutePath()));
 					}
 					it.remove();
 				}
@@ -347,6 +356,13 @@ public class ModuleBackup extends ConfigLoaderBase {
 						world.getWorldInfo().getWorldName(), //
 						world.provider.getDimensionId(), //
 						FILE_FORMAT.format(new Date())));
+	}
+
+	private static File getBackupFolder(WorldServer world) {
+		return new File(baseFolder,
+				String.format("%s/DIM_%d/", //
+						world.getWorldInfo().getWorldName(), //
+						world.provider.getDimensionId()));
 	}
 
 	/* ------------------------------------------------------------ */
@@ -454,7 +470,6 @@ public class ModuleBackup extends ConfigLoaderBase {
 	public void serverStarting(FEModuleServerInitEvent e) {
 		APIRegistry.perms.registerPermission(PERM_NOTIFY, PermissionLevel.OP, "Backup notification permission");
 		registerBackupTask();
-		cleanBackups();
 	}
 
 	@SubscribeEvent
@@ -476,7 +491,10 @@ public class ModuleBackup extends ConfigLoaderBase {
 		}
 		final WorldServer world = (WorldServer) event.world;
 		if (shouldBackup(world)) {
-			Thread thread = new Thread(() -> backup(world, true));
+			Thread thread = new Thread(() -> {
+				backup(world, true);
+				cleanBackups(world);
+			});
 			thread.start();
 		}
 	}
