@@ -3,8 +3,6 @@ package com.forgeessentials.multiworld;
 import java.io.File;
 import java.io.FileInputStream;
 
-import com.forgeessentials.commons.output.LoggingHandler;
-
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.WorldProvider;
@@ -33,7 +31,6 @@ public class MultiworldSaveHandler extends SaveHandler {
 	public WorldInfo loadWorldInfo() {
 		File file1 = new File(getWorldDirectory(), "level.dat");
 		if (file1.exists()) {
-			LoggingHandler.felog.info("Loading World Info from: " + file1.getAbsolutePath());
 			try {
 				NBTTagCompound nbttagcompound = CompressedStreamTools.readCompressed(new FileInputStream(file1));
 				NBTTagCompound nbttagcompound1 = nbttagcompound.getCompoundTag("Data");

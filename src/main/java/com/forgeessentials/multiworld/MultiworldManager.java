@@ -350,6 +350,8 @@ public class MultiworldManager extends ServerEventHandler implements NamedWorldH
 				settings = new WorldSettings(world.seed, mcServer.getGameType(), mcServer.canStructuresSpawn(),
 						mcServer.isHardcore(), WorldType.parseWorldType(world.worldType));
 				info = new WorldInfo(settings, world.name);
+			} else {
+				info.setTerrainType(WorldType.parseWorldType(world.worldType));
 			}
 
 			WorldServer worldServer = new WorldServerMultiworld(mcServer, savehandler, info, world.dimensionId,
@@ -408,8 +410,14 @@ public class MultiworldManager extends ServerEventHandler implements NamedWorldH
 					continue;
 				}
 
-				worldProviderClasses.put(StatCollector.translateToLocal(provider.getValue().getName()),
-						provider.getKey());
+				try {
+					worldProviderClasses.put(
+							StatCollector.translateToLocal(provider.getValue().newInstance().getDimensionName()),
+							provider.getKey());
+				} catch (InstantiationException e) {
+					worldProviderClasses.put(StatCollector.translateToLocal(provider.getValue().getName()),
+							provider.getKey());
+				}
 			}
 			worldProviderClasses.put(PROVIDER_NORMAL, 0);
 			worldProviderClasses.put(PROVIDER_HELL, 1);
@@ -417,9 +425,9 @@ public class MultiworldManager extends ServerEventHandler implements NamedWorldH
 		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
 			e.printStackTrace();
 		}
-		LoggingHandler.felog.debug("[Multiworld] Available world providers:");
+		LoggingHandler.felog.info("[Multiworld] Available world providers:");
 		for (Entry<String, Integer> provider : worldProviderClasses.entrySet()) {
-			LoggingHandler.felog.debug("# " + provider.getValue() + ":" + provider.getKey());
+			LoggingHandler.felog.info("# " + provider.getValue() + ":" + provider.getKey());
 		}
 	}
 
@@ -446,9 +454,9 @@ public class MultiworldManager extends ServerEventHandler implements NamedWorldH
 			worldTypes.put(name, type);
 		}
 
-		LoggingHandler.felog.debug("[Multiworld] Available world types:");
+		LoggingHandler.felog.info("[Multiworld] Available world types:");
 		for (String worldType : worldTypes.keySet()) {
-			LoggingHandler.felog.debug("# " + worldType);
+			LoggingHandler.felog.info("# " + worldType);
 		}
 	}
 
