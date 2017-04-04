@@ -340,12 +340,17 @@ public class MultiworldManager extends ServerEventHandler implements NamedWorldH
 			if (overworld == null) {
 				throw new RuntimeException("Cannot hotload dim: Overworld is not Loaded!");
 			}
-			ISaveHandler savehandler = new MultiworldSaveHandler(overworld.getSaveHandler(), world);
+			ISaveHandler savehandler = new MultiworldSaveHandler(overworld.getSaveHandler().getWorldDirectory(), world);
 
-			// Create WorldServer with settings
-			WorldSettings settings = new WorldSettings(world.seed, mcServer.getGameType(),
-					mcServer.canStructuresSpawn(), mcServer.isHardcore(), WorldType.parseWorldType(world.worldType));
-			WorldInfo info = new WorldInfo(settings, world.name);
+			WorldInfo info = savehandler.loadWorldInfo();
+			WorldSettings settings;
+			//
+			if (info == null) {
+				// Create WorldServer with settings
+				settings = new WorldSettings(world.seed, mcServer.getGameType(), mcServer.canStructuresSpawn(),
+						mcServer.isHardcore(), WorldType.parseWorldType(world.worldType));
+				info = new WorldInfo(settings, world.name);
+			}
 
 			WorldServer worldServer = new WorldServerMultiworld(mcServer, savehandler, info, world.dimensionId,
 					overworld, mcServer.theProfiler, world);
@@ -361,7 +366,7 @@ public class MultiworldManager extends ServerEventHandler implements NamedWorldH
 			worldServer.init();
 			worldServer.addWorldAccess(new WorldManager(mcServer, worldServer));
 
-			mcServer.setDifficultyForAllWorlds(mcServer.getDifficulty());
+			// mcServer.setDifficultyForAllWorlds(mcServer.getDifficulty());
 			if (!mcServer.isSinglePlayer()) {
 				worldServer.getWorldInfo().setGameType(mcServer.getGameType());
 			}
