@@ -82,13 +82,16 @@ public class CommandTime extends ParserCommandBase implements ConfigurableComman
 	public static void parseTime(CommandParserArgs arguments, boolean addTime) throws CommandException {
 		long time;
 		if (!addTime) {
-			arguments.tabComplete("day", "midday", "dusk", "night", "midnight");
+			arguments.tabComplete("dawn", "day", "noon", "dusk", "night", "midnight");
 			String timeStr = arguments.remove().toLowerCase();
 			switch (timeStr) {
-			case "day":
+			case "dawn":
+				time = 23000;
+				break;
+			case "morning":
 				time = 1000;
 				break;
-			case "midday":
+			case "noon":
 				time = 6 * 1000;
 				break;
 			case "dusk":
@@ -182,7 +185,7 @@ public class CommandTime extends ParserCommandBase implements ConfigurableComman
 
 	@Override
 	public String getCommandUsage(ICommandSender sender) {
-		return "/time freeze|set|add [day|night|<t>]: Manipulate time.";
+		return "/time freeze|set|add [dawn|day|noon|dusk|night|midnight|<time>] [world]: Manipulate time.";
 	}
 
 	/* ------------------------------------------------------------ */
@@ -221,8 +224,7 @@ public class CommandTime extends ParserCommandBase implements ConfigurableComman
 	@Override
 	public void parse(CommandParserArgs arguments) throws CommandException {
 		if (arguments.isEmpty()) {
-			arguments.confirm("/time set|add <t> [dim]");
-			arguments.confirm("/time freeze [dim]");
+			arguments.confirm(getCommandUsage(arguments.sender));
 			return;
 		}
 
