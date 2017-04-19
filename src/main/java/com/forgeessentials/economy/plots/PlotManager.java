@@ -102,6 +102,15 @@ public class PlotManager extends ServerEventHandler implements ConfigLoader {
 		FECommandManager.registerCommand(new CommandPlot());
 	}
 
+	private boolean isPlayerOp(UserIdent ident) {
+		for (GroupEntry group : APIRegistry.perms.getServerZone().getPlayerGroups(ident)) {
+			if (group.getGroup().equals(Zone.GROUP_OPERATORS)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	@Override
 	public void load(Configuration config, boolean isReload) {
 
@@ -122,8 +131,7 @@ public class PlotManager extends ServerEventHandler implements ConfigLoader {
 			if (groups.contains(Plot.GROUP_PLOT_OWNER)) {
 				message += " " + Translator.translate("as owner");
 				ChatOutputHandler.chatNotification(event.entityPlayer, message);
-			} else if (groups.contains(Plot.GROUP_PLOT_MOD)
-					|| isPlayerOp(ident)) {
+			} else if (groups.contains(Plot.GROUP_PLOT_MOD) || isPlayerOp(ident)) {
 				message += " " + Translator.translate("with mod access");
 				ChatOutputHandler.chatNotification(event.entityPlayer, message);
 			} else if (groups.contains(Plot.GROUP_PLOT_USER)) {
@@ -202,15 +210,6 @@ public class PlotManager extends ServerEventHandler implements ConfigLoader {
 						Translator.format("You can buy this plot for %s", APIRegistry.economy.toString(price)));
 			}
 		}
-	}
-
-	private boolean isPlayerOp(UserIdent ident) {
-		for(GroupEntry group : APIRegistry.perms.getServerZone().getPlayerGroups(ident)){
-			if(group.getGroup().equals(Zone.GROUP_OPERATORS)){
-				return true;
-			}
-		}
-		return false;
 	}
 
 	@SubscribeEvent
