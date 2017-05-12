@@ -23,10 +23,7 @@ import com.forgeessentials.permissions.core.PermissionScheduler;
 import com.forgeessentials.permissions.core.ZonedPermissionHelper;
 import com.forgeessentials.permissions.persistence.FlatfileProvider;
 import com.forgeessentials.permissions.persistence.JsonProvider;
-import com.forgeessentials.permissions.persistence.SQLProvider;
 import com.forgeessentials.permissions.persistence.SingleFileProvider;
-import com.forgeessentials.util.DBConnector;
-import com.forgeessentials.util.EnumDBType;
 import com.forgeessentials.util.ServerUtil;
 import com.forgeessentials.util.events.FEModuleEvent.FEModulePreInitEvent;
 import com.forgeessentials.util.events.FEModuleEvent.FEModuleServerInitEvent;
@@ -129,9 +126,6 @@ public class ModulePermissions extends ConfigLoaderBase {
 
 	private String persistenceBackend = "flatfile";
 
-	private DBConnector dbConnector = new DBConnector("Permissions", null, EnumDBType.H2_FILE, "ForgeEssentials",
-			ForgeEssentials.getFEDirectory().getPath() + "/permissions", false);
-
 	private PermissionScheduler permissionScheduler;
 
 	@SuppressWarnings("unused")
@@ -144,14 +138,9 @@ public class ModulePermissions extends ConfigLoaderBase {
 		PermissionManager.setPermissionProvider(permissionHelper);
 	}
 
-	public DBConnector getDbConnector() {
-		return dbConnector;
-	}
-
 	@Override
 	public void load(Configuration config, boolean isReload) {
 		persistenceBackend = config.get(CONFIG_CAT, "persistenceBackend", "flatfile", PERSISTENCE_HELP).getString();
-		dbConnector.loadOrGenerate(config, CONFIG_CAT + ".SQL");
 	}
 
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
@@ -196,10 +185,6 @@ public class ModulePermissions extends ConfigLoaderBase {
 
 		// Load permissions
 		switch (persistenceBackend.toLowerCase()) {
-		case "sql":
-			permissionHelper.setPersistenceProvider(
-					new SQLProvider(dbConnector.getChosenConnection(), dbConnector.getActiveType()));
-			break;
 		case "json":
 			permissionHelper.setPersistenceProvider(new JsonProvider());
 			break;
