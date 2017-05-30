@@ -494,7 +494,9 @@ public class MultiworldManager extends ServerEventHandler implements NamedWorldH
 			for (Integer dim : DimensionManager.getIDs()) {
 				if (dim > 1) {
 					Multiworld world = getMultiworld(dim);
-					((WorldServerMultiworld) world.getWorldServer()).syncScoreboard();
+					if(world != null){
+						((WorldServerMultiworld) world.getWorldServer()).syncScoreboard();
+					}
 				}
 			}
 		}
