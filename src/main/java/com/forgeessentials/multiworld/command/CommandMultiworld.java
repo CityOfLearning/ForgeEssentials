@@ -1,8 +1,11 @@
 package com.forgeessentials.multiworld.command;
 
+import java.io.File;
 import java.util.Random;
 
+import com.forgeessentials.api.APIRegistry;
 import com.forgeessentials.api.permissions.FEPermissions;
+import com.forgeessentials.api.permissions.PermissionEvent.Zone;
 import com.forgeessentials.core.commands.ForgeEssentialsCommandBase;
 import com.forgeessentials.core.commands.ParserCommandBase;
 import com.forgeessentials.core.misc.TranslatedCommandException;
@@ -10,6 +13,10 @@ import com.forgeessentials.multiworld.ModuleMultiworld;
 import com.forgeessentials.multiworld.Multiworld;
 import com.forgeessentials.multiworld.MultiworldException;
 import com.forgeessentials.multiworld.MultiworldManager;
+import com.forgeessentials.permissions.ModulePermissions;
+import com.forgeessentials.permissions.core.ZonePersistenceProvider;
+import com.forgeessentials.permissions.core.ZonedPermissionHelper;
+import com.forgeessentials.permissions.persistence.FlatfileProvider;
 import com.forgeessentials.util.CommandParserArgs;
 
 import net.minecraft.command.CommandException;
@@ -102,7 +109,13 @@ public class CommandMultiworld extends ParserCommandBase {
 		arguments.checkPermission(ModuleMultiworld.PERM_DELETE);
 		Multiworld world = parseWorld(arguments);
 
+		if (ModulePermissions.permissionHelper.getPersistenceProvider() instanceof FlatfileProvider) {
+			FlatfileProvider.deleteDirectory(new File(FlatfileProvider.getBasePath(),
+					APIRegistry.perms.getServerZone().getWorldZone(world.getDimensionId()).getName()));
+		}
+
 		ModuleMultiworld.getMultiworldManager().deleteWorld(world);
+
 		arguments.confirm("Deleted multiworld " + world.getName());
 	}
 

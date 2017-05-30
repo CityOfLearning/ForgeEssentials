@@ -95,6 +95,10 @@ public class ZonedPermissionHelper extends ServerEventHandler implements IPermis
 
 	protected ZonePersistenceProvider persistenceProvider;
 
+	public ZonePersistenceProvider getPersistenceProvider() {
+		return persistenceProvider;
+	}
+
 	protected boolean dirty = true;
 
 	/**

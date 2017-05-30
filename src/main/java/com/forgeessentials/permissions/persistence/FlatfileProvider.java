@@ -235,7 +235,7 @@ public class FlatfileProvider extends ZonePersistenceProvider {
 		}
 	}
 
-	private File basePath;
+	private static File basePath;
 
 	public FlatfileProvider() {
 		basePath = new File(ServerUtil.getWorldPath(), "FEData/permissions");
@@ -352,6 +352,11 @@ public class FlatfileProvider extends ZonePersistenceProvider {
 			return null;
 		}
 	}
+
+	public static File getBasePath() {
+		return basePath;
+	}
+
 
 	@Override
 	public void save(ServerZone serverZone) {
