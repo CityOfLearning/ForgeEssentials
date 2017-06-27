@@ -88,6 +88,7 @@ public class CommandTime extends ParserCommandBase implements ConfigurableComman
 			case "dawn":
 				time = 23000;
 				break;
+			case "day": 
 			case "morning":
 				time = 1000;
 				break;
