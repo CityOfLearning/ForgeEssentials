@@ -398,7 +398,7 @@ public class ForgeEssentials extends ConfigLoaderBase {
 		});
 		NetworkUtils.registerMessage((message, ctx) -> {
 			for (Plot p : Plot.getPlots()) {
-				if (p.hasOwner() && p.getOwner().isPlayer()) {
+				if (p.hasOwner() && p.getOwner().isPlayer() && !p.isForSale()) {
 					if (p.getOwner().equals(UserIdent.get(ctx.getServerHandler().playerEntity))) {
 						// players plot
 						NetworkUtils.netHandler.sendTo(
