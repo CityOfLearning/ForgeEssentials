@@ -63,6 +63,7 @@ public class CommandTppos extends ForgeEssentialsCommandBase {
 		// TODO 1.8 check
 		// if (args.length == 3)
 		// {
+		// this.
 		// double x = func_110666_a(sender, sender.posX, args[0]);
 		// double y = ServerUtil.parseYLocation(sender, sender.posY, args[1]);
 		// double z = func_110666_a(sender, sender.posZ, args[2]);

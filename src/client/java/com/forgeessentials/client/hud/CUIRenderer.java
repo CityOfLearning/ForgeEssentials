@@ -97,8 +97,7 @@ public class CUIRenderer implements IMessageHandler<Packet1SelectionUpdate, IMes
 			return;
 		}
 
-		if ((selection == null)
-				|| (selection.getDimension() != player.dimension)) {
+		if ((selection == null) || (selection.getDimension() != player.dimension)) {
 			return;
 		}
 

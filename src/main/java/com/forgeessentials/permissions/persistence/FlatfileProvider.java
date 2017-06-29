@@ -54,6 +54,10 @@ public class FlatfileProvider extends ZonePersistenceProvider {
 	public static final String COMMENT_INFO = "\nDO NOT MODIFY OR REMOVE fe.internal PERMISSIONS UNLESS YOU KNOW WHAT YOU DO!"
 			+ "\nAfter you modified permissions in this file, remember to directly run \"/feperm reload\", or the changes get overwritten next time permissions are saved by the server.";
 
+	private static File basePath;
+
+	// ------------------------------------------------------------
+
 	public static void deleteDirectory(File dir) {
 		try {
 			if (dir.exists()) {
@@ -64,6 +68,12 @@ public class FlatfileProvider extends ZonePersistenceProvider {
 		}
 	}
 
+	public static File getBasePath() {
+		return basePath;
+	}
+
+	// ------------------------------------------------------------
+	// -- Saving
 	// ------------------------------------------------------------
 
 	public static void loadZonePermissions(File path, Zone zone) {
@@ -130,10 +140,6 @@ public class FlatfileProvider extends ZonePersistenceProvider {
 		}
 		return p;
 	}
-
-	// ------------------------------------------------------------
-	// -- Saving
-	// ------------------------------------------------------------
 
 	public static void saveAreaZone(File path, AreaZone areaZone) {
 		path.mkdirs();
@@ -235,14 +241,8 @@ public class FlatfileProvider extends ZonePersistenceProvider {
 		}
 	}
 
-	private static File basePath;
-
 	public FlatfileProvider() {
 		basePath = new File(ServerUtil.getWorldPath(), "FEData/permissions");
-	}
-
-	public FlatfileProvider(File path) {
-		basePath = path;
 	}
 
 	// ------------------------------------------------------------
@@ -250,6 +250,10 @@ public class FlatfileProvider extends ZonePersistenceProvider {
 	// ------------------------------------------------------------
 	// -- Loading
 	// ------------------------------------------------------------
+
+	public FlatfileProvider(File path) {
+		basePath = path;
+	}
 
 	@Override
 	public ServerZone load() {
@@ -352,11 +356,6 @@ public class FlatfileProvider extends ZonePersistenceProvider {
 			return null;
 		}
 	}
-
-	public static File getBasePath() {
-		return basePath;
-	}
-
 
 	@Override
 	public void save(ServerZone serverZone) {

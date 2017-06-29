@@ -95,10 +95,6 @@ public class ZonedPermissionHelper extends ServerEventHandler implements IPermis
 
 	protected ZonePersistenceProvider persistenceProvider;
 
-	public ZonePersistenceProvider getPersistenceProvider() {
-		return persistenceProvider;
-	}
-
 	protected boolean dirty = true;
 
 	/**
@@ -120,17 +116,17 @@ public class ZonedPermissionHelper extends ServerEventHandler implements IPermis
 	public Set<ICommandSender> permissionDebugUsers = Collections
 			.newSetFromMap(new WeakHashMap<ICommandSender, Boolean>());
 
+	public List<String> permissionDebugFilters = new ArrayList<>();
+
 	// public boolean verbosePermissionDebug = false;
 
 	// ------------------------------------------------------------
 
-	public List<String> permissionDebugFilters = new ArrayList<>();
+	public boolean disableAutoSave = false;
 
 	// ------------------------------------------------------------
 	// -- Persistence
 	// ------------------------------------------------------------
-
-	public boolean disableAutoSave = false;
 
 	public ZonedPermissionHelper() {
 		rootZone = new RootZone(this);
@@ -193,16 +189,16 @@ public class ZonedPermissionHelper extends ServerEventHandler implements IPermis
 				getServerZone().getPermission(getGlobalZones(zone), null, Arrays.asList(group), permissionNode, null));
 	}
 
-	// ------------------------------------------------------------
-	// -- Utilities
-	// ------------------------------------------------------------
-
 	@Override
 	public boolean checkPermission(EntityPlayer player, String permissionNode) {
 		UserIdent ident = UserIdent.get(player);
 		return checkBooleanPermission(getPermission(ident, new WorldPoint(player), null,
 				GroupEntry.toList(getPlayerGroups(ident)), permissionNode, false));
 	}
+
+	// ------------------------------------------------------------
+	// -- Utilities
+	// ------------------------------------------------------------
 
 	@Override
 	public boolean checkPermission(PermissionContext context, String permissionNode) {
@@ -272,10 +268,6 @@ public class ZonedPermissionHelper extends ServerEventHandler implements IPermis
 				GroupEntry.toList(getPlayerGroups(ident)), permissionNode, null));
 	}
 
-	// ------------------------------------------------------------
-	// -- Events
-	// ------------------------------------------------------------
-
 	public void clear() {
 		ServerZone serverZone = new ServerZone();
 		rootZone.setServerZone(serverZone);
@@ -283,6 +275,10 @@ public class ZonedPermissionHelper extends ServerEventHandler implements IPermis
 		dirty = false;
 		APIRegistry.getFEEventBus().post(new PermissionEvent.AfterLoad(serverZone));
 	}
+
+	// ------------------------------------------------------------
+	// -- Events
+	// ------------------------------------------------------------
 
 	@Override
 	public boolean createGroup(String name) {
@@ -397,15 +393,13 @@ public class ZonedPermissionHelper extends ServerEventHandler implements IPermis
 		return getGroupPermissionProperty(Zone.GROUP_DEFAULT, permissionNode);
 	}
 
-	// ------------------------------------------------------------
-	// -- Core permission handling
-	// ------------------------------------------------------------
-
 	@Override
 	public String getGlobalPermissionProperty(Zone zone, String permissionNode) {
 		return getGroupPermissionProperty(Zone.GROUP_DEFAULT, zone, permissionNode);
 	}
 
+	// ------------------------------------------------------------
+	// -- Core permission handling
 	// ------------------------------------------------------------
 
 	public Collection<Zone> getGlobalZones() {
@@ -414,6 +408,8 @@ public class ZonedPermissionHelper extends ServerEventHandler implements IPermis
 		zones.add(rootZone);
 		return zones;
 	}
+
+	// ------------------------------------------------------------
 
 	public Collection<Zone> getGlobalZones(Zone firstZone) {
 		List<Zone> zones = new ArrayList<>();
@@ -499,6 +495,10 @@ public class ZonedPermissionHelper extends ServerEventHandler implements IPermis
 		UserIdent ident = UserIdent.get(player);
 		return getPermission(ident, new WorldPoint(player), null, GroupEntry.toList(getPlayerGroups(ident)),
 				permissionNode, true);
+	}
+
+	public ZonePersistenceProvider getPersistenceProvider() {
+		return persistenceProvider;
 	}
 
 	@Override
