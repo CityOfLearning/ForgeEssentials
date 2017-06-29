@@ -1,11 +1,13 @@
 package com.forgeessentials.multiworld.command;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Random;
 
 import com.forgeessentials.api.APIRegistry;
 import com.forgeessentials.api.permissions.FEPermissions;
-import com.forgeessentials.api.permissions.PermissionEvent.Zone;
 import com.forgeessentials.core.commands.ForgeEssentialsCommandBase;
 import com.forgeessentials.core.commands.ParserCommandBase;
 import com.forgeessentials.core.misc.TranslatedCommandException;
@@ -14,8 +16,6 @@ import com.forgeessentials.multiworld.Multiworld;
 import com.forgeessentials.multiworld.MultiworldException;
 import com.forgeessentials.multiworld.MultiworldManager;
 import com.forgeessentials.permissions.ModulePermissions;
-import com.forgeessentials.permissions.core.ZonePersistenceProvider;
-import com.forgeessentials.permissions.core.ZonedPermissionHelper;
 import com.forgeessentials.permissions.persistence.FlatfileProvider;
 import com.forgeessentials.util.CommandParserArgs;
 
@@ -191,7 +191,10 @@ public class CommandMultiworld extends ParserCommandBase {
 		case "worlds":
 		default:
 			arguments.confirm("Available worlds:");
-			for (Multiworld world : ModuleMultiworld.getMultiworldManager().getWorlds()) {
+			List<Multiworld> worlds = new ArrayList<>(ModuleMultiworld.getMultiworldManager().getWorlds());
+			Collections.sort(worlds, (right, left) -> left.getDimensionId() - right.getDimensionId());
+
+			for (Multiworld world : worlds) {
 				arguments.confirm("#" + world.getDimensionId() + " " + world.getName() + ": " + world.getProvider());
 			}
 			break;
