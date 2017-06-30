@@ -354,18 +354,17 @@ public class MultiworldManager extends ServerEventHandler implements NamedWorldH
 				info.setTerrainType(WorldType.parseWorldType(world.worldType));
 			}
 
-			WorldServer worldServer = new WorldServerMultiworld(mcServer, savehandler, info, world.dimensionId,
-					overworld, mcServer.theProfiler, world);
+			WorldServer worldServer = (WorldServer) new WorldServerMultiworld(mcServer, savehandler, info, world.dimensionId,
+					overworld, mcServer.theProfiler, world).init();
 
 			// assign a spawn point for the player
-			if (worldServer.provider.canRespawnHere()) {
-				worldServer.setSpawnPoint(worldServer.provider.getRandomizedSpawnPoint());
-			}
+//			if (worldServer.provider.canRespawnHere()) {
+//				worldServer.setSpawnPoint(worldServer.provider.getRandomizedSpawnPoint());
+//			}
 
 			// Overwrite dimensionId because WorldProviderEnd for example just
 			// hardcodes the dimId
 			worldServer.provider.setDimension(world.dimensionId);
-			worldServer.init();
 			worldServer.addWorldAccess(new WorldManager(mcServer, worldServer));
 
 			// mcServer.setDifficultyForAllWorlds(mcServer.getDifficulty());
@@ -488,19 +487,22 @@ public class MultiworldManager extends ServerEventHandler implements NamedWorldH
 		}
 	}
 
-	@SubscribeEvent
-	public void scoreboardAltered(CommandEvent event) {
-		if (event.command instanceof CommandScoreboard) {
-			for (Integer dim : DimensionManager.getIDs()) {
-				if (dim > 1) {
-					Multiworld world = getMultiworld(dim);
-					if (world != null) {
-						((WorldServerMultiworld) world.getWorldServer()).syncScoreboard();
-					}
-				}
-			}
-		}
-	}
+//	@SubscribeEvent
+//	public void scoreboardAltered(CommandEvent event) {
+//		if (event.command instanceof CommandScoreboard) {
+//			System.out.println("Scoreboard Altered");
+//			for (Integer dim : DimensionManager.getIDs()) {
+//				System.out.println(dim);
+//				if (dim > 3) {
+//					Multiworld world = getMultiworld(dim);
+//					if (world != null) {
+//						System.out.println("Synching Scoreboard of World: " + world.getName());
+//						((WorldServerMultiworld) world.getWorldServer()).syncScoreboard();
+//					}
+//				}
+//			}
+//		}
+//	}
 
 	// ============================================================
 	// WorldProvider management
