@@ -57,6 +57,11 @@ public class TeleportHelper extends ServerEventHandler {
 		}
 
 		@Override
+		public boolean makePortal(Entity entityIn) {
+			return true;
+		}
+
+		@Override
 		public void removeStalePortalLocations(long totalWorldTime) {
 			/* do nothing */
 		}
