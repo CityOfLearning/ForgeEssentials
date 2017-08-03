@@ -91,8 +91,6 @@ public class QuestionData {
 
 	public void sendQuestion() {
 		NetworkUtils.netHandler.sendTo(new Packet7OpenQuestionerGui(question), (EntityPlayerMP) target);
-		// ChatOutputHandler.sendMessage(target, question);
-		// sendYesNoMessage();
 	}
 
 	public void sendYesNoMessage() {
