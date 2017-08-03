@@ -41,6 +41,10 @@ public class CommandTp extends CommandTeleport implements PermissionObject {
 				b0 = 1;
 			}
 
+			if(sender.getCommandSenderEntity() == null && !sender.getEntityWorld().equals(entity.worldObj)){
+				return;
+			}
+			
 			if ((args.length != 1) && (args.length != 2)) {
 				if (args.length < (b0 + 3)) {
 					throw new WrongUsageException("commands.tp.usage", new Object[0]);

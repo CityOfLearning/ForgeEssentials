@@ -16,6 +16,7 @@ import com.forgeessentials.util.output.ChatOutputHandler;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.permission.PermissionLevel;
 
@@ -77,6 +78,10 @@ public class CommandMultiworldTeleport extends ParserCommandBase {
 		if (player == null) {
 			throw new TranslatedCommandException("Missing player-name argument.");
 		}
+		
+		if(!arguments.hasPlayer() && !arguments.sender.getEntityWorld().equals(player.worldObj)){
+			return;
+		}
 
 		double x = Math.floor(player.posX) + 0.5;
 		double y = Math.floor(player.posY);
@@ -121,6 +126,7 @@ public class CommandMultiworldTeleport extends ParserCommandBase {
 		} else {
 			msg += multiworld.getName();
 		}
+		
 		msg = Translator.format(msg + " at [%.0f, %.0f, %.0f]", x, y, z);
 		ChatOutputHandler.chatConfirmation(player, msg);
 		Multiworld.teleport(player, world, x, y, z, false);
