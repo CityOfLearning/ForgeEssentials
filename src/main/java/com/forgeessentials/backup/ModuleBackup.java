@@ -219,13 +219,15 @@ public class ModuleBackup extends ConfigLoaderBase {
 			}
 			SortedMap<Calendar, File> files = new TreeMap<>();
 			for (File backupFile : backupDir.listFiles()) {
-				try {
-					Calendar date = Calendar.getInstance();
-					date.setTime(FILE_FORMAT.parse(FilenameUtils.getBaseName(backupFile.getName())));
-					files.put(date, backupFile);
-				} catch (ParseException e) {
-					LoggingHandler.felog
-							.error(String.format("Could not parse backup file %s", backupFile.getAbsolutePath()));
+				if (backupFile != null && !backupFile.getName().isEmpty()) {
+					try {
+						Calendar date = Calendar.getInstance();
+						date.setTime(FILE_FORMAT.parse(FilenameUtils.getBaseName(backupFile.getName())));
+						files.put(date, backupFile);
+					} catch (ParseException e) {
+						LoggingHandler.felog
+								.error(String.format("Could not parse backup file %s", backupFile.getAbsolutePath()));
+					}
 				}
 			}
 
