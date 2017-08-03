@@ -59,6 +59,10 @@ public class Point {
 		this((int) vector.xCoord, (int) vector.yCoord, (int) vector.zCoord);
 	}
 
+	public Point(BlockPos pos) {
+		this(pos.getX(), pos.getY(), pos.getZ());
+	}
+
 	public void add(Point v) {
 		x += v.x;
 		y += v.y;
